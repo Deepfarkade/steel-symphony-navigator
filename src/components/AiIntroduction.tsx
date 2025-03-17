@@ -5,6 +5,7 @@ import { BrainCircuit, Sparkles } from 'lucide-react';
 const AiIntroduction = () => {
   const [visible, setVisible] = useState(false);
   const [currentText, setCurrentText] = useState('');
+  const [typingComplete, setTypingComplete] = useState(false);
   const fullText = "I'm your EY Steel Ecosystem Co-Pilot, powered by generative AI. I analyze your steel operations data in real-time to provide actionable insights and optimize your manufacturing processes.";
   
   useEffect(() => {
@@ -17,6 +18,7 @@ const AiIntroduction = () => {
       
       if (index > fullText.length) {
         clearInterval(timer);
+        setTypingComplete(true);
       }
     }, 30);
     
@@ -39,7 +41,7 @@ const AiIntroduction = () => {
           
           <p className="text-ey-lightGray relative">
             {currentText}
-            <span className={`absolute inline-block h-5 w-0.5 bg-ey-yellow ml-1 ${index > fullText.length ? 'animate-pulse' : ''}`}></span>
+            <span className={`absolute inline-block h-5 w-0.5 bg-ey-yellow ml-1 ${typingComplete ? 'animate-pulse' : ''}`}></span>
           </p>
         </div>
       </div>
