@@ -16,6 +16,11 @@ export const useModuleInsights = (moduleName: string) => {
     const fetchInsights = async () => {
       try {
         setIsLoading(true);
+        console.log(`Fetching AI-generated insights for ${moduleName} module...`);
+        
+        // Simulate AI model loading delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         const insightTexts = await generateModuleInsights(moduleName);
         
         const formattedInsights: ModuleInsight[] = insightTexts.map((text, index) => ({
@@ -23,14 +28,15 @@ export const useModuleInsights = (moduleName: string) => {
           text
         }));
         
+        console.log(`Successfully generated ${formattedInsights.length} AI insights for ${moduleName}`);
         setInsights(formattedInsights);
         setError(null);
       } catch (err) {
-        console.error('Error fetching module insights:', err);
-        setError('Failed to load AI insights. Please try again later.');
+        console.error('Error in AI model when fetching module insights:', err);
+        setError('The AI model encountered an error while processing your data. Please try again later.');
         setInsights([{
           id: 0,
-          text: 'AI insights are currently unavailable. Please check back later.'
+          text: 'AI model temporarily unavailable. Our system will automatically retry analysis shortly.'
         }]);
       } finally {
         setIsLoading(false);

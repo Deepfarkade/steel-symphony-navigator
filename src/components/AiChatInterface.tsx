@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { SendHorizontal, Bot, User, Loader2 } from 'lucide-react';
+import { SendHorizontal, Bot, User, Loader2, Sparkles, Brain } from 'lucide-react';
 import { generateAIResponse } from '../services/aiService';
 
 interface AiChatInterfaceProps {
@@ -16,7 +16,7 @@ interface ChatMessage {
 const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
-      text: `Hello! I'm your Steel Co-Pilot AI assistant. How can I help you with steel ${moduleContext || 'operations'} today?`,
+      text: `Hello! I'm your EY Steel Co-Pilot. How can I help you with steel ${moduleContext || 'operations'} today?`,
       isUser: false,
       timestamp: new Date()
     }
@@ -74,7 +74,13 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext }) => {
 
   return (
     <div className="ey-card p-6 flex flex-col h-[500px]">
-      <h2 className="text-xl font-bold text-ey-darkGray mb-4">AI Assistant</h2>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <Brain className="h-5 w-5 text-ey-yellow mr-2" />
+          <h2 className="text-xl font-bold text-ey-darkGray">EY Steel Co-Pilot</h2>
+        </div>
+        <span className="text-xs bg-ey-yellow/20 text-ey-darkGray px-2 py-1 rounded-full">AI Assistant</span>
+      </div>
       
       <div className="flex-1 overflow-y-auto mb-4 space-y-4">
         {messages.map((message, index) => (
@@ -109,7 +115,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext }) => {
               </div>
               <div className="rounded-lg p-3 bg-ey-darkGray/10 text-ey-darkGray flex items-center">
                 <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                <p>Thinking...</p>
+                <p>Processing steel data...</p>
               </div>
             </div>
           </div>
@@ -122,7 +128,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext }) => {
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="Ask about steel operations, production data, or insights..."
+          placeholder="Ask me about steel operations, production data, or insights..."
           className="flex-1 border border-ey-lightGray/20 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ey-yellow"
           disabled={isLoading}
         />
