@@ -46,25 +46,25 @@ const energyConsumptionData = [
 const aiInsights = [
   {
     id: 1,
-    type: 'alert',
+    type: 'alert' as const,
     message: 'Blast furnace #3 showing abnormal temperature fluctuations. Maintenance recommended.',
     timestamp: '3 hours ago'
   },
   {
     id: 2,
-    type: 'suggestion',
+    type: 'suggestion' as const,
     message: 'Energy efficiency could be improved by 12% by optimizing production scheduling.',
     timestamp: '5 hours ago'
   },
   {
     id: 3,
-    type: 'opportunity',
+    type: 'opportunity' as const,
     message: 'Detected increased demand pattern for high-grade steel in automotive sector.',
     timestamp: '8 hours ago'
   },
   {
     id: 4,
-    type: 'success',
+    type: 'success' as const,
     message: 'Quality metrics for stainless steel production have improved by 8% this month.',
     timestamp: '1 day ago'
   },
@@ -203,3 +203,4 @@ const Index = () => {
 };
 
 export default Index;
+
