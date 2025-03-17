@@ -20,7 +20,7 @@ const KpiCard: React.FC<KpiCardProps> = ({
   const isPositive = change !== undefined && change >= 0;
   
   return (
-    <div className="ey-card p-6 animate-slide-up">
+    <div className="ey-card p-6 animate-slide-up transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg">
       <div className="flex items-start justify-between">
         <div>
           <h3 className="text-ey-lightGray font-medium mb-1">{title}</h3>
@@ -41,7 +41,7 @@ const KpiCard: React.FC<KpiCardProps> = ({
           )}
         </div>
         
-        <div className={`p-3 rounded-full ${color}`}>
+        <div className={`p-3 rounded-full ${color} transition-all duration-300 hover:scale-110`}>
           {icon}
         </div>
       </div>

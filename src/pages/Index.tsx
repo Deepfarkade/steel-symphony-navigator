@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
   Box, 
@@ -13,7 +13,10 @@ import {
   BarChart2,
   LineChart,
   Zap,
-  Timer
+  Timer,
+  BrainCircuit,
+  Sparkles,
+  Bot
 } from 'lucide-react';
 
 import Navigation from '../components/Navigation';
@@ -22,6 +25,9 @@ import KpiCard from '../components/KpiCard';
 import AreaChart from '../components/AreaChart';
 import AiInsights from '../components/AiInsights';
 import ModuleCard from '../components/ModuleCard';
+import AiPulse from '../components/AiPulse';
+import FuturisticWelcome from '../components/FuturisticWelcome';
+import AiIntroduction from '../components/AiIntroduction';
 
 const productionData = [
   { name: 'Jan', value: 4000 },
@@ -71,15 +77,32 @@ const aiInsights = [
 ];
 
 const Index = () => {
+  const [showWelcome, setShowWelcome] = useState(true);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  if (showWelcome) {
+    return <FuturisticWelcome />;
+  }
+  
   return (
     <div className="w-full min-h-screen bg-gray-50">
       <Navigation />
       
-      <div className="ml-64 p-8"> {/* This margin should match the width of the expanded nav */}
+      <div className="ml-64 p-8 relative"> {/* This margin should match the width of the expanded nav */}
+        <AiPulse />
         <Header pageTitle="Steel Ecosystem Co-Pilot" />
         
+        <AiIntroduction />
+        
         {/* KPI Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-stagger">
           <KpiCard 
             title="Production Yield" 
             value="94.8%" 
@@ -110,7 +133,7 @@ const Index = () => {
         </div>
         
         {/* Charts and Insights */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 animate-slide-up">
           <div className="col-span-2">
             <AreaChart 
               data={productionData} 
@@ -123,7 +146,7 @@ const Index = () => {
           </div>
         </div>
         
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in">
           <AreaChart 
             data={energyConsumptionData} 
             title="Energy Consumption (MWh)" 
@@ -132,8 +155,16 @@ const Index = () => {
         </div>
         
         {/* Modules Section */}
-        <h2 className="text-2xl font-bold text-ey-darkGray mb-6">Modules</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <h2 className="text-2xl font-bold text-ey-darkGray mb-6 flex items-center">
+          <BrainCircuit className="h-6 w-6 text-ey-yellow mr-2" />
+          <span className="relative">
+            AI-Powered Modules
+            <span className="absolute -top-1 -right-8">
+              <Sparkles className="h-4 w-4 text-ey-yellow animate-pulse" />
+            </span>
+          </span>
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-animate">
           <ModuleCard 
             title="Demand Planning" 
             description="AI-powered steel demand forecasting with multiple prediction models" 
@@ -197,10 +228,18 @@ const Index = () => {
             color="bg-teal-100" 
           />
         </div>
+        
+        {/* AI Assistant Hint */}
+        <div className="fixed bottom-8 right-8 bg-ey-darkGray/90 text-white p-4 rounded-lg flex items-center animate-bounce shadow-lg max-w-xs backdrop-blur-sm">
+          <Bot className="h-6 w-6 text-ey-yellow mr-2" />
+          <div>
+            <p className="font-medium">AI Co-Pilot Active</p>
+            <p className="text-sm text-gray-300">Ask me anything about steel manufacturing!</p>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
 export default Index;
-
