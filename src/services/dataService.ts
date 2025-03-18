@@ -48,12 +48,38 @@ export const getKpiData = async () => {
 // AI insights
 export const getAiInsights = async () => {
   await simulateDelay();
+  
   return [
-    "Production efficiency increased by 2.3% compared to last week.",
-    "Energy consumption per ton of steel reduced by 5.7%.",
-    "Quality ratings maintained at A+ level across all product categories.",
-    "Predicted supply chain disruption risk increased by 3.1% due to recent logistics challenges.",
-    "AI model recommends adjusting blast furnace operations based on current raw material quality.",
+    {
+      id: 1,
+      type: 'alert' as const,
+      message: "Production efficiency decreased by 3.2% in Rolling Mill B. Recommend maintenance check.",
+      timestamp: new Date().toLocaleString()
+    },
+    {
+      id: 2,
+      type: 'success' as const,
+      message: "Energy consumption per ton of steel reduced by 5.7%. Continue optimization strategy.",
+      timestamp: new Date().toLocaleString()
+    },
+    {
+      id: 3,
+      type: 'opportunity' as const,
+      message: "Predicted supply chain optimization could save $425,000 in Q3 logistics costs.",
+      timestamp: new Date().toLocaleString()
+    },
+    {
+      id: 4,
+      type: 'suggestion' as const,
+      message: "Adjust blast furnace operations based on current raw material quality for 3.1% yield improvement.",
+      timestamp: new Date().toLocaleString()
+    },
+    {
+      id: 5,
+      type: 'alert' as const,
+      message: "Quality deviations detected in latest steel batch. Review process parameters.",
+      timestamp: new Date().toLocaleString()
+    }
   ];
 };
 
@@ -306,5 +332,53 @@ export const getNotifications = async () => {
       read: true,
       module: 'quality-control'
     },
+  ];
+};
+
+// Create a new function to get AI Agents data
+export const getAiAgents = async () => {
+  await simulateDelay();
+  
+  return [
+    {
+      id: 1,
+      name: "Supply Chain Assistant",
+      description: "Optimizes supply chain operations, predicts disruptions, and recommends mitigation strategies",
+      status: "active",
+      confidence: 94.2,
+      icon: "truck"
+    },
+    {
+      id: 2,
+      name: "Data Analyzer",
+      description: "Processes production data to identify patterns, anomalies, and optimization opportunities",
+      status: "active",
+      confidence: 97.5,
+      icon: "bar-chart"
+    },
+    {
+      id: 3,
+      name: "Energy Efficiency Agent",
+      description: "Monitors and recommends energy usage optimizations across steel manufacturing processes",
+      status: "active",
+      confidence: 92.8,
+      icon: "zap"
+    },
+    {
+      id: 4,
+      name: "Quality Control Agent",
+      description: "Predicts quality issues before they occur and recommends preventive actions",
+      status: "active",
+      confidence: 96.1,
+      icon: "check-circle"
+    },
+    {
+      id: 5,
+      name: "Risk Management Assistant",
+      description: "Identifies potential business and operational risks and suggests mitigation plans",
+      status: "active",
+      confidence: 93.7,
+      icon: "shield"
+    }
   ];
 };

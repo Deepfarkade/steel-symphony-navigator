@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   BarChart3, 
@@ -39,6 +38,8 @@ import AiPulse from '../components/AiPulse';
 import FuturisticWelcome from '../components/FuturisticWelcome';
 import AiIntroduction from '../components/AiIntroduction';
 import AiChatInterface from '../components/AiChatInterface';
+import AiAgentsDeployment from '../components/AiAgentsDeployment';
+import AiAgentCard from '../components/AiAgentCard';
 import { getProductionData, getEnergyConsumptionData, getKpiData, getAiInsights } from '@/services/dataService';
 import { useAuth } from '@/context/AuthContext';
 import { 
@@ -54,7 +55,6 @@ import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-// Animation variants
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
@@ -114,13 +114,12 @@ const Index = () => {
   const [aiAgentActive, setAiAgentActive] = useState(false);
   const { user } = useAuth();
 
-  // Animated counter for AI processing stats
   const [aiStats, setAiStats] = useState({
     modelsAnalyzed: 0,
     dataPointsProcessed: 0,
     predictionsGenerated: 0
   });
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowWelcome(false);
@@ -133,7 +132,7 @@ const Index = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [production, energy, kpis, aiInsights] = await Promise.all([
+        const [production, energy, kpis, aiInsightsData] = await Promise.all([
           getProductionData(),
           getEnergyConsumptionData(),
           getKpiData(),
@@ -143,7 +142,7 @@ const Index = () => {
         setProductionData(production);
         setEnergyData(energy);
         setKpiData(kpis);
-        setInsights(aiInsights);
+        setInsights(aiInsightsData);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -156,7 +155,6 @@ const Index = () => {
     }
   }, [showWelcome]);
 
-  // Animated counter effect for AI stats
   useEffect(() => {
     if (!showWelcome && !loading) {
       const interval = setInterval(() => {
@@ -171,7 +169,6 @@ const Index = () => {
     }
   }, [showWelcome, loading]);
 
-  // Cycle through prediction models
   useEffect(() => {
     const interval = setInterval(() => {
       setActivePredictionModel(prev => (prev + 1) % 5);
@@ -202,12 +199,11 @@ const Index = () => {
         
         <AiIntroduction />
         
-        {/* AI Agent Status Banner */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="bg-gradient-to-r from-indigo-600 to-blue-500 rounded-xl p-4 mb-8 text-white overflow-hidden relative"
+          className="bg-gradient-to-r from-purple-700 to-indigo-600 rounded-xl p-4 mb-8 text-white overflow-hidden relative"
         >
           <div className="absolute top-0 right-0 bottom-0 left-0 bg-grid-white/5 opacity-20" />
           <div className="flex items-center justify-between">
@@ -251,7 +247,7 @@ const Index = () => {
               <Drawer open={chatOpen} onOpenChange={setChatOpen}>
                 <DrawerTrigger asChild>
                   <Button 
-                    className="bg-white hover:bg-white/90 text-indigo-700 border-none shadow-lg" 
+                    className="bg-white hover:bg-white/90 text-purple-700 border-none shadow-lg" 
                     onClick={() => setChatOpen(true)}
                   >
                     <Brain className="h-4 w-4 mr-2" />
@@ -266,7 +262,6 @@ const Index = () => {
           </div>
         </motion.div>
         
-        {/* Today's Overview */}
         <motion.div
           className="mb-8"
           initial="hidden"
@@ -275,7 +270,7 @@ const Index = () => {
         >
           <div className="flex items-center mb-4">
             <h2 className="text-2xl font-bold text-ey-darkGray">Today's Overview</h2>
-            <div className="ml-2 px-2 py-1 bg-ey-yellow/10 rounded-md text-xs font-medium text-ey-darkGray flex items-center">
+            <div className="ml-2 px-2 py-1 bg-purple-100 rounded-md text-xs font-medium text-purple-700 flex items-center">
               <Brain className="h-3 w-3 mr-1" />
               AI Powered
             </div>
@@ -283,7 +278,7 @@ const Index = () => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <motion.button 
-                    className="ml-2 text-xs text-blue-500 flex items-center hover:underline"
+                    className="ml-2 text-xs text-purple-500 flex items-center hover:underline"
                     variants={floatVariant}
                     initial="initial"
                     animate="float"
@@ -304,44 +299,51 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <motion.div custom={0} variants={fadeIn}>
-              <KpiCard 
-                title="Production Yield" 
-                value={kpiData.productionYield?.value || "94.8%"} 
-                change={kpiData.productionYield?.change || 2.3} 
-                icon={<BarChart2 className="h-6 w-6 text-ey-darkGray" />} 
-              />
+              <Link to="/kpi/production-yield">
+                <KpiCard 
+                  title="Production Yield" 
+                  value={kpiData.productionYield?.value || "94.8%"} 
+                  change={kpiData.productionYield?.change || 2.3} 
+                  icon={<BarChart2 className="h-6 w-6 text-ey-darkGray" />} 
+                />
+              </Link>
             </motion.div>
             <motion.div custom={1} variants={fadeIn}>
-              <KpiCard 
-                title="Energy Consumption" 
-                value={kpiData.energyConsumption?.value || "1,235 MWh"} 
-                change={kpiData.energyConsumption?.change || -5.7} 
-                icon={<Zap className="h-6 w-6 text-ey-darkGray" />}
-                color="bg-blue-100" 
-              />
+              <Link to="/kpi/energy-consumption">
+                <KpiCard 
+                  title="Energy Consumption" 
+                  value={kpiData.energyConsumption?.value || "1,235 MWh"} 
+                  change={kpiData.energyConsumption?.change || -5.7} 
+                  icon={<Zap className="h-6 w-6 text-ey-darkGray" />}
+                  color="bg-blue-100" 
+                />
+              </Link>
             </motion.div>
             <motion.div custom={2} variants={fadeIn}>
-              <KpiCard 
-                title="Quality Rating" 
-                value={kpiData.qualityRating?.value || "A+"} 
-                change={kpiData.qualityRating?.change || 1.2} 
-                icon={<LineChart className="h-6 w-6 text-ey-darkGray" />}
-                color="bg-green-100" 
-              />
+              <Link to="/kpi/quality-rating">
+                <KpiCard 
+                  title="Quality Rating" 
+                  value={kpiData.qualityRating?.value || "A+"} 
+                  change={kpiData.qualityRating?.change || 1.2} 
+                  icon={<LineChart className="h-6 w-6 text-ey-darkGray" />}
+                  color="bg-green-100" 
+                />
+              </Link>
             </motion.div>
             <motion.div custom={3} variants={fadeIn}>
-              <KpiCard 
-                title="On-Time Delivery" 
-                value={kpiData.onTimeDelivery?.value || "92.3%"} 
-                change={kpiData.onTimeDelivery?.change || -0.8} 
-                icon={<Timer className="h-6 w-6 text-ey-darkGray" />}
-                color="bg-purple-100" 
-              />
+              <Link to="/kpi/on-time-delivery">
+                <KpiCard 
+                  title="On-Time Delivery" 
+                  value={kpiData.onTimeDelivery?.value || "92.3%"} 
+                  change={kpiData.onTimeDelivery?.change || -0.8} 
+                  icon={<Timer className="h-6 w-6 text-ey-darkGray" />}
+                  color="bg-purple-100" 
+                />
+              </Link>
             </motion.div>
           </div>
         </motion.div>
         
-        {/* AI Prediction Models */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -350,10 +352,10 @@ const Index = () => {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-ey-darkGray flex items-center">
-              <BrainCircuit className="h-6 w-6 text-blue-500 mr-2" />
+              <BrainCircuit className="h-6 w-6 text-purple-500 mr-2" />
               GenAI Prediction Models
             </h2>
-            <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-600">
+            <Badge variant="outline" className="bg-purple-50 border-purple-200 text-purple-600">
               Dynamic Model Selection
             </Badge>
           </div>
@@ -365,7 +367,7 @@ const Index = () => {
                 animate={index === activePredictionModel ? { 
                   opacity: 1, 
                   scale: 1,
-                  boxShadow: '0 0 0 2px rgba(79, 70, 229, 0.5)' 
+                  boxShadow: '0 0 0 2px rgba(126, 105, 171, 0.5)' 
                 } : { 
                   opacity: 0.7, 
                   scale: 0.95,
@@ -374,14 +376,14 @@ const Index = () => {
                 transition={{ duration: 0.3 }}
                 className={`bg-white rounded-lg p-4 border cursor-pointer ${
                   index === activePredictionModel 
-                    ? 'border-indigo-500' 
+                    ? 'border-purple-500' 
                     : 'border-gray-200'
                 }`}
                 onClick={() => setActivePredictionModel(index)}
               >
                 <div className={`h-10 w-10 rounded-full flex items-center justify-center mb-3 ${
                   index === activePredictionModel 
-                    ? 'bg-indigo-100 text-indigo-600' 
+                    ? 'bg-purple-100 text-purple-600' 
                     : 'bg-gray-100 text-gray-500'
                 }`}>
                   {model.icon}
@@ -392,7 +394,7 @@ const Index = () => {
                     <div 
                       className={`h-1.5 rounded-full ${
                         index === activePredictionModel 
-                          ? 'bg-indigo-500' 
+                          ? 'bg-purple-500' 
                           : 'bg-gray-400'
                       }`} 
                       style={{ width: model.confidence }}
@@ -400,7 +402,7 @@ const Index = () => {
                   </div>
                   <span className={`ml-2 text-xs ${
                     index === activePredictionModel 
-                      ? 'text-indigo-600 font-semibold' 
+                      ? 'text-purple-600 font-semibold' 
                       : 'text-gray-500'
                   }`}>
                     {model.confidence}
@@ -411,7 +413,6 @@ const Index = () => {
           </div>
         </motion.div>
         
-        {/* Charts and Insights */}
         <motion.div 
           className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
           initial={{ opacity: 0, y: 20 }}
@@ -431,7 +432,7 @@ const Index = () => {
                 </CardTitle>
                 <CardDescription>
                   Real-time production data
-                  <Badge variant="outline" className="ml-2 bg-indigo-50 text-indigo-500 border-indigo-200">
+                  <Badge variant="outline" className="ml-2 bg-purple-50 text-purple-500 border-purple-200">
                     {predictionModels[activePredictionModel].name} Analysis
                   </Badge>
                 </CardDescription>
@@ -439,17 +440,20 @@ const Index = () => {
               <CardContent>
                 <AreaChart 
                   data={productionData} 
-                  color="#2E2E38"
+                  color="#7E69AB"
+                  title="Steel Production"
                 />
               </CardContent>
               <CardFooter className="pt-0">
-                <Button variant="ghost" className="text-ey-yellow flex items-center">
-                  <span>View detailed report</span>
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
+                <Link to="/charts/production">
+                  <Button variant="ghost" className="text-purple-600 flex items-center">
+                    <span>View detailed report</span>
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </Link>
 
                 <Link to="/analytics" className="ml-auto">
-                  <Button variant="outline" size="sm" className="text-indigo-500 border-indigo-200 hover:bg-indigo-50">
+                  <Button variant="outline" size="sm" className="text-purple-500 border-purple-200 hover:bg-purple-50">
                     Advanced Analytics
                     <ArrowRight className="h-3.5 w-3.5 ml-1" />
                   </Button>
@@ -488,19 +492,21 @@ const Index = () => {
             <CardContent>
               <AreaChart 
                 data={energyData} 
-                color="#FFE600"
+                color="#9b87f5"
+                title="Energy Usage"
               />
             </CardContent>
             <CardFooter className="pt-0">
-              <Button variant="ghost" className="text-ey-yellow flex items-center">
-                <span>View efficiency recommendations</span>
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
+              <Link to="/charts/energy">
+                <Button variant="ghost" className="text-purple-600 flex items-center">
+                  <span>View efficiency recommendations</span>
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </Link>
             </CardFooter>
           </Card>
         </motion.div>
         
-        {/* AI Agents Banner */}
         <motion.div 
           className="mb-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-6 text-white overflow-hidden relative"
           initial={{ opacity: 0, scale: 0.95 }}
@@ -519,15 +525,7 @@ const Index = () => {
                   <p className="text-white/80 max-w-xl">Our specialized AI agents continuously analyze your steel operations, providing tailored recommendations and predictive insights.</p>
                 </div>
               </div>
-              <Button 
-                onClick={() => setAiAgentActive(!aiAgentActive)}
-                className={`${aiAgentActive 
-                  ? 'bg-green-500 hover:bg-green-600' 
-                  : 'bg-white hover:bg-white/90 text-purple-700'}`}
-              >
-                <Sparkles className="h-4 w-4 mr-2" />
-                {aiAgentActive ? 'Agents Active' : 'Deploy AI Agents'}
-              </Button>
+              <AiAgentsDeployment />
             </div>
             
             <AnimatePresence>
@@ -540,29 +538,16 @@ const Index = () => {
                   className="mt-6 overflow-hidden"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    {['Production Optimizer', 'Supply Chain Analyst', 'Energy Efficiency', 'Quality Monitor', 'Risk Detector'].map((agent, i) => (
-                      <motion.div 
-                        key={agent}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20"
-                      >
-                        <div className="flex items-center mb-2">
-                          {agentIcons[i]}
-                          <div className="h-2 w-2 bg-green-400 rounded-full ml-auto animate-pulse" />
-                        </div>
-                        <h4 className="font-medium text-sm">{agent}</h4>
-                        <div className="mt-1 h-1.5 bg-white/20 rounded-full overflow-hidden">
-                          <motion.div 
-                            className="h-full bg-white/60 rounded-full" 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${70 + Math.random() * 30}%` }}
-                            transition={{ duration: 1.5, ease: "easeOut" }}
-                          />
-                        </div>
-                        <p className="mt-2 text-xs text-white/70">Finding patterns...</p>
-                      </motion.div>
+                    {['Supply Chain Assistant', 'Data Analyzer', 'Energy Efficiency', 'Quality Monitor', 'Risk Detector'].map((agent, i) => (
+                      <AiAgentCard
+                        key={i}
+                        id={i+1}
+                        name={agent}
+                        description=""
+                        status="active"
+                        confidence={85 + Math.random() * 10}
+                        icon={['truck', 'bar-chart', 'zap', 'check-circle', 'shield'][i]}
+                      />
                     ))}
                   </div>
                 </motion.div>
@@ -571,7 +556,6 @@ const Index = () => {
           </div>
         </motion.div>
         
-        {/* Modules Section */}
         <motion.div
           initial="hidden"
           animate="visible"
@@ -579,95 +563,113 @@ const Index = () => {
           className="mb-8"
         >
           <h2 className="text-2xl font-bold text-ey-darkGray mb-6 flex items-center">
-            <BrainCircuit className="h-6 w-6 text-ey-yellow mr-2" />
+            <BrainCircuit className="h-6 w-6 text-purple-500 mr-2" />
             <span className="relative">
               AI-Powered Modules
               <span className="absolute -top-1 -right-8">
-                <Sparkles className="h-4 w-4 text-ey-yellow animate-pulse" />
+                <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" />
               </span>
             </span>
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <motion.div custom={0} variants={fadeIn}>
-              <ModuleCard 
-                title="Demand Planning" 
-                description="AI-powered steel demand forecasting with multiple prediction models" 
-                icon={<BarChart3 className="h-6 w-6 text-ey-darkGray" />} 
-                path="/demand-planning" 
-              />
+              <Link to="/modules/demand-planning">
+                <ModuleCard 
+                  title="Demand Planning" 
+                  description="AI-powered steel demand forecasting with multiple prediction models" 
+                  icon={<BarChart3 className="h-6 w-6 text-ey-darkGray" />} 
+                  path="/demand-planning" 
+                />
+              </Link>
             </motion.div>
             <motion.div custom={1} variants={fadeIn}>
-              <ModuleCard 
-                title="Enterprise Supply Planning" 
-                description="End-to-end steel supply network visualization and optimization" 
-                icon={<Orbit className="h-6 w-6 text-ey-darkGray" />} 
-                path="/supply-planning"
-                color="bg-blue-100" 
-              />
+              <Link to="/modules/supply-planning">
+                <ModuleCard 
+                  title="Enterprise Supply Planning" 
+                  description="End-to-end steel supply network visualization and optimization" 
+                  icon={<Orbit className="h-6 w-6 text-ey-darkGray" />} 
+                  path="/supply-planning"
+                  color="bg-blue-100" 
+                />
+              </Link>
             </motion.div>
             <motion.div custom={2} variants={fadeIn}>
-              <ModuleCard 
-                title="Order Promising" 
-                description="Dynamic ATP calculations for steel products and delivery prediction" 
-                icon={<ClipboardList className="h-6 w-6 text-ey-darkGray" />} 
-                path="/order-promising"
-                color="bg-green-100" 
-              />
+              <Link to="/modules/order-promising">
+                <ModuleCard 
+                  title="Order Promising" 
+                  description="Dynamic ATP calculations for steel products and delivery prediction" 
+                  icon={<ClipboardList className="h-6 w-6 text-ey-darkGray" />} 
+                  path="/order-promising"
+                  color="bg-green-100" 
+                />
+              </Link>
             </motion.div>
             <motion.div custom={3} variants={fadeIn}>
-              <ModuleCard 
-                title="Factory Planning" 
-                description="Steel production scheduling optimization and resource allocation" 
-                icon={<Factory className="h-6 w-6 text-ey-darkGray" />} 
-                path="/factory-planning"
-                color="bg-purple-100" 
-              />
+              <Link to="/modules/factory-planning">
+                <ModuleCard 
+                  title="Factory Planning" 
+                  description="Steel production scheduling optimization and resource allocation" 
+                  icon={<Factory className="h-6 w-6 text-ey-darkGray" />} 
+                  path="/factory-planning"
+                  color="bg-purple-100" 
+                />
+              </Link>
             </motion.div>
             <motion.div custom={4} variants={fadeIn}>
-              <ModuleCard 
-                title="Inventory Optimization" 
-                description="Multi-echelon inventory optimization for raw materials and finished steel products" 
-                icon={<Package className="h-6 w-6 text-ey-darkGray" />} 
-                path="/inventory-optimization"
-                color="bg-orange-100" 
-              />
+              <Link to="/modules/inventory-optimization">
+                <ModuleCard 
+                  title="Inventory Optimization" 
+                  description="Multi-echelon inventory optimization for raw materials and finished steel products" 
+                  icon={<Package className="h-6 w-6 text-ey-darkGray" />} 
+                  path="/inventory-optimization"
+                  color="bg-orange-100" 
+                />
+              </Link>
             </motion.div>
             <motion.div custom={5} variants={fadeIn}>
-              <ModuleCard 
-                title="Inventory Liquidation" 
-                description="AI-powered pricing recommendations for liquidation of excess inventory" 
-                icon={<Box className="h-6 w-6 text-ey-darkGray" />} 
-                path="/inventory-liquidation"
-                color="bg-red-100" 
-              />
+              <Link to="/modules/inventory-liquidation">
+                <ModuleCard 
+                  title="Inventory Liquidation" 
+                  description="AI-powered pricing recommendations for liquidation of excess inventory" 
+                  icon={<Box className="h-6 w-6 text-ey-darkGray" />} 
+                  path="/inventory-liquidation"
+                  color="bg-red-100" 
+                />
+              </Link>
             </motion.div>
             <motion.div custom={6} variants={fadeIn}>
-              <ModuleCard 
-                title="Logistics Management" 
-                description="Route optimization for heavy steel transport and carrier selection" 
-                icon={<Truck className="h-6 w-6 text-ey-darkGray" />} 
-                path="/logistics"
-                color="bg-indigo-100" 
-              />
+              <Link to="/modules/logistics">
+                <ModuleCard 
+                  title="Logistics Management" 
+                  description="Route optimization for heavy steel transport and carrier selection" 
+                  icon={<Truck className="h-6 w-6 text-ey-darkGray" />} 
+                  path="/logistics"
+                  color="bg-indigo-100" 
+                />
+              </Link>
             </motion.div>
             <motion.div custom={7} variants={fadeIn}>
-              <ModuleCard 
-                title="Risk Management" 
-                description="Steel supply chain risk identification and proactive mitigation recommendations" 
-                icon={<AlertTriangle className="h-6 w-6 text-ey-darkGray" />} 
-                path="/risk-management"
-                color="bg-yellow-100" 
-              />
+              <Link to="/modules/risk-management">
+                <ModuleCard 
+                  title="Risk Management" 
+                  description="Steel supply chain risk identification and proactive mitigation recommendations" 
+                  icon={<AlertTriangle className="h-6 w-6 text-ey-darkGray" />} 
+                  path="/risk-management"
+                  color="bg-yellow-100" 
+                />
+              </Link>
             </motion.div>
             <motion.div custom={8} variants={fadeIn}>
-              <ModuleCard 
-                title="Analytics & Reporting" 
-                description="Customizable dashboards and AI-generated narrative insights" 
-                icon={<Database className="h-6 w-6 text-ey-darkGray" />} 
-                path="/analytics"
-                color="bg-teal-100" 
-              />
+              <Link to="/modules/analytics">
+                <ModuleCard 
+                  title="Analytics & Reporting" 
+                  description="Customizable dashboards and AI-generated narrative insights" 
+                  icon={<Database className="h-6 w-6 text-ey-darkGray" />} 
+                  path="/analytics"
+                  color="bg-teal-100" 
+                />
+              </Link>
             </motion.div>
           </div>
         </motion.div>

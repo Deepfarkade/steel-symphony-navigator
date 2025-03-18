@@ -1,40 +1,23 @@
 
 import React from 'react';
-import { 
-  AreaChart as RechartsAreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
-} from 'recharts';
-
-interface DataPoint {
-  name: string;
-  value: number;
-  [key: string]: any;
-}
+import { AreaChart as RechartsAreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { motion } from 'framer-motion';
 
 interface AreaChartProps {
-  data: DataPoint[];
+  data: any[];
+  color: string;
   title?: string; // Make title optional
-  color?: string;
-  dataKey?: string;
-  height?: number;
 }
 
-const AreaChart: React.FC<AreaChartProps> = ({ 
-  data, 
-  title, 
-  color = "#FFE600", 
-  dataKey = "value",
-  height = 300
-}) => {
+const AreaChart: React.FC<AreaChartProps> = ({ data, color, title }) => {
   return (
-    <div className="ey-card p-6 animate-slide-up">
-      {title && <h3 className="text-ey-darkGray font-medium mb-4">{title}</h3>}
-      <ResponsiveContainer width="100%" height={height}>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="w-full h-64"
+    >
+      <ResponsiveContainer width="100%" height="100%">
         <RechartsAreaChart
           data={data}
           margin={{
@@ -44,27 +27,49 @@ const AreaChart: React.FC<AreaChartProps> = ({
             bottom: 0,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-          <XAxis dataKey="name" tick={{ fill: '#808080' }} />
-          <YAxis tick={{ fill: '#808080' }} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f5" />
+          <XAxis 
+            dataKey="name" 
+            tick={{ fontSize: 12, fill: '#7D7D81' }}
+            axisLine={{ stroke: '#E5E7EB' }}
+            tickLine={false}
+          />
+          <YAxis 
+            tick={{ fontSize: 12, fill: '#7D7D81' }}
+            axisLine={{ stroke: '#E5E7EB' }}
+            tickLine={false}
+            width={40}
+          />
           <Tooltip 
             contentStyle={{ 
-              backgroundColor: 'white', 
-              border: 'none', 
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-              borderRadius: '0.5rem'
-            }} 
+              backgroundColor: '#FFFFFF', 
+              border: '1px solid #E5E7EB',
+              borderRadius: '4px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+            }}
+            labelStyle={{ fontWeight: 'bold', color: '#2E2E38' }}
+            itemStyle={{ color: '#7D7D81' }}
+            formatter={(value) => [`${value}`, title || 'Value']}
+            labelFormatter={(name) => `${name}`}
           />
+          <defs>
+            <linearGradient id={`color${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={color} stopOpacity={0.8}/>
+              <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
+            </linearGradient>
+          </defs>
           <Area 
             type="monotone" 
-            dataKey={dataKey} 
+            dataKey="value" 
             stroke={color} 
-            fill={color}
-            fillOpacity={0.2} 
+            fillOpacity={1} 
+            fill={`url(#color${color.replace('#', '')})`} 
+            strokeWidth={2}
+            activeDot={{ r: 6, strokeWidth: 0 }}
           />
         </RechartsAreaChart>
       </ResponsiveContainer>
-    </div>
+    </motion.div>
   );
 };
 
