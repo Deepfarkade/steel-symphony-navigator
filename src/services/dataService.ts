@@ -1,4 +1,3 @@
-
 // Mock data service to simulate API calls
 // In a real application, this would connect to your backend API
 
@@ -267,7 +266,7 @@ export const getNotifications = async () => {
       id: '1',
       title: 'Production Yield Increased',
       message: 'The production yield has increased by 2.3% in the last week.',
-      type: 'success',
+      type: 'success' as const,
       timestamp: new Date(new Date().getTime() - 2 * 60 * 60 * 1000),
       read: false,
       module: 'factory-planning'
@@ -276,7 +275,7 @@ export const getNotifications = async () => {
       id: '2',
       title: 'Energy Consumption Alert',
       message: 'Energy consumption has exceeded the weekly threshold by 5%.',
-      type: 'warning',
+      type: 'warning' as const,
       timestamp: new Date(new Date().getTime() - 5 * 60 * 60 * 1000),
       read: true,
       module: 'factory-planning'
@@ -285,7 +284,7 @@ export const getNotifications = async () => {
       id: '3',
       title: 'New AI Model Deployed',
       message: 'The steel prediction model has been updated with new algorithm.',
-      type: 'info',
+      type: 'info' as const,
       timestamp: new Date(new Date().getTime() - 1 * 24 * 60 * 60 * 1000),
       read: false
     },
@@ -293,7 +292,7 @@ export const getNotifications = async () => {
       id: '4',
       title: 'Supply Chain Disruption',
       message: 'Potential supply chain disruption detected in raw materials delivery.',
-      type: 'critical',
+      type: 'critical' as const,
       timestamp: new Date(new Date().getTime() - 2 * 24 * 60 * 60 * 1000),
       read: false,
       module: 'supply-planning'
@@ -302,7 +301,7 @@ export const getNotifications = async () => {
       id: '5',
       title: 'Quality Inspection Completed',
       message: 'Monthly quality inspection has been completed with A+ rating.',
-      type: 'success',
+      type: 'success' as const,
       timestamp: new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000),
       read: true,
       module: 'quality-control'

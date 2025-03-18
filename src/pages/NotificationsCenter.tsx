@@ -33,10 +33,10 @@ const NotificationsCenter = () => {
       setLoading(true);
       try {
         const data = await getNotifications();
-        setNotifications(data);
+        setNotifications(data as Notification[]);
       } catch (error) {
         console.error('Error fetching notifications:', error);
-        // Mock data in case the API fails
+        // Mock data in case the API fails - ensure types match our Notification interface
         const mockNotifications: Notification[] = [
           {
             id: '1',
