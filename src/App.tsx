@@ -20,6 +20,16 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AiChatInterface from "./components/AiChatInterface";
 
+// Import additional routes for specific features
+import KpiDetails from "./pages/KpiDetails";
+import NotificationsCenter from "./pages/NotificationsCenter";
+import ModuleChatPage from "./pages/ModuleChatPage";
+import GlobalChatPage from "./pages/GlobalChatPage";
+import ProductionChartDetails from "./pages/charts/ProductionChartDetails";
+import EnergyChartDetails from "./pages/charts/EnergyChartDetails";
+import UserPreferences from "./pages/user/UserPreferences";
+import UserInactivityHandler from "./components/UserInactivityHandler";
+
 const queryClient = new QueryClient();
 
 const AppRoutes = () => (
@@ -30,6 +40,8 @@ const AppRoutes = () => (
 
     {/* Protected routes */}
     <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
+    
+    {/* Module routes */}
     <Route path="/demand-planning" element={<RequireAuth><DemandPlanning /></RequireAuth>} />
     <Route path="/supply-planning" element={<RequireAuth><SupplyPlanning /></RequireAuth>} />
     <Route path="/order-promising" element={<RequireAuth><OrderPromising /></RequireAuth>} />
@@ -39,6 +51,23 @@ const AppRoutes = () => (
     <Route path="/logistics" element={<RequireAuth><LogisticsManagement /></RequireAuth>} />
     <Route path="/risk-management" element={<RequireAuth><RiskManagement /></RequireAuth>} />
     <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
+    
+    {/* KPI detail routes */}
+    <Route path="/kpi/:id" element={<RequireAuth><KpiDetails /></RequireAuth>} />
+    
+    {/* Notification routes */}
+    <Route path="/notifications" element={<RequireAuth><NotificationsCenter /></RequireAuth>} />
+    
+    {/* Chart detail routes */}
+    <Route path="/charts/production" element={<RequireAuth><ProductionChartDetails /></RequireAuth>} />
+    <Route path="/charts/energy" element={<RequireAuth><EnergyChartDetails /></RequireAuth>} />
+    
+    {/* User routes */}
+    <Route path="/user/preferences" element={<RequireAuth><UserPreferences /></RequireAuth>} />
+    
+    {/* Chat routes */}
+    <Route path="/chat" element={<RequireAuth><GlobalChatPage /></RequireAuth>} />
+    <Route path="/chat/:module" element={<RequireAuth><ModuleChatPage /></RequireAuth>} />
     
     {/* Catch-all route */}
     <Route path="*" element={<NotFound />} />
@@ -52,6 +81,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <UserInactivityHandler />
           <AppRoutes />
           <AiChatInterface floating />
         </AuthProvider>

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
   Box, 
@@ -8,14 +8,14 @@ import {
   Database, 
   Factory, 
   Home, 
-  LayoutDashboard, 
   Orbit, 
   Package, 
   Settings, 
   Truck, 
   AlertTriangle,
   LogOut,
-  User
+  User,
+  BrainCog
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -87,6 +87,22 @@ const Navigation = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
 
+  // Add effect to adjust main content area when sidebar collapses/expands
+  useEffect(() => {
+    // Select the main content container that needs to be adjusted
+    const mainContent = document.querySelector('[data-main-content]');
+    if (mainContent) {
+      // Adjust margin based on sidebar state
+      if (isExpanded) {
+        mainContent.classList.remove('ml-20');
+        mainContent.classList.add('ml-64');
+      } else {
+        mainContent.classList.remove('ml-64');
+        mainContent.classList.add('ml-20');
+      }
+    }
+  }, [isExpanded]);
+
   return (
     <aside className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 ${isExpanded ? 'w-64' : 'w-20'} bg-white border-r border-ey-lightGray/20 shadow-sm`}>
       <div className="h-full px-3 py-8 flex flex-col justify-between">
@@ -96,7 +112,7 @@ const Navigation = () => {
             {isExpanded ? (
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-ey-yellow rounded-md flex items-center justify-center font-bold text-black">EY</div>
-                <span className="ml-2 text-lg font-semibold">Steel Co-Pilot</span>
+                <span className="ml-2 text-lg font-semibold">SECP</span>
               </div>
             ) : (
               <div className="w-10 h-10 bg-ey-yellow rounded-md flex items-center justify-center font-bold text-black">EY</div>

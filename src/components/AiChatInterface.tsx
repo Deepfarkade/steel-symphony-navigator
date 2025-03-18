@@ -1,10 +1,12 @@
 
-import React, { useState, useRef, useEffect } from 'react';
-import { SendHorizontal, Bot, User, Loader2, Sparkles, Brain, Maximize2, Minimize2, X } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { SendHorizontal, Bot, User, Loader2, Sparkles, Brain, Maximize2, Minimize2, X, BrainCircuit } from 'lucide-react';
 import websocketService from '../services/websocketService';
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 interface AiChatInterfaceProps {
   moduleContext?: string;
@@ -20,7 +22,7 @@ interface ChatMessage {
 const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floating = false }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
-      text: `Hello! I'm your EY Steel Co-Pilot. How can I help you with steel ${moduleContext || 'operations'} today?`,
+      text: `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${moduleContext || 'operations'} today?`,
       isUser: false,
       timestamp: new Date()
     }
@@ -32,10 +34,15 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
   const [isFullscreen, setIsFullscreen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
   useEffect(() => {
     // Connect to WebSocket when component mounts
@@ -68,10 +75,6 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
       // Don't disconnect WebSocket here as other components might be using it
     };
   }, [toast]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,6 +112,14 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
     setIsFullscreen(!isFullscreen);
   };
 
+  const navigateToGlobalChat = () => {
+    if (moduleContext) {
+      navigate(`/chat/${moduleContext}`);
+    } else {
+      navigate('/chat');
+    }
+  };
+
   const renderContent = () => (
     <div className={`ey-card ${floating ? 'fixed bottom-4 right-4 z-50 shadow-xl w-96' : 'w-full'} 
                     ${isExpanded ? 'h-[80vh] w-[500px]' : 'h-[500px]'}
@@ -116,14 +127,26 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
                     flex flex-col transition-all duration-300 ease-in-out`}>
       <div className="flex items-center justify-between mb-4 p-4 border-b border-gray-100">
         <div className="flex items-center">
-          <Brain className="h-5 w-5 text-ey-yellow mr-2" />
-          <h2 className="text-xl font-bold text-ey-darkGray">EY Steel Co-Pilot</h2>
+          <BrainCircuit className="h-5 w-5 text-indigo-600 mr-2" />
+          <h2 className="text-xl font-bold text-ey-darkGray">EY SECP</h2>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-xs bg-ey-yellow/20 text-ey-darkGray px-2 py-1 rounded-full">AI Assistant</span>
+          <motion.span 
+            className="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full flex items-center"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <Sparkles className="h-3 w-3 mr-1" />
+            AI Assistant
+          </motion.span>
           <button onClick={toggleFullscreen} className="text-ey-lightGray hover:text-ey-darkGray transition-colors">
             {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
+          {!isFullscreen && (
+            <button onClick={navigateToGlobalChat} className="text-blue-500 hover:text-blue-700 transition-colors text-xs">
+              Open Full View
+            </button>
+          )}
           {(floating || isFullscreen) && (
             <button onClick={() => {
               if (isFullscreen) {
@@ -145,13 +168,13 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
             className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}
           >
             <div className={`flex items-start max-w-[80%] ${message.isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-              <div className={`rounded-full p-2 ${message.isUser ? 'bg-ey-yellow text-ey-darkGray ml-2' : 'bg-ey-darkGray text-white mr-2'}`}>
+              <div className={`rounded-full p-2 ${message.isUser ? 'bg-indigo-500 text-white ml-2' : 'bg-ey-darkGray text-white mr-2'}`}>
                 {message.isUser ? <User className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
               </div>
               <div 
                 className={`rounded-lg p-3 ${
                   message.isUser 
-                    ? 'bg-ey-yellow/10 text-ey-darkGray' 
+                    ? 'bg-indigo-100 text-ey-darkGray' 
                     : 'bg-ey-darkGray/10 text-ey-darkGray'
                 }`}
               >
@@ -186,12 +209,12 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Ask me about steel operations, production data, or insights..."
-            className="flex-1 border border-ey-lightGray/20 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ey-yellow"
+            className="flex-1 border border-ey-lightGray/20 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             disabled={isLoading}
           />
           <button
             type="submit"
-            className="bg-ey-yellow text-ey-darkGray rounded-r-lg px-4 py-2 flex items-center justify-center hover:bg-ey-yellow/90 transition-colors"
+            className="bg-indigo-600 text-white rounded-r-lg px-4 py-2 flex items-center justify-center hover:bg-indigo-700 transition-colors"
             disabled={isLoading}
           >
             {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <SendHorizontal className="h-5 w-5" />}
@@ -213,10 +236,10 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
             <Button 
               variant="outline" 
               size="icon" 
-              className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 bg-ey-yellow hover:bg-ey-yellow/90 text-ey-darkGray shadow-lg border-0"
+              className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg border-0"
               onClick={() => setIsDrawerOpen(true)}
             >
-              <Brain className="h-6 w-6" />
+              <BrainCircuit className="h-6 w-6" />
               <span className="absolute top-0 right-0 h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
             </Button>
           </DrawerTrigger>
