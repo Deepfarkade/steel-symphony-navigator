@@ -13,75 +13,79 @@ import {
   Package, 
   Settings, 
   Truck, 
-  AlertTriangle
+  AlertTriangle,
+  LogOut,
+  User
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const modules = [
   { 
     name: 'Home', 
     icon: <Home className="h-5 w-5" />, 
-    path: '/', 
-    active: true 
+    path: '/'
   },
   { 
     name: 'Demand Planning', 
     icon: <BarChart3 className="h-5 w-5" />, 
-    path: '/demand-planning',
-    active: false 
+    path: '/demand-planning'
   },
   { 
     name: 'Supply Planning', 
     icon: <Orbit className="h-5 w-5" />, 
-    path: '/supply-planning',
-    active: false 
+    path: '/supply-planning'
   },
   { 
     name: 'Order Promising', 
     icon: <ClipboardList className="h-5 w-5" />, 
-    path: '/order-promising',
-    active: false 
+    path: '/order-promising'
   },
   { 
     name: 'Factory Planning', 
     icon: <Factory className="h-5 w-5" />, 
-    path: '/factory-planning',
-    active: false 
+    path: '/factory-planning'
   },
   { 
     name: 'Inventory Optimization', 
     icon: <Package className="h-5 w-5" />, 
-    path: '/inventory-optimization',
-    active: false 
+    path: '/inventory-optimization'
   },
   { 
     name: 'Inventory Liquidation', 
     icon: <Box className="h-5 w-5" />, 
-    path: '/inventory-liquidation',
-    active: false 
+    path: '/inventory-liquidation'
   },
   { 
     name: 'Logistics Management', 
     icon: <Truck className="h-5 w-5" />, 
-    path: '/logistics',
-    active: false 
+    path: '/logistics'
   },
   { 
     name: 'Risk Management', 
     icon: <AlertTriangle className="h-5 w-5" />, 
-    path: '/risk-management',
-    active: false 
+    path: '/risk-management'
   },
   { 
     name: 'Analytics & Reporting', 
     icon: <Database className="h-5 w-5" />, 
-    path: '/analytics',
-    active: false 
+    path: '/analytics'
   },
 ];
 
 const Navigation = () => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const location = useLocation();
+  const { user, logout } = useAuth();
 
   return (
     <aside className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 ${isExpanded ? 'w-64' : 'w-20'} bg-white border-r border-ey-lightGray/20 shadow-sm`}>
@@ -99,40 +103,107 @@ const Navigation = () => {
             )}
           </div>
           
+          {/* User info when expanded */}
+          {isExpanded && user && (
+            <div className="px-4 py-3 mb-6 bg-gray-50 rounded-lg">
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-ey-yellow/30 rounded-full flex items-center justify-center">
+                  <User className="h-4 w-4 text-ey-darkGray" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-ey-darkGray truncate">{user.name}</p>
+                  <p className="text-xs text-ey-lightGray truncate">{user.email}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Nav links */}
-          <ul className="space-y-2">
+          <div className="space-y-2">
             {modules.map((module) => (
-              <li key={module.name}>
-                <Link 
-                  to={module.path}
-                  className={`flex items-center p-3 rounded-lg transition-all duration-300 ${
-                    module.active ? 'bg-ey-yellow/20 text-ey-darkGray' : 'text-ey-darkGray/70 hover:bg-ey-yellow/10'
-                  }`}
-                >
-                  <div className="flex-shrink-0">
-                    {module.icon}
-                  </div>
-                  {isExpanded && (
-                    <span className="ml-3 whitespace-nowrap">{module.name}</span>
-                  )}
-                </Link>
-              </li>
+              <Link 
+                key={module.name}
+                to={module.path}
+                className={`flex items-center p-3 rounded-lg transition-all duration-300 ${
+                  location.pathname === module.path 
+                    ? 'bg-ey-yellow/20 text-ey-darkGray' 
+                    : 'text-ey-darkGray/70 hover:bg-ey-yellow/10'
+                }`}
+              >
+                <div className="flex-shrink-0">
+                  {module.icon}
+                </div>
+                {isExpanded && (
+                  <span className="ml-3 whitespace-nowrap">{module.name}</span>
+                )}
+                {!isExpanded && location.pathname === module.path && (
+                  <div className="absolute left-0 w-1 h-8 bg-ey-yellow rounded-r-full"></div>
+                )}
+              </Link>
             ))}
-          </ul>
+          </div>
         </div>
         
         {/* Bottom section */}
         <div>
-          <div className="flex items-center p-3 mb-2 rounded-lg text-ey-darkGray/70 hover:bg-ey-yellow/10 transition-all duration-300 cursor-pointer">
-            <Settings className="h-5 w-5" />
-            {isExpanded && <span className="ml-3">Settings</span>}
-          </div>
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="w-full flex items-center justify-center p-3 rounded-lg bg-ey-darkGray/5 text-ey-darkGray hover:bg-ey-darkGray/10 transition-all duration-300"
-          >
-            {isExpanded ? '<<' : '>>'}
-          </button>
+          {isExpanded ? (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="hover:bg-ey-yellow/10 text-ey-darkGray/70">
+                      <Settings className="h-5 w-5 mr-2" />
+                      <span>Settings</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                    <DropdownMenuItem>Preferences</DropdownMenuItem>
+                    <DropdownMenuItem>Notifications</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="text-red-500">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      <span>Logout</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <button 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="w-full flex items-center justify-center p-3 rounded-lg bg-ey-darkGray/5 text-ey-darkGray hover:bg-ey-darkGray/10 transition-all duration-300"
+              >
+                {'<<'}
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="flex flex-col items-center space-y-4 mb-4">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="hover:bg-ey-yellow/10 text-ey-darkGray/70"
+                >
+                  <Settings className="h-5 w-5" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="hover:bg-ey-yellow/10 text-red-500"
+                  onClick={logout}
+                >
+                  <LogOut className="h-5 w-5" />
+                </Button>
+              </div>
+              <button 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="w-full flex items-center justify-center p-3 rounded-lg bg-ey-darkGray/5 text-ey-darkGray hover:bg-ey-darkGray/10 transition-all duration-300"
+              >
+                {'>>'}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </aside>
