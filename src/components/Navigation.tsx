@@ -15,7 +15,11 @@ import {
   AlertTriangle,
   LogOut,
   User,
-  BrainCog
+  BrainCog,
+  MessageSquare,
+  ChevronDown,
+  ChevronRight,
+  PlusCircle
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -28,6 +32,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { getActiveAiAgents } from '@/services/dataService';
+import { useToast } from '@/hooks/use-toast';
 
 const modules = [
   { 
@@ -84,8 +91,28 @@ const modules = [
 
 const Navigation = () => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [agentsExpanded, setAgentsExpanded] = useState(false);
+  const [activeAgents, setActiveAgents] = useState<any[]>([]);
+  const [loadingAgents, setLoadingAgents] = useState(true);
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { toast } = useToast();
+
+  // Load active agents
+  useEffect(() => {
+    const fetchActiveAgents = async () => {
+      try {
+        const agents = await getActiveAiAgents();
+        setActiveAgents(agents);
+      } catch (error) {
+        console.error('Error fetching active agents:', error);
+      } finally {
+        setLoadingAgents(false);
+      }
+    };
+
+    fetchActiveAgents();
+  }, []);
 
   // Add effect to adjust main content area when sidebar collapses/expands
   useEffect(() => {
@@ -102,6 +129,23 @@ const Navigation = () => {
       }
     }
   }, [isExpanded]);
+
+  const handleAgentClick = (agentId: number, agentName: string) => {
+    toast({
+      title: `${agentName} activated`,
+      description: "The agent is now ready to assist you. Start a conversation in the chat window.",
+    });
+    // Navigate to chat with the specific agent
+    window.location.href = `/chat?agent=${agentId}`;
+  };
+
+  const handleAddAgent = () => {
+    toast({
+      title: "Deploy more agents",
+      description: "Opening the AI Agents deployment center.",
+    });
+    window.location.href = "/";
+  };
 
   return (
     <aside className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 ${isExpanded ? 'w-64' : 'w-20'} bg-white border-r border-ey-lightGray/20 shadow-sm`}>
@@ -160,8 +204,67 @@ const Navigation = () => {
           </div>
         </div>
         
-        {/* Bottom section */}
-        <div>
+        {/* Bottom section with Your Agents */}
+        <div className="space-y-4">
+          {/* Your Agents section */}
+          {isExpanded && (
+            <Collapsible
+              open={agentsExpanded}
+              onOpenChange={setAgentsExpanded}
+              className="rounded-lg border border-gray-200"
+            >
+              <CollapsibleTrigger className="w-full p-3 flex items-center justify-between text-ey-darkGray hover:bg-gray-50 rounded-t-lg transition-colors">
+                <div className="flex items-center">
+                  <BrainCog className="h-5 w-5 mr-2 text-purple-600" />
+                  <span className="font-medium">Your Agents</span>
+                </div>
+                {agentsExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="p-2 space-y-1 bg-gray-50 rounded-b-lg">
+                {loadingAgents ? (
+                  <div className="flex items-center justify-center p-3">
+                    <span className="text-sm text-gray-500">Loading agents...</span>
+                  </div>
+                ) : activeAgents.length > 0 ? (
+                  <>
+                    {activeAgents.map((agent) => (
+                      <button
+                        key={agent.id}
+                        onClick={() => handleAgentClick(agent.id, agent.name)}
+                        className="w-full flex items-center p-2 rounded-md text-sm text-ey-darkGray hover:bg-purple-100 transition-colors"
+                      >
+                        <div className="h-7 w-7 bg-purple-200 rounded-full flex items-center justify-center mr-2">
+                          <MessageSquare className="h-3.5 w-3.5 text-purple-700" />
+                        </div>
+                        <span className="truncate">{agent.name}</span>
+                      </button>
+                    ))}
+                    <button
+                      onClick={handleAddAgent}
+                      className="w-full flex items-center p-2 rounded-md text-sm text-ey-darkGray hover:bg-purple-100 transition-colors mt-2 border border-dashed border-purple-300"
+                    >
+                      <PlusCircle className="h-4 w-4 mr-2 text-purple-600" />
+                      <span>Add more agents</span>
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-3 text-center">
+                    <span className="text-sm text-gray-500 mb-2">No active agents</span>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={handleAddAgent}
+                      className="text-xs bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100"
+                    >
+                      <PlusCircle className="h-3.5 w-3.5 mr-1" /> 
+                      Deploy Agents
+                    </Button>
+                  </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
           {isExpanded ? (
             <>
               <div className="flex items-center justify-between mb-4">
@@ -202,6 +305,14 @@ const Navigation = () => {
                   className="hover:bg-ey-yellow/10 text-ey-darkGray/70"
                 >
                   <Settings className="h-5 w-5" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="hover:bg-ey-yellow/10 text-ey-darkGray/70"
+                  title="Your AI Agents"
+                >
+                  <BrainCog className="h-5 w-5 text-purple-600" />
                 </Button>
                 <Button 
                   variant="ghost" 

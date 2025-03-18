@@ -1,8 +1,9 @@
-
-import React from 'react';
-import { AlertTriangle, CheckCircle, TrendingUp, Lightbulb } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { AlertTriangle, CheckCircle, TrendingUp, Lightbulb, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
+import { getAiInsights } from '@/services/dataService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Insight {
   id: number;
@@ -12,10 +13,35 @@ interface Insight {
 }
 
 interface AiInsightsProps {
-  insights: Insight[];
+  insights?: Insight[];
+  loading?: boolean;
 }
 
-const AiInsights: React.FC<AiInsightsProps> = ({ insights }) => {
+const AiInsights: React.FC<AiInsightsProps> = ({ insights: propInsights, loading: propLoading }) => {
+  const [insights, setInsights] = useState<Insight[]>([]);
+  const [loading, setLoading] = useState(propLoading !== undefined ? propLoading : true);
+
+  useEffect(() => {
+    if (propInsights) {
+      setInsights(propInsights);
+      setLoading(false);
+      return;
+    }
+
+    const fetchInsights = async () => {
+      try {
+        const data = await getAiInsights();
+        setInsights(data);
+      } catch (error) {
+        console.error('Error fetching AI insights:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInsights();
+  }, [propInsights]);
+
   const getIcon = (type: string) => {
     switch (type) {
       case 'alert':
@@ -46,37 +72,63 @@ const AiInsights: React.FC<AiInsightsProps> = ({ insights }) => {
     }
   };
 
-  // Map the strings to actual Insight objects
-  const formattedInsights: Insight[] = Array.isArray(insights) 
-    ? insights.map((insight, index) => {
-        // If insight is already an Insight object, return it
-        if (typeof insight === 'object' && insight.id) {
-          return insight;
-        }
-        
-        // If insight is a string, convert it to an Insight object
+  const formatInsights = (insightsData: any[]): Insight[] => {
+    if (!Array.isArray(insightsData) || insightsData.length === 0) {
+      return [];
+    }
+    
+    return insightsData.map((insight, index) => {
+      if (typeof insight === 'object' && insight.id && insight.type && insight.message) {
         return {
-          id: index + 1,
-          type: index % 4 === 0 ? 'alert' : 
-                index % 4 === 1 ? 'success' : 
-                index % 4 === 2 ? 'opportunity' : 'suggestion',
-          message: typeof insight === 'string' ? insight : `AI insight ${index + 1}`,
-          timestamp: new Date().toLocaleString()
+          ...insight,
+          timestamp: insight.timestamp || new Date().toISOString()
         };
-      })
-    : [];
+      }
+      
+      return {
+        id: typeof insight.id === 'number' ? insight.id : index + 1,
+        type: insight.type || (index % 4 === 0 ? 'alert' : 
+               index % 4 === 1 ? 'success' : 
+               index % 4 === 2 ? 'opportunity' : 'suggestion'),
+        message: typeof insight === 'string' ? insight : insight.message || `AI insight ${index + 1}`,
+        timestamp: insight.timestamp || new Date().toISOString()
+      };
+    });
+  };
+
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+  };
+
+  const formattedInsights = formatInsights(insights);
 
   return (
     <div className="ey-card p-6 animate-slide-up">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-ey-darkGray font-medium">AI Insights</h3>
         <Link to="/analytics">
-          <Button variant="ghost" className="text-purple-600 hover:text-purple-800 hover:bg-purple-50">View All</Button>
+          <Button variant="ghost" className="text-purple-600 hover:text-purple-800 hover:bg-purple-50 flex items-center">
+            View All
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
         </Link>
       </div>
       
       <div className="space-y-4 stagger-animate">
-        {formattedInsights.length > 0 ? (
+        {loading ? (
+          <>
+            {[1, 2, 3].map((_, index) => (
+              <div key={index} className="flex gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              </div>
+            ))}
+          </>
+        ) : formattedInsights.length > 0 ? (
           formattedInsights.map((insight) => (
             <div 
               key={insight.id} 
@@ -88,7 +140,7 @@ const AiInsights: React.FC<AiInsightsProps> = ({ insights }) => {
                 </div>
                 <div>
                   <p className="text-ey-darkGray">{insight.message}</p>
-                  <p className="text-xs text-ey-lightGray mt-1">{insight.timestamp}</p>
+                  <p className="text-xs text-ey-lightGray mt-1">{formatTime(insight.timestamp)}</p>
                 </div>
               </div>
             </div>
