@@ -7,15 +7,17 @@ interface AreaChartProps {
   data: any[];
   color: string;
   title?: string; // Make title optional
+  height?: number; // Add optional height property
 }
 
-const AreaChart: React.FC<AreaChartProps> = ({ data, color, title }) => {
+const AreaChart: React.FC<AreaChartProps> = ({ data, color, title, height = 400 }) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="w-full h-64"
+      className="w-full"
+      style={{ height: height ? `${height}px` : '256px' }}
     >
       <ResponsiveContainer width="100%" height="100%">
         <RechartsAreaChart
