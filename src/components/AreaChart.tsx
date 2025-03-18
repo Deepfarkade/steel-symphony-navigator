@@ -18,7 +18,7 @@ interface DataPoint {
 
 interface AreaChartProps {
   data: DataPoint[];
-  title: string;
+  title?: string; // Make title optional
   color?: string;
   dataKey?: string;
   height?: number;
@@ -33,7 +33,7 @@ const AreaChart: React.FC<AreaChartProps> = ({
 }) => {
   return (
     <div className="ey-card p-6 animate-slide-up">
-      <h3 className="text-ey-darkGray font-medium mb-4">{title}</h3>
+      {title && <h3 className="text-ey-darkGray font-medium mb-4">{title}</h3>}
       <ResponsiveContainer width="100%" height={height}>
         <RechartsAreaChart
           data={data}

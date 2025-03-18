@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Rocket, Sparkles, Download, ChevronDown, Filter } from 'lucide-react';
 import Navigation from './Navigation';
@@ -34,6 +33,7 @@ interface ModuleLayoutProps {
   icon: React.ReactNode;
   children: React.ReactNode;
   moduleName?: string; // Used for API calls
+  insights?: ModuleInsight[]; // Make insights an optional prop
 }
 
 const ModuleLayout: React.FC<ModuleLayoutProps> = ({ 
@@ -41,7 +41,8 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
   description, 
   icon, 
   children,
-  moduleName
+  moduleName,
+  insights: propInsights
 }) => {
   const [insights, setInsights] = useState<ModuleInsight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,6 +50,13 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
   
   useEffect(() => {
     const fetchInsights = async () => {
+      // If insights are provided as props, use them
+      if (propInsights) {
+        setInsights(propInsights);
+        setIsLoading(false);
+        return;
+      }
+      
       setIsLoading(true);
       try {
         // Convert title to kebab case for API calls
@@ -67,7 +75,7 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
     };
     
     fetchInsights();
-  }, [title, moduleName]);
+  }, [title, moduleName, propInsights]);
 
   return (
     <div className="w-full min-h-screen bg-gray-50">

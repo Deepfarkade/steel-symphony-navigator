@@ -135,11 +135,11 @@ if (typeof WebSocket === 'undefined' || window.location.protocol === 'file:') {
       { type: 'chat', payload: { text: 'I can help you analyze steel production data and optimize operations.', isUser: false, timestamp: new Date() } },
       { type: 'insight', payload: { message: 'Steel demand forecast shows 5% growth in automotive sector', severity: 'info' } }
     ];
-    readyState = WebSocket.CONNECTING;
+    readyState = 0; // Use numeric value instead of WebSocket.CONNECTING
 
     constructor(url: string) {
       setTimeout(() => {
-        this.readyState = WebSocket.OPEN;
+        this.readyState = 1; // Use numeric value instead of WebSocket.OPEN
         if (this.handlers.onopen) {
           this.handlers.onopen.forEach(handler => handler({ target: this }));
         }
@@ -207,7 +207,7 @@ if (typeof WebSocket === 'undefined' || window.location.protocol === 'file:') {
     }
 
     close(): void {
-      this.readyState = WebSocket.CLOSED;
+      this.readyState = 3; // Use numeric value instead of WebSocket.CLOSED
       if (this.handlers.onclose) {
         this.handlers.onclose.forEach(handler => 
           handler({ code: 1000, reason: 'Mock socket closed', target: this })
