@@ -29,6 +29,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -86,6 +87,11 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
     setInputText('');
     setIsLoading(true);
 
+    // Auto-expand to fullscreen when user starts conversation
+    if (messages.length <= 1 && !isFullscreen) {
+      setIsFullscreen(true);
+    }
+
     // Send message via WebSocket
     websocketService.sendMessage('chat', { 
       text: inputText,
@@ -99,9 +105,14 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
     setIsExpanded(!isExpanded);
   };
 
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
   const renderContent = () => (
     <div className={`ey-card ${floating ? 'fixed bottom-4 right-4 z-50 shadow-xl w-96' : 'w-full'} 
-                    ${isExpanded ? 'h-[80vh] w-[500px]' : 'h-[500px]'} 
+                    ${isExpanded ? 'h-[80vh] w-[500px]' : 'h-[500px]'}
+                    ${isFullscreen ? 'fixed inset-0 w-full h-full rounded-none z-50' : ''}
                     flex flex-col transition-all duration-300 ease-in-out`}>
       <div className="flex items-center justify-between mb-4 p-4 border-b border-gray-100">
         <div className="flex items-center">
@@ -110,13 +121,17 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
         </div>
         <div className="flex items-center space-x-2">
           <span className="text-xs bg-ey-yellow/20 text-ey-darkGray px-2 py-1 rounded-full">AI Assistant</span>
-          {floating && (
-            <button onClick={toggleExpand} className="text-ey-lightGray hover:text-ey-darkGray transition-colors">
-              {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-            </button>
-          )}
-          {floating && (
-            <button onClick={() => setIsDrawerOpen(false)} className="text-ey-lightGray hover:text-ey-darkGray transition-colors">
+          <button onClick={toggleFullscreen} className="text-ey-lightGray hover:text-ey-darkGray transition-colors">
+            {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+          </button>
+          {(floating || isFullscreen) && (
+            <button onClick={() => {
+              if (isFullscreen) {
+                setIsFullscreen(false);
+              } else {
+                setIsDrawerOpen(false);
+              }
+            }} className="text-ey-lightGray hover:text-ey-darkGray transition-colors">
               <X size={18} />
             </button>
           )}
@@ -189,7 +204,11 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
   if (floating) {
     return (
       <>
-        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <Drawer open={isDrawerOpen || isFullscreen} onOpenChange={(open) => {
+          if (!isFullscreen) {
+            setIsDrawerOpen(open);
+          }
+        }}>
           <DrawerTrigger asChild>
             <Button 
               variant="outline" 
@@ -201,7 +220,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
               <span className="absolute top-0 right-0 h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
             </Button>
           </DrawerTrigger>
-          <DrawerContent className="p-0 max-h-[90vh]">
+          <DrawerContent className={`p-0 max-h-[90vh] ${isFullscreen ? 'h-screen w-screen max-w-full' : ''}`}>
             {renderContent()}
           </DrawerContent>
         </Drawer>
@@ -209,7 +228,13 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
     );
   }
 
-  return renderContent();
+  return isFullscreen ? (
+    <div className="fixed inset-0 z-50 bg-white">
+      {renderContent()}
+    </div>
+  ) : (
+    renderContent()
+  );
 };
 
 export default AiChatInterface;

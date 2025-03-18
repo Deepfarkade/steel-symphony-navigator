@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   BarChart3, 
   Box, 
@@ -32,6 +32,7 @@ import ModuleCard from '../components/ModuleCard';
 import AiPulse from '../components/AiPulse';
 import FuturisticWelcome from '../components/FuturisticWelcome';
 import AiIntroduction from '../components/AiIntroduction';
+import AiChatInterface from '../components/AiChatInterface';
 import { getProductionData, getEnergyConsumptionData, getKpiData, getAiInsights } from '@/services/dataService';
 import { useAuth } from '@/context/AuthContext';
 import { 
@@ -42,7 +43,8 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
 // Animation variants
 const fadeIn = {
@@ -75,6 +77,7 @@ const Index = () => {
   const [kpiData, setKpiData] = useState<any>({});
   const [insights, setInsights] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
   const { user } = useAuth();
   
   useEffect(() => {
@@ -269,10 +272,17 @@ const Index = () => {
                 <p className="text-white/80">Ask questions, get recommendations, and optimize your steel operations</p>
               </div>
             </div>
-            <Button className="bg-ey-yellow hover:bg-ey-yellow/90 text-ey-darkGray">
-              <span>Start a Conversation</span>
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
+            <Drawer open={chatOpen} onOpenChange={setChatOpen}>
+              <DrawerTrigger asChild>
+                <Button onClick={() => setChatOpen(true)} className="bg-ey-yellow hover:bg-ey-yellow/90 text-ey-darkGray">
+                  <span>Start a Conversation</span>
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="p-0 h-[95vh]">
+                <AiChatInterface />
+              </DrawerContent>
+            </Drawer>
           </div>
         </motion.div>
         

@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { useNavigate, useLocation } from 'react-router-dom';
 import { checkAuthStatus, logoutUser } from '../services/authService';
 import { useToast } from '@/hooks/use-toast';
+import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
 
 interface User {
   id: string;
@@ -77,10 +78,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     logout,
   };
+
+  // Use the inactivity timeout hook
+  const { TimeoutWarningDialog } = useInactivityTimeout();
   
   return (
     <AuthContext.Provider value={value}>
       {children}
+      <TimeoutWarningDialog />
     </AuthContext.Provider>
   );
 };
