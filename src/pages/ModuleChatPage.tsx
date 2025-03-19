@@ -15,8 +15,12 @@ interface ModuleInfo {
   color: string;
 }
 
+interface ModuleChatParams {
+  module?: string;
+}
+
 const ModuleChatPage = () => {
-  const { module } = useParams<{ module: string }>();
+  const { module } = useParams<ModuleChatParams>();
   const [moduleInfo, setModuleInfo] = useState<ModuleInfo | null>(null);
   
   useEffect(() => {

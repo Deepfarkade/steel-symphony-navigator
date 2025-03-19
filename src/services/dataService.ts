@@ -1,30 +1,51 @@
-// Mock data service to simulate API calls
-// In a real application, this would connect to your backend API
 
-// Simulate API delay
-const simulateDelay = (ms = 800) => new Promise(resolve => setTimeout(resolve, ms));
+// Mock data service for steel industry application
+import axios from 'axios';
 
-// Production data
+interface KpiData {
+  value: string | number;
+  change: number;
+}
+
+// Simulated APIs for steel industry data
+
 export const getProductionData = async () => {
-  await simulateDelay();
-  return Array(12).fill(0).map((_, i) => ({
-    name: `Week ${i+1}`,
-    value: 75 + Math.random() * 20,
-  }));
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  // Generate mock production data
+  return [
+    { date: '2024-01', value: 15420 },
+    { date: '2024-02', value: 16100 },
+    { date: '2024-03', value: 15800 },
+    { date: '2024-04', value: 16500 },
+    { date: '2024-05', value: 17200 },
+    { date: '2024-06', value: 18100 },
+    { date: '2024-07', value: 17650 },
+  ];
 };
 
-// Energy consumption data
 export const getEnergyConsumptionData = async () => {
-  await simulateDelay();
-  return Array(12).fill(0).map((_, i) => ({
-    name: `Week ${i+1}`,
-    value: 30 + Math.random() * 15,
-  }));
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 600));
+  
+  // Generate mock energy data
+  return [
+    { date: '2024-01', value: 1250 },
+    { date: '2024-02', value: 1310 },
+    { date: '2024-03', value: 1260 },
+    { date: '2024-04', value: 1200 },
+    { date: '2024-05', value: 1150 },
+    { date: '2024-06', value: 1120 },
+    { date: '2024-07', value: 1080 },
+  ];
 };
 
-// KPI data
 export const getKpiData = async () => {
-  await simulateDelay();
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 700));
+  
+  // Generate mock KPI data
   return {
     productionYield: {
       value: "94.8%",
@@ -45,340 +66,194 @@ export const getKpiData = async () => {
   };
 };
 
-// AI insights
 export const getAiInsights = async () => {
-  await simulateDelay();
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 900));
   
+  // Generate mock AI insights
   return [
-    {
-      id: 1,
-      type: 'alert' as const,
-      message: "Production efficiency decreased by 3.2% in Rolling Mill B. Recommend maintenance check.",
-      timestamp: new Date().toLocaleString()
-    },
-    {
-      id: 2,
-      type: 'success' as const,
-      message: "Energy consumption per ton of steel reduced by 5.7%. Continue optimization strategy.",
-      timestamp: new Date().toLocaleString()
-    },
-    {
-      id: 3,
-      type: 'opportunity' as const,
-      message: "Predicted supply chain optimization could save $425,000 in Q3 logistics costs.",
-      timestamp: new Date().toLocaleString()
-    },
-    {
-      id: 4,
-      type: 'suggestion' as const,
-      message: "Adjust blast furnace operations based on current raw material quality for 3.1% yield improvement.",
-      timestamp: new Date().toLocaleString()
-    },
-    {
-      id: 5,
-      type: 'alert' as const,
-      message: "Quality deviations detected in latest steel batch. Review process parameters.",
-      timestamp: new Date().toLocaleString()
-    }
+    "Production yields can be improved by 3.2% by adjusting rolling mill temperature by 5°C",
+    "Energy consumption patterns suggest potential for 8% savings with modified operating schedules",
+    "Quality issues in the East plant show correlation with specific raw material supplier batches",
+    "Logistics data indicates an opportunity to optimize delivery routes, potentially saving 12% in fuel costs"
   ];
 };
 
-// Get detailed KPI data by ID
-export const getKpiDetailData = async (kpiId: string) => {
-  await simulateDelay();
-  
-  // Different data based on the KPI requested
-  switch (kpiId) {
-    case 'production-yield':
-      return {
-        id: kpiId,
-        title: 'Production Yield',
-        currentValue: '94.8%',
-        change: 2.3,
-        trendData: Array(12).fill(0).map((_, i) => ({
-          name: `Week ${i+1}`,
-          value: 85 + Math.random() * 15,
-        })),
-        breakdownData: [
-          { name: 'Hot Rolled', value: 96.2 },
-          { name: 'Cold Rolled', value: 94.5 },
-          { name: 'Galvanized', value: 93.7 },
-          { name: 'Plate', value: 95.1 },
-          { name: 'Pipe', value: 92.8 },
-        ],
-        forecastData: Array(6).fill(0).map((_, i) => ({
-          name: `Month ${i+1}`,
-          value: 90 + (Math.random() * 10),
-          forecast: true,
-        })),
-        description: 'Production yield measures the percentage of steel products that meet quality standards relative to total production volume.'
-      };
-    
-    case 'energy-consumption':
-      return {
-        id: kpiId,
-        title: 'Energy Consumption',
-        currentValue: '1,235 MWh',
-        change: -5.7,
-        trendData: Array(12).fill(0).map((_, i) => ({
-          name: `Week ${i+1}`,
-          value: 1000 + Math.random() * 500,
-        })),
-        breakdownData: [
-          { name: 'Blast Furnace', value: 45 },
-          { name: 'Rolling', value: 25 },
-          { name: 'Heat Treatment', value: 15 },
-          { name: 'Coating', value: 10 },
-          { name: 'Auxiliary', value: 5 },
-        ],
-        forecastData: Array(6).fill(0).map((_, i) => ({
-          name: `Month ${i+1}`,
-          value: 1200 - (i * 20) + (Math.random() * 100),
-          forecast: true,
-        })),
-        description: 'Energy consumption tracks total electricity usage across all steel production facilities and processes.'
-      };
-      
-    case 'quality-rating':
-      return {
-        id: kpiId,
-        title: 'Quality Rating',
-        currentValue: 'A+',
-        change: 1.2,
-        trendData: Array(12).fill(0).map((_, i) => ({
-          name: `Week ${i+1}`,
-          value: 90 + Math.random() * 10,
-        })),
-        breakdownData: [
-          { name: 'Surface Quality', value: 98 },
-          { name: 'Dimensional Accuracy', value: 97 },
-          { name: 'Mechanical Properties', value: 96 },
-          { name: 'Chemical Composition', value: 99 },
-          { name: 'Coating Quality', value: 95 },
-        ],
-        forecastData: Array(6).fill(0).map((_, i) => ({
-          name: `Month ${i+1}`,
-          value: 95 + (Math.random() * 5),
-          forecast: true,
-        })),
-        description: 'Quality rating represents the overall grade assigned to steel products based on multiple quality factors and tests.'
-      };
-      
-    case 'on-time-delivery':
-      return {
-        id: kpiId,
-        title: 'On-Time Delivery',
-        currentValue: '92.3%',
-        change: -0.8,
-        trendData: Array(12).fill(0).map((_, i) => ({
-          name: `Week ${i+1}`,
-          value: 85 + Math.random() * 15,
-        })),
-        breakdownData: [
-          { name: 'Domestic', value: 94 },
-          { name: 'International', value: 89 },
-          { name: 'Automotive', value: 96 },
-          { name: 'Construction', value: 91 },
-          { name: 'Industrial', value: 93 },
-        ],
-        forecastData: Array(6).fill(0).map((_, i) => ({
-          name: `Month ${i+1}`,
-          value: 92 + (Math.random() * 8 - 4),
-          forecast: true,
-        })),
-        description: 'On-time delivery measures the percentage of customer orders delivered within promised timeframes.'
-      };
-      
-    default:
-      return {
-        id: kpiId,
-        title: 'KPI Details',
-        currentValue: '95%',
-        change: 2,
-        trendData: Array(12).fill(0).map((_, i) => ({
-          name: `Week ${i+1}`,
-          value: 85 + Math.random() * 15,
-        })),
-        breakdownData: Array(5).fill(0).map((_, i) => ({
-          name: `Category ${i+1}`,
-          value: 10 + Math.random() * 30,
-        })),
-        forecastData: Array(6).fill(0).map((_, i) => ({
-          name: `Month ${i+1}`,
-          value: 90 + (Math.random() * 10),
-          forecast: true,
-        })),
-        description: 'Detailed KPI analysis and metrics for your steel manufacturing operations.'
-      };
-  }
-};
-
-// Get module insights
-export const getModuleInsights = async (moduleName: string) => {
-  await simulateDelay();
-  
-  // Default insights for any module
-  const defaultInsights = [
-    { id: 1, text: 'AI analysis complete. Optimization opportunities identified.' },
-    { id: 2, text: 'Machine learning prediction suggests potential improvements.' },
-    { id: 3, text: 'Trend analysis shows positive direction over the last quarter.' }
-  ];
-  
-  // Return module-specific insights from the API
-  // In a real app, this would fetch from your backend API
-  return defaultInsights;
-};
-
-// Get detailed production chart data
-export const getProductionDetailData = async () => {
-  await simulateDelay();
-  
-  return {
-    daily: Array(30).fill(0).map((_, i) => ({
-      name: `Day ${i+1}`,
-      value: 800 + Math.random() * 200,
-    })),
-    weekly: Array(12).fill(0).map((_, i) => ({
-      name: `Week ${i+1}`,
-      value: 5000 + Math.random() * 1000,
-    })),
-    monthly: Array(12).fill(0).map((_, i) => ({
-      name: `Month ${i+1}`,
-      value: 22000 + Math.random() * 5000,
-    })),
-    byProduct: [
-      { name: 'Hot Rolled Coil', value: 35 },
-      { name: 'Cold Rolled Coil', value: 25 },
-      { name: 'Galvanized Steel', value: 20 },
-      { name: 'Steel Plate', value: 15 },
-      { name: 'Steel Pipe', value: 5 },
-    ]
-  };
-};
-
-// Get detailed energy consumption data
-export const getEnergyDetailData = async () => {
-  await simulateDelay();
-  
-  return {
-    daily: Array(30).fill(0).map((_, i) => ({
-      name: `Day ${i+1}`,
-      value: 30 + Math.random() * 15,
-    })),
-    weekly: Array(12).fill(0).map((_, i) => ({
-      name: `Week ${i+1}`,
-      value: 200 + Math.random() * 50,
-    })),
-    monthly: Array(12).fill(0).map((_, i) => ({
-      name: `Month ${i+1}`,
-      value: 900 + Math.random() * 200,
-    })),
-    byProcess: [
-      { name: 'Blast Furnace', value: 40 },
-      { name: 'Rolling Mill', value: 25 },
-      { name: 'Heat Treatment', value: 20 },
-      { name: 'Coating Lines', value: 10 },
-      { name: 'Auxiliary Processes', value: 5 },
-    ]
-  };
-};
-
-// Get notifications for the notification center
-export const getNotifications = async () => {
-  await simulateDelay();
-  
-  return [
-    {
-      id: '1',
-      title: 'Production Yield Increased',
-      message: 'The production yield has increased by 2.3% in the last week.',
-      type: 'success' as const,
-      timestamp: new Date(new Date().getTime() - 2 * 60 * 60 * 1000),
-      read: false,
-      module: 'factory-planning'
-    },
-    {
-      id: '2',
-      title: 'Energy Consumption Alert',
-      message: 'Energy consumption has exceeded the weekly threshold by 5%.',
-      type: 'warning' as const,
-      timestamp: new Date(new Date().getTime() - 5 * 60 * 60 * 1000),
-      read: true,
-      module: 'factory-planning'
-    },
-    {
-      id: '3',
-      title: 'New AI Model Deployed',
-      message: 'The steel prediction model has been updated with new algorithm.',
-      type: 'info' as const,
-      timestamp: new Date(new Date().getTime() - 1 * 24 * 60 * 60 * 1000),
-      read: false
-    },
-    {
-      id: '4',
-      title: 'Supply Chain Disruption',
-      message: 'Potential supply chain disruption detected in raw materials delivery.',
-      type: 'critical' as const,
-      timestamp: new Date(new Date().getTime() - 2 * 24 * 60 * 60 * 1000),
-      read: false,
-      module: 'supply-planning'
-    },
-    {
-      id: '5',
-      title: 'Quality Inspection Completed',
-      message: 'Monthly quality inspection has been completed with A+ rating.',
-      type: 'success' as const,
-      timestamp: new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000),
-      read: true,
-      module: 'quality-control'
-    },
-  ];
-};
-
-// Create a new function to get AI Agents data
 export const getAiAgents = async () => {
-  await simulateDelay();
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 700));
   
+  // Generate mock AI agents data
   return [
     {
       id: 1,
-      name: "Supply Chain Assistant",
-      description: "Optimizes supply chain operations, predicts disruptions, and recommends mitigation strategies",
+      name: "Agentic RCA",
+      description: "AI-powered Root Cause Analysis for steel manufacturing issues",
       status: "active",
-      confidence: 94.2,
-      icon: "truck"
+      confidence: 93,
+      icon: "brain-circuit"
     },
     {
       id: 2,
-      name: "Data Analyzer",
-      description: "Processes production data to identify patterns, anomalies, and optimization opportunities",
-      status: "active",
-      confidence: 97.5,
+      name: "Smart RCA Generator",
+      description: "Generates comprehensive root cause analysis reports with recommendations",
+      status: "inactive",
+      confidence: 88,
       icon: "bar-chart"
     },
     {
       id: 3,
-      name: "Energy Efficiency Agent",
-      description: "Monitors and recommends energy usage optimizations across steel manufacturing processes",
+      name: "PlanXpert",
+      description: "Production planning optimization with real-time constraints handling",
       status: "active",
-      confidence: 92.8,
+      confidence: 95,
       icon: "zap"
     },
     {
       id: 4,
-      name: "Quality Control Agent",
-      description: "Predicts quality issues before they occur and recommends preventive actions",
+      name: "QualityGuard",
+      description: "Predictive quality control system that detects potential issues before they occur",
       status: "active",
-      confidence: 96.1,
+      confidence: 91,
       icon: "check-circle"
     },
     {
       id: 5,
-      name: "Risk Management Assistant",
-      description: "Identifies potential business and operational risks and suggests mitigation plans",
-      status: "active",
-      confidence: 93.7,
+      name: "RiskRadar",
+      description: "Supply chain risk detection and proactive mitigation recommendations",
+      status: "inactive",
+      confidence: 86,
       icon: "shield"
     }
   ];
+};
+
+export const getLatestNews = async () => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  // Generate mock industry news
+  return [
+    {
+      id: 1,
+      title: "Steel Industry Embraces AI for Sustainable Manufacturing",
+      summary: "Leading steel producers are implementing advanced AI systems to reduce carbon emissions and optimize production.",
+      source: "Steel Industry Today",
+      date: "2024-07-15",
+      category: "Innovation"
+    },
+    {
+      id: 2,
+      title: "New Breakthrough in Carbon Capture Technology for Steel Production",
+      summary: "Researchers announce promising results in carbon capture methods specifically designed for steel manufacturing facilities.",
+      source: "Green Manufacturing Journal",
+      date: "2024-07-12",
+      category: "Sustainability"
+    },
+    {
+      id: 3,
+      title: "Global Steel Market Projected to Grow 5.8% in Next Quarter",
+      summary: "Industry analysts predict stronger than expected growth in steel demand driven by infrastructure investments.",
+      source: "Metal Market Reports",
+      date: "2024-07-10",
+      category: "Market Analysis"
+    },
+    {
+      id: 4,
+      title: "AI-Powered Quality Control Reduces Defects by 32%",
+      summary: "Implementation of machine learning quality control systems shows significant improvements in steel product quality.",
+      source: "Manufacturing Innovation",
+      date: "2024-07-08",
+      category: "Technology"
+    },
+    {
+      id: 5,
+      title: "Supply Chain Resilience: New Strategies for Steel Producers",
+      summary: "Industry leaders share innovative approaches to building more robust and adaptive supply chains.",
+      source: "Supply Chain Digest",
+      date: "2024-07-05",
+      category: "Logistics"
+    }
+  ];
+};
+
+export const getCoPilotAnalytics = async () => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 600));
+  
+  // Generate mock co-pilot usage analytics
+  return {
+    modelsAnalyzed: 12,
+    dataPointsProcessed: 15000,
+    predictionsGenerated: 87
+  };
+};
+
+export const getNotifications = async () => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // Generate mock notifications
+  return [
+    {
+      id: 1,
+      title: "Production Anomaly Detected",
+      message: "AI system detected unusual pattern in Line 3 production data",
+      type: "alert",
+      timestamp: new Date(Date.now() - 30 * 60000).toISOString(),
+      read: false
+    },
+    {
+      id: 2,
+      title: "Maintenance Recommendation",
+      message: "Predictive maintenance suggests servicing Rolling Mill 2 within next 72 hours",
+      type: "info",
+      timestamp: new Date(Date.now() - 3 * 3600000).toISOString(),
+      read: true
+    },
+    {
+      id: 3,
+      title: "Supply Chain Risk Alert",
+      message: "Potential disruption in raw material supply from Vendor XYZ",
+      type: "warning",
+      timestamp: new Date(Date.now() - 12 * 3600000).toISOString(),
+      read: false
+    }
+  ];
+};
+
+// API functions for individual agents
+export const getAgentById = async (agentId: number) => {
+  const allAgents = await getAiAgents();
+  return allAgents.find(agent => agent.id === agentId) || null;
+};
+
+export const getAgentAnalytics = async (agentId: number) => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 700));
+  
+  return {
+    issuesResolved: 35 + Math.floor(Math.random() * 20),
+    avgResponseTime: 2.4 + (Math.random() * 1.5).toFixed(1),
+    userSatisfaction: 88 + Math.floor(Math.random() * 10),
+    conversationsCompleted: 143 + Math.floor(Math.random() * 50)
+  };
+};
+
+export const getAgentRecommendations = async (agentId: number) => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  const recommendations = [
+    "Adjust production schedule to account for maintenance downtime",
+    "Investigate supplier quality issues affecting finished product",
+    "Review energy consumption patterns to identify optimization opportunities",
+    "Consider inventory rebalancing based on current demand patterns",
+    "Evaluate alternative logistics routes to reduce delivery times"
+  ];
+  
+  // Return 2-3 random recommendations
+  return recommendations
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 2 + Math.floor(Math.random() * 2));
 };

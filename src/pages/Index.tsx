@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
   Box, 
@@ -20,10 +21,7 @@ import {
   ChevronRight,
   ArrowRight,
   BrainCog,
-  Lightbulb,
-  Star,
-  GitBranch,
-  LayoutDashboard
+  Lightbulb
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -40,7 +38,8 @@ import AiIntroduction from '../components/AiIntroduction';
 import AiChatInterface from '../components/AiChatInterface';
 import AiAgentsDeployment from '../components/AiAgentsDeployment';
 import AiAgentCard from '../components/AiAgentCard';
-import { getProductionData, getEnergyConsumptionData, getKpiData, getAiInsights } from '@/services/dataService';
+import LatestIndustryNews from '../components/LatestIndustryNews';
+import { getProductionData, getEnergyConsumptionData, getKpiData, getAiInsights, getCoPilotAnalytics } from '@/services/dataService';
 import { useAuth } from '@/context/AuthContext';
 import { 
   Card, 
@@ -53,7 +52,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -94,14 +92,6 @@ const floatVariant = {
   }
 };
 
-const agentIcons = [
-  <Brain className="h-5 w-5 text-purple-500" />,
-  <BrainCircuit className="h-5 w-5 text-blue-500" />,
-  <GitBranch className="h-5 w-5 text-green-500" />,
-  <Lightbulb className="h-5 w-5 text-yellow-500" />,
-  <Star className="h-5 w-5 text-orange-500" />
-];
-
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [productionData, setProductionData] = useState<any[]>([]);
@@ -110,7 +100,6 @@ const Index = () => {
   const [insights, setInsights] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
-  const [activePredictionModel, setActivePredictionModel] = useState(0);
   const [aiAgentActive, setAiAgentActive] = useState(false);
   const { user } = useAuth();
 
@@ -132,17 +121,19 @@ const Index = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [production, energy, kpis, aiInsightsData] = await Promise.all([
+        const [production, energy, kpis, aiInsightsData, coAnalytics] = await Promise.all([
           getProductionData(),
           getEnergyConsumptionData(),
           getKpiData(),
-          getAiInsights()
+          getAiInsights(),
+          getCoPilotAnalytics()
         ]);
         
         setProductionData(production);
         setEnergyData(energy);
         setKpiData(kpis);
         setInsights(aiInsightsData);
+        setAiStats(coAnalytics);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -154,36 +145,6 @@ const Index = () => {
       fetchData();
     }
   }, [showWelcome]);
-
-  useEffect(() => {
-    if (!showWelcome && !loading) {
-      const interval = setInterval(() => {
-        setAiStats(prev => ({
-          modelsAnalyzed: Math.min(prev.modelsAnalyzed + 1, 12),
-          dataPointsProcessed: Math.min(prev.dataPointsProcessed + 1000, 15000),
-          predictionsGenerated: Math.min(prev.predictionsGenerated + 5, 87)
-        }));
-      }, 50);
-
-      return () => clearInterval(interval);
-    }
-  }, [showWelcome, loading]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActivePredictionModel(prev => (prev + 1) % 5);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const predictionModels = [
-    { name: "Neural Network", confidence: "97.2%", icon: <BrainCircuit className="h-5 w-5" /> },
-    { name: "Random Forest", confidence: "94.8%", icon: <GitBranch className="h-5 w-5" /> },
-    { name: "LSTM", confidence: "96.3%", icon: <Brain className="h-5 w-5" /> },
-    { name: "XGBoost", confidence: "95.1%", icon: <LayoutDashboard className="h-5 w-5" /> },
-    { name: "Transformer", confidence: "98.1%", icon: <Sparkles className="h-5 w-5" /> }
-  ];
   
   if (showWelcome) {
     return <FuturisticWelcome />;
@@ -274,27 +235,6 @@ const Index = () => {
               <Brain className="h-3 w-3 mr-1" />
               AI Powered
             </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <motion.button 
-                    className="ml-2 text-xs text-purple-500 flex items-center hover:underline"
-                    variants={floatVariant}
-                    initial="initial"
-                    animate="float"
-                  >
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    Current Prediction: {predictionModels[activePredictionModel].name}
-                  </motion.button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <div className="p-1">
-                    <p className="font-medium">{predictionModels[activePredictionModel].name} Model</p>
-                    <p className="text-xs text-gray-500">Confidence: {predictionModels[activePredictionModel].confidence}</p>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -344,74 +284,8 @@ const Index = () => {
           </div>
         </motion.div>
         
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="mb-8"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-ey-darkGray flex items-center">
-              <BrainCircuit className="h-6 w-6 text-purple-500 mr-2" />
-              GenAI Prediction Models
-            </h2>
-            <Badge variant="outline" className="bg-purple-50 border-purple-200 text-purple-600">
-              Dynamic Model Selection
-            </Badge>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {predictionModels.map((model, index) => (
-              <motion.div
-                key={model.name}
-                initial={{ opacity: 0.7, scale: 0.95 }}
-                animate={index === activePredictionModel ? { 
-                  opacity: 1, 
-                  scale: 1,
-                  boxShadow: '0 0 0 2px rgba(126, 105, 171, 0.5)' 
-                } : { 
-                  opacity: 0.7, 
-                  scale: 0.95,
-                  boxShadow: 'none'
-                }}
-                transition={{ duration: 0.3 }}
-                className={`bg-white rounded-lg p-4 border cursor-pointer ${
-                  index === activePredictionModel 
-                    ? 'border-purple-500' 
-                    : 'border-gray-200'
-                }`}
-                onClick={() => setActivePredictionModel(index)}
-              >
-                <div className={`h-10 w-10 rounded-full flex items-center justify-center mb-3 ${
-                  index === activePredictionModel 
-                    ? 'bg-purple-100 text-purple-600' 
-                    : 'bg-gray-100 text-gray-500'
-                }`}>
-                  {model.icon}
-                </div>
-                <h3 className="font-medium text-sm">{model.name}</h3>
-                <div className="mt-1 flex items-center">
-                  <div className="flex-1 bg-gray-200 rounded-full h-1.5">
-                    <div 
-                      className={`h-1.5 rounded-full ${
-                        index === activePredictionModel 
-                          ? 'bg-purple-500' 
-                          : 'bg-gray-400'
-                      }`} 
-                      style={{ width: model.confidence }}
-                    ></div>
-                  </div>
-                  <span className={`ml-2 text-xs ${
-                    index === activePredictionModel 
-                      ? 'text-purple-600 font-semibold' 
-                      : 'text-gray-500'
-                  }`}>
-                    {model.confidence}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+        {/* Latest Industry News replacing ML models section */}
+        <LatestIndustryNews />
         
         <motion.div 
           className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
@@ -433,7 +307,7 @@ const Index = () => {
                 <CardDescription>
                   Real-time production data
                   <Badge variant="outline" className="ml-2 bg-purple-50 text-purple-500 border-purple-200">
-                    {predictionModels[activePredictionModel].name} Analysis
+                    AI Analysis
                   </Badge>
                 </CardDescription>
               </CardHeader>
@@ -538,15 +412,15 @@ const Index = () => {
                   className="mt-6 overflow-hidden"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    {['Supply Chain Assistant', 'Data Analyzer', 'Energy Efficiency', 'Quality Monitor', 'Risk Detector'].map((agent, i) => (
+                    {['Agentic RCA', 'Smart RCA Generator', 'PlanXpert', 'QualityGuard', 'RiskRadar'].map((agent, i) => (
                       <AiAgentCard
                         key={i}
                         id={i+1}
                         name={agent}
                         description=""
                         status="active"
-                        confidence={85 + Math.random() * 10}
-                        icon={['truck', 'bar-chart', 'zap', 'check-circle', 'shield'][i]}
+                        confidence={85 + Math.floor(Math.random() * 10)}
+                        icon={['brain-circuit', 'bar-chart', 'zap', 'check-circle', 'shield'][i]}
                       />
                     ))}
                   </div>
@@ -574,102 +448,93 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <motion.div custom={0} variants={fadeIn}>
-              <Link to="/modules/demand-planning">
-                <ModuleCard 
-                  title="Demand Planning" 
-                  description="AI-powered steel demand forecasting with multiple prediction models" 
-                  icon={<BarChart3 className="h-6 w-6 text-ey-darkGray" />} 
-                  path="/demand-planning" 
-                />
-              </Link>
+              <ModuleCard 
+                title="Demand Planning" 
+                description="AI-powered steel demand forecasting with multiple prediction models" 
+                icon={<BarChart3 className="h-6 w-6 text-ey-darkGray" />} 
+                path="/demand-planning" 
+                completed={85}
+              />
             </motion.div>
             <motion.div custom={1} variants={fadeIn}>
-              <Link to="/modules/supply-planning">
-                <ModuleCard 
-                  title="Enterprise Supply Planning" 
-                  description="End-to-end steel supply network visualization and optimization" 
-                  icon={<Orbit className="h-6 w-6 text-ey-darkGray" />} 
-                  path="/supply-planning"
-                  color="bg-blue-100" 
-                />
-              </Link>
+              <ModuleCard 
+                title="Enterprise Supply Planning" 
+                description="End-to-end steel supply network visualization and optimization" 
+                icon={<Orbit className="h-6 w-6 text-ey-darkGray" />} 
+                path="/supply-planning"
+                color="bg-blue-100" 
+                completed={92}
+              />
             </motion.div>
             <motion.div custom={2} variants={fadeIn}>
-              <Link to="/modules/order-promising">
-                <ModuleCard 
-                  title="Order Promising" 
-                  description="Dynamic ATP calculations for steel products and delivery prediction" 
-                  icon={<ClipboardList className="h-6 w-6 text-ey-darkGray" />} 
-                  path="/order-promising"
-                  color="bg-green-100" 
-                />
-              </Link>
+              <ModuleCard 
+                title="Order Promising" 
+                description="Dynamic ATP calculations for steel products and delivery prediction" 
+                icon={<ClipboardList className="h-6 w-6 text-ey-darkGray" />} 
+                path="/order-promising"
+                color="bg-green-100" 
+                completed={78}
+              />
             </motion.div>
             <motion.div custom={3} variants={fadeIn}>
-              <Link to="/modules/factory-planning">
-                <ModuleCard 
-                  title="Factory Planning" 
-                  description="Steel production scheduling optimization and resource allocation" 
-                  icon={<Factory className="h-6 w-6 text-ey-darkGray" />} 
-                  path="/factory-planning"
-                  color="bg-purple-100" 
-                />
-              </Link>
+              <ModuleCard 
+                title="Factory Planning" 
+                description="Steel production scheduling optimization and resource allocation" 
+                icon={<Factory className="h-6 w-6 text-ey-darkGray" />} 
+                path="/factory-planning"
+                color="bg-purple-100" 
+                completed={64}
+              />
             </motion.div>
             <motion.div custom={4} variants={fadeIn}>
-              <Link to="/modules/inventory-optimization">
-                <ModuleCard 
-                  title="Inventory Optimization" 
-                  description="Multi-echelon inventory optimization for raw materials and finished steel products" 
-                  icon={<Package className="h-6 w-6 text-ey-darkGray" />} 
-                  path="/inventory-optimization"
-                  color="bg-orange-100" 
-                />
-              </Link>
+              <ModuleCard 
+                title="Inventory Optimization" 
+                description="Multi-echelon inventory optimization for raw materials and finished steel products" 
+                icon={<Package className="h-6 w-6 text-ey-darkGray" />} 
+                path="/inventory-optimization"
+                color="bg-orange-100" 
+                completed={73}
+              />
             </motion.div>
             <motion.div custom={5} variants={fadeIn}>
-              <Link to="/modules/inventory-liquidation">
-                <ModuleCard 
-                  title="Inventory Liquidation" 
-                  description="AI-powered pricing recommendations for liquidation of excess inventory" 
-                  icon={<Box className="h-6 w-6 text-ey-darkGray" />} 
-                  path="/inventory-liquidation"
-                  color="bg-red-100" 
-                />
-              </Link>
+              <ModuleCard 
+                title="Inventory Liquidation" 
+                description="AI-powered pricing recommendations for liquidation of excess inventory" 
+                icon={<Box className="h-6 w-6 text-ey-darkGray" />} 
+                path="/inventory-liquidation"
+                color="bg-red-100" 
+                completed={56}
+              />
             </motion.div>
             <motion.div custom={6} variants={fadeIn}>
-              <Link to="/modules/logistics">
-                <ModuleCard 
-                  title="Logistics Management" 
-                  description="Route optimization for heavy steel transport and carrier selection" 
-                  icon={<Truck className="h-6 w-6 text-ey-darkGray" />} 
-                  path="/logistics"
-                  color="bg-indigo-100" 
-                />
-              </Link>
+              <ModuleCard 
+                title="Logistics Management" 
+                description="Route optimization for heavy steel transport and carrier selection" 
+                icon={<Truck className="h-6 w-6 text-ey-darkGray" />} 
+                path="/logistics"
+                color="bg-indigo-100" 
+                completed={81}
+              />
             </motion.div>
             <motion.div custom={7} variants={fadeIn}>
-              <Link to="/modules/risk-management">
-                <ModuleCard 
-                  title="Risk Management" 
-                  description="Steel supply chain risk identification and proactive mitigation recommendations" 
-                  icon={<AlertTriangle className="h-6 w-6 text-ey-darkGray" />} 
-                  path="/risk-management"
-                  color="bg-yellow-100" 
-                />
-              </Link>
+              <ModuleCard 
+                title="Risk Management" 
+                description="Steel supply chain risk identification and proactive mitigation recommendations" 
+                icon={<AlertTriangle className="h-6 w-6 text-ey-darkGray" />} 
+                path="/risk-management"
+                color="bg-yellow-100" 
+                completed={68}
+              />
             </motion.div>
             <motion.div custom={8} variants={fadeIn}>
-              <Link to="/modules/analytics">
-                <ModuleCard 
-                  title="Analytics & Reporting" 
-                  description="Customizable dashboards and AI-generated narrative insights" 
-                  icon={<Database className="h-6 w-6 text-ey-darkGray" />} 
-                  path="/analytics"
-                  color="bg-teal-100" 
-                />
-              </Link>
+              <ModuleCard 
+                title="Analytics & Reporting" 
+                description="Customizable dashboards and AI-generated narrative insights" 
+                icon={<Database className="h-6 w-6 text-ey-darkGray" />} 
+                path="/analytics"
+                color="bg-teal-100" 
+                completed={90}
+              />
             </motion.div>
           </div>
         </motion.div>

@@ -29,6 +29,12 @@ import ProductionChartDetails from "./pages/charts/ProductionChartDetails";
 import EnergyChartDetails from "./pages/charts/EnergyChartDetails";
 import UserPreferences from "./pages/user/UserPreferences";
 import UserInactivityHandler from "./components/UserInactivityHandler";
+import NewsPage from "./pages/NewsPage";
+import AgentChatPage from "./pages/AgentChatPage";
+import AgentsPage from "./pages/AgentsPage";
+
+// Install axios dependency
+import axios from 'axios';
 
 const queryClient = new QueryClient();
 
@@ -68,6 +74,13 @@ const AppRoutes = () => (
     {/* Chat routes */}
     <Route path="/chat" element={<RequireAuth><GlobalChatPage /></RequireAuth>} />
     <Route path="/chat/:module" element={<RequireAuth><ModuleChatPage /></RequireAuth>} />
+    
+    {/* News route */}
+    <Route path="/news" element={<RequireAuth><NewsPage /></RequireAuth>} />
+    
+    {/* Agents routes */}
+    <Route path="/agents" element={<RequireAuth><AgentsPage /></RequireAuth>} />
+    <Route path="/agent/:agentId" element={<RequireAuth><AgentChatPage /></RequireAuth>} />
     
     {/* Catch-all route */}
     <Route path="*" element={<NotFound />} />
