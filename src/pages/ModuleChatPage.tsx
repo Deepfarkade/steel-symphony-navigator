@@ -6,14 +6,14 @@ import ModuleLayout from '@/components/ModuleLayout';
 import { Button } from '@/components/ui/button';
 import { getModuleInsights } from '@/services/dataService';
 
-// Update the interface to make it a Record<string, string>
+// Updated interface to properly handle useParams
 interface ModuleChatParams {
-  [key: string]: string;
   module: string;
 }
 
 const ModuleChatPage = () => {
-  const { module } = useParams<keyof ModuleChatParams>();
+  const params = useParams<ModuleChatParams>();
+  const module = params.module;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [moduleData, setModuleData] = useState({

@@ -25,6 +25,7 @@ import KpiDetails from "./pages/KpiDetails";
 import NotificationsCenter from "./pages/NotificationsCenter";
 import ModuleChatPage from "./pages/ModuleChatPage";
 import GlobalChatPage from "./pages/GlobalChatPage";
+import NewsPage from "./pages/NewsPage";
 import ProductionChartDetails from "./pages/charts/ProductionChartDetails";
 import EnergyChartDetails from "./pages/charts/EnergyChartDetails";
 import UserPreferences from "./pages/user/UserPreferences";
@@ -51,6 +52,7 @@ const AppRoutes = () => (
     <Route path="/logistics" element={<RequireAuth><LogisticsManagement /></RequireAuth>} />
     <Route path="/risk-management" element={<RequireAuth><RiskManagement /></RequireAuth>} />
     <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
+    <Route path="/news" element={<RequireAuth><NewsPage /></RequireAuth>} />
     
     {/* KPI detail routes */}
     <Route path="/kpi/:id" element={<RequireAuth><KpiDetails /></RequireAuth>} />
@@ -68,6 +70,7 @@ const AppRoutes = () => (
     {/* Chat routes */}
     <Route path="/chat" element={<RequireAuth><GlobalChatPage /></RequireAuth>} />
     <Route path="/chat/:module" element={<RequireAuth><ModuleChatPage /></RequireAuth>} />
+    <Route path="/chat/agent/:agentId" element={<RequireAuth><ModuleChatPage /></RequireAuth>} />
     
     {/* Catch-all route */}
     <Route path="*" element={<NotFound />} />

@@ -6,12 +6,12 @@ import Navigation from "../components/Navigation";
 import Header from "../components/Header";
 import ModuleCard from "../components/ModuleCard";
 import KpiCard from "../components/KpiCard";
-import { ArrowUpRight, BadgePlus, BarChart3, Bell, Factory, Globe, Package, Truck, AlertTriangle } from "lucide-react";
+import { ArrowUpRight, BadgePlus, BarChart3, Bell, Factory, Globe, Package, Truck, AlertTriangle, Newspaper } from "lucide-react";
 import AreaChart from "../components/AreaChart";
 import { Button } from "@/components/ui/button";
 import AiInsights from "../components/AiInsights";
 import AiAgentsDeployment from "../components/AiAgentsDeployment";
-import { getKpis, getAiInsights, getChartData } from "../services/dataService";
+import { getKpis, getAiInsights, getChartData, getLatestNews } from "../services/dataService";
 import EyCoPilot from '../components/EyCoPilot';
 
 interface KpiData {
@@ -24,6 +24,15 @@ interface KpiData {
   module: string;
 }
 
+interface NewsItem {
+  id: string;
+  title: string;
+  summary: string;
+  source: string;
+  publishedAt: string;
+  url: string;
+}
+
 const Index = () => {
   const [kpis, setKpis] = useState<KpiData[]>([]);
   const [insights, setInsights] = useState<any[]>([]);
@@ -31,6 +40,8 @@ const Index = () => {
   const [insightsLoading, setInsightsLoading] = useState(true);
   const [productionData, setProductionData] = useState<any[]>([]);
   const [chartLoading, setChartLoading] = useState(true);
+  const [latestNews, setLatestNews] = useState<NewsItem[]>([]);
+  const [newsLoading, setNewsLoading] = useState(true);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -38,10 +49,9 @@ const Index = () => {
         // Fetch KPIs
         setKpisLoading(true);
         const kpiData = await getKpis();
-        // Convert string trends to the expected union type
+        // Convert string trends to the expected union type and ensure chart values are numbers
         const typedKpiData = kpiData.map((kpi: any) => ({
           ...kpi,
-          // Ensure chart values are numbers, not strings
           chart: Array.isArray(kpi.chart) ? kpi.chart.map((val: any) => Number(val)) : []
         }));
         setKpis(typedKpiData as KpiData[]);
@@ -58,11 +68,18 @@ const Index = () => {
         const chartData = await getChartData('production');
         setProductionData(chartData);
         setChartLoading(false);
+        
+        // Fetch Latest Industry News
+        setNewsLoading(true);
+        const newsData = await getLatestNews();
+        setLatestNews(newsData);
+        setNewsLoading(false);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
         setKpisLoading(false);
         setInsightsLoading(false);
         setChartLoading(false);
+        setNewsLoading(false);
       }
     };
     
@@ -77,7 +94,7 @@ const Index = () => {
       id: '1', 
       title: 'Demand Planning', 
       path: '/demand-planning', 
-      completed: '82%', 
+      completed: '82', 
       icon: <BarChart3 className="h-5 w-5 text-blue-600" />,
       description: 'Forecast demand and plan production schedules with AI-driven insights.' 
     },
@@ -85,7 +102,7 @@ const Index = () => {
       id: '2', 
       title: 'Supply Planning', 
       path: '/supply-planning', 
-      completed: '68%', 
+      completed: '68', 
       icon: <Globe className="h-5 w-5 text-green-600" />,
       description: 'Optimize your supply chain with predictive analytics and real-time monitoring.' 
     },
@@ -93,7 +110,7 @@ const Index = () => {
       id: '3', 
       title: 'Factory Planning', 
       path: '/factory-planning', 
-      completed: '95%', 
+      completed: '95', 
       icon: <Factory className="h-5 w-5 text-purple-600" />,
       description: 'Streamline production workflows and maximize operational efficiency.' 
     },
@@ -101,7 +118,7 @@ const Index = () => {
       id: '4', 
       title: 'Inventory Optimization', 
       path: '/inventory-optimization', 
-      completed: '74%', 
+      completed: '74', 
       icon: <Package className="h-5 w-5 text-orange-600" />,
       description: 'Balance inventory levels to reduce costs while maintaining service levels.' 
     },
@@ -109,7 +126,7 @@ const Index = () => {
       id: '5', 
       title: 'Logistics', 
       path: '/logistics', 
-      completed: '88%', 
+      completed: '88', 
       icon: <Truck className="h-5 w-5 text-cyan-600" />,
       description: 'Plan transportation and distribution to minimize costs and delivery times.' 
     },
@@ -117,7 +134,7 @@ const Index = () => {
       id: '6', 
       title: 'Risk Management', 
       path: '/risk-management', 
-      completed: '61%', 
+      completed: '61', 
       icon: <AlertTriangle className="h-5 w-5 text-red-600" />,
       description: 'Identify and mitigate supply chain risks before they impact your business.' 
     },
@@ -159,7 +176,7 @@ const Index = () => {
                   value={kpi.value}
                   change={kpi.change}
                   trend={kpi.trend}
-                  sparklineData={kpi.chart.map(Number)} // Ensure numbers
+                  sparklineData={kpi.chart}
                 />
               ))
             )}
@@ -183,7 +200,7 @@ const Index = () => {
                     key={module.id}
                     title={module.title}
                     path={module.path}
-                    completed={module.completed}
+                    completed={parseInt(module.completed)}
                     icon={module.icon}
                     description={module.description}
                   />
@@ -217,8 +234,54 @@ const Index = () => {
                 </CardContent>
               </Card>
               
+              {/* Latest Industry News Section (replacing AI Agents) */}
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-ey-darkGray">AI Agents</h2>
+                <h2 className="text-xl font-semibold text-ey-darkGray">Latest Industry News</h2>
+                <Link to="/news">
+                  <Button variant="ghost" className="text-ey-darkGray flex items-center">
+                    <Newspaper className="h-4 w-4 mr-1" />
+                    View All
+                  </Button>
+                </Link>
+              </div>
+              
+              <Card>
+                <CardContent className="p-4 space-y-4">
+                  {newsLoading ? (
+                    <>
+                      <div className="h-20 bg-gray-100 animate-pulse rounded-md mb-4"></div>
+                      <div className="h-20 bg-gray-100 animate-pulse rounded-md mb-4"></div>
+                      <div className="h-20 bg-gray-100 animate-pulse rounded-md"></div>
+                    </>
+                  ) : (
+                    <>
+                      {latestNews.slice(0, 3).map((news) => (
+                        <div key={news.id} className="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                          <h3 className="font-medium text-ey-darkGray hover:text-blue-600 transition-colors">
+                            <a href={news.url} target="_blank" rel="noopener noreferrer">
+                              {news.title}
+                            </a>
+                          </h3>
+                          <p className="text-sm text-gray-500 mt-1 line-clamp-2">{news.summary}</p>
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-xs text-gray-400">{news.source}</span>
+                            <span className="text-xs text-gray-400">{news.publishedAt}</span>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="pt-2">
+                        <Link to="/news" className="text-sm text-blue-600 hover:text-blue-800 transition-colors flex items-center">
+                          See all industry news
+                          <ArrowUpRight className="h-3 w-3 ml-1" />
+                        </Link>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+              
+              {/* AI Agents deployment button */}
+              <div className="flex justify-end">
                 <AiAgentsDeployment />
               </div>
             </div>
