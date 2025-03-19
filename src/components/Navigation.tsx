@@ -248,49 +248,51 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
                     </button>
                   </CollapsibleTrigger>
                   
-                  <CollapsibleContent className="mt-2 ml-2 space-y-1 max-h-60 overflow-y-auto">
-                    {loading ? (
-                      <div className="animate-pulse p-2">
-                        {[1, 2, 3].map(i => (
-                          <div key={i} className="h-9 bg-gray-100 rounded-md mb-2"></div>
-                        ))}
-                      </div>
-                    ) : (
-                      <>
-                        {agents.map(agent => (
-                          <Link
-                            key={agent.id}
-                            to={`/agent/${agent.id}`}
-                            className={`flex items-center p-2 rounded-md text-sm ${
-                              agentId === agent.id
-                                ? 'bg-purple-100 text-purple-700'
-                                : 'text-ey-darkGray/70 hover:bg-gray-100'
-                            }`}
+                  <ScrollArea className="mt-2 max-h-60">
+                    <CollapsibleContent className="ml-2 space-y-1">
+                      {loading ? (
+                        <div className="animate-pulse p-2">
+                          {[1, 2, 3].map(i => (
+                            <div key={i} className="h-9 bg-gray-100 rounded-md mb-2"></div>
+                          ))}
+                        </div>
+                      ) : (
+                        <>
+                          {agents.map(agent => (
+                            <Link
+                              key={agent.id}
+                              to={`/agent/${agent.id}`}
+                              className={`flex items-center p-2 rounded-md text-sm ${
+                                agentId === agent.id
+                                  ? 'bg-purple-100 text-purple-700'
+                                  : 'text-ey-darkGray/70 hover:bg-gray-100'
+                              }`}
+                            >
+                              <div className={`w-6 h-6 rounded-full ${
+                                agent.status === 'active' ? 'bg-green-100' : 'bg-gray-100'
+                              } flex items-center justify-center mr-2`}>
+                                {getAgentIcon(agent.icon)}
+                              </div>
+                              <span className="truncate">{agent.name}</span>
+                              {agent.status === 'active' && (
+                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 ml-2 animate-pulse"></div>
+                              )}
+                            </Link>
+                          ))}
+                          
+                          <button
+                            onClick={() => navigate('/agents')}
+                            className="flex items-center w-full p-2 rounded-md text-sm text-purple-600 hover:bg-purple-50"
                           >
-                            <div className={`w-6 h-6 rounded-full ${
-                              agent.status === 'active' ? 'bg-green-100' : 'bg-gray-100'
-                            } flex items-center justify-center mr-2`}>
-                              {getAgentIcon(agent.icon)}
+                            <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                              <Plus className="h-3.5 w-3.5" />
                             </div>
-                            <span className="truncate">{agent.name}</span>
-                            {agent.status === 'active' && (
-                              <div className="w-1.5 h-1.5 rounded-full bg-green-500 ml-2 animate-pulse"></div>
-                            )}
-                          </Link>
-                        ))}
-                        
-                        <button
-                          onClick={() => navigate('/agents')}
-                          className="flex items-center w-full p-2 rounded-md text-sm text-purple-600 hover:bg-purple-50"
-                        >
-                          <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
-                            <Plus className="h-3.5 w-3.5" />
-                          </div>
-                          <span>Add More Agents</span>
-                        </button>
-                      </>
-                    )}
-                  </CollapsibleContent>
+                            <span>Add More Agents</span>
+                          </button>
+                        </>
+                      )}
+                    </CollapsibleContent>
+                  </ScrollArea>
                 </Collapsible>
               )}
             </div>

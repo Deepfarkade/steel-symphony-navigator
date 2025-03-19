@@ -234,7 +234,7 @@ export const getAgentAnalytics = async (agentId: number) => {
   
   return {
     issuesResolved: 35 + Math.floor(Math.random() * 20),
-    avgResponseTime: 2.4 + (Math.random() * 1.5).toFixed(1),
+    avgResponseTime: 2.4 + (Math.random() * 1.5),
     userSatisfaction: 88 + Math.floor(Math.random() * 10),
     conversationsCompleted: 143 + Math.floor(Math.random() * 50)
   };

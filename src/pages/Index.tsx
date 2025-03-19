@@ -21,7 +21,8 @@ import {
   ChevronRight,
   ArrowRight,
   BrainCog,
-  Lightbulb
+  Lightbulb,
+  Newspaper
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -243,7 +244,7 @@ const Index = () => {
                 <KpiCard 
                   title="Production Yield" 
                   value={kpiData.productionYield?.value || "94.8%"} 
-                  change={kpiData.productionYield?.change || 2.3} 
+                  change={Number(kpiData.productionYield?.change || 2.3)} 
                   icon={<BarChart2 className="h-6 w-6 text-ey-darkGray" />} 
                 />
               </Link>
@@ -253,7 +254,7 @@ const Index = () => {
                 <KpiCard 
                   title="Energy Consumption" 
                   value={kpiData.energyConsumption?.value || "1,235 MWh"} 
-                  change={kpiData.energyConsumption?.change || -5.7} 
+                  change={Number(kpiData.energyConsumption?.change || -5.7)} 
                   icon={<Zap className="h-6 w-6 text-ey-darkGray" />}
                   color="bg-blue-100" 
                 />
@@ -264,7 +265,7 @@ const Index = () => {
                 <KpiCard 
                   title="Quality Rating" 
                   value={kpiData.qualityRating?.value || "A+"} 
-                  change={kpiData.qualityRating?.change || 1.2} 
+                  change={Number(kpiData.qualityRating?.change || 1.2)} 
                   icon={<LineChart className="h-6 w-6 text-ey-darkGray" />}
                   color="bg-green-100" 
                 />
@@ -275,7 +276,7 @@ const Index = () => {
                 <KpiCard 
                   title="On-Time Delivery" 
                   value={kpiData.onTimeDelivery?.value || "92.3%"} 
-                  change={kpiData.onTimeDelivery?.change || -0.8} 
+                  change={Number(kpiData.onTimeDelivery?.change || -0.8)} 
                   icon={<Timer className="h-6 w-6 text-ey-darkGray" />}
                   color="bg-purple-100" 
                 />
@@ -284,7 +285,7 @@ const Index = () => {
           </div>
         </motion.div>
         
-        {/* Latest Industry News replacing ML models section */}
+        {/* Latest Industry News section */}
         <LatestIndustryNews />
         
         <motion.div 
@@ -453,7 +454,7 @@ const Index = () => {
                 description="AI-powered steel demand forecasting with multiple prediction models" 
                 icon={<BarChart3 className="h-6 w-6 text-ey-darkGray" />} 
                 path="/demand-planning" 
-                completed={85}
+                completed="85"
               />
             </motion.div>
             <motion.div custom={1} variants={fadeIn}>
@@ -463,7 +464,7 @@ const Index = () => {
                 icon={<Orbit className="h-6 w-6 text-ey-darkGray" />} 
                 path="/supply-planning"
                 color="bg-blue-100" 
-                completed={92}
+                completed="92"
               />
             </motion.div>
             <motion.div custom={2} variants={fadeIn}>
@@ -473,7 +474,7 @@ const Index = () => {
                 icon={<ClipboardList className="h-6 w-6 text-ey-darkGray" />} 
                 path="/order-promising"
                 color="bg-green-100" 
-                completed={78}
+                completed="78"
               />
             </motion.div>
             <motion.div custom={3} variants={fadeIn}>
@@ -483,7 +484,7 @@ const Index = () => {
                 icon={<Factory className="h-6 w-6 text-ey-darkGray" />} 
                 path="/factory-planning"
                 color="bg-purple-100" 
-                completed={64}
+                completed="64"
               />
             </motion.div>
             <motion.div custom={4} variants={fadeIn}>
@@ -493,7 +494,7 @@ const Index = () => {
                 icon={<Package className="h-6 w-6 text-ey-darkGray" />} 
                 path="/inventory-optimization"
                 color="bg-orange-100" 
-                completed={73}
+                completed="73"
               />
             </motion.div>
             <motion.div custom={5} variants={fadeIn}>
@@ -503,7 +504,7 @@ const Index = () => {
                 icon={<Box className="h-6 w-6 text-ey-darkGray" />} 
                 path="/inventory-liquidation"
                 color="bg-red-100" 
-                completed={56}
+                completed="56"
               />
             </motion.div>
             <motion.div custom={6} variants={fadeIn}>
@@ -513,7 +514,7 @@ const Index = () => {
                 icon={<Truck className="h-6 w-6 text-ey-darkGray" />} 
                 path="/logistics"
                 color="bg-indigo-100" 
-                completed={81}
+                completed="81"
               />
             </motion.div>
             <motion.div custom={7} variants={fadeIn}>
@@ -523,7 +524,7 @@ const Index = () => {
                 icon={<AlertTriangle className="h-6 w-6 text-ey-darkGray" />} 
                 path="/risk-management"
                 color="bg-yellow-100" 
-                completed={68}
+                completed="68"
               />
             </motion.div>
             <motion.div custom={8} variants={fadeIn}>
@@ -533,7 +534,7 @@ const Index = () => {
                 icon={<Database className="h-6 w-6 text-ey-darkGray" />} 
                 path="/analytics"
                 color="bg-teal-100" 
-                completed={90}
+                completed="90"
               />
             </motion.div>
           </div>

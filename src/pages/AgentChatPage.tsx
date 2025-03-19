@@ -1,61 +1,42 @@
 
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Brain, BrainCircuit, ChartBar, Check, Shield, Zap, MessagesSquare, Clock, CheckCircle2, PieChart } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { ArrowLeft, BrainCircuit, Zap, Activity } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import Navigation from '../components/Navigation';
+import Header from '../components/Header';
+import AiChatInterface from '../components/AiChatInterface';
 import { getAgentById, getAgentAnalytics, getAgentRecommendations } from '@/services/dataService';
-import Navigation from '@/components/Navigation';
-import Header from '@/components/Header';
-import AiChatInterface from '@/components/AiChatInterface';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
-interface AgentChatParams {
+interface AgentParams {
   agentId: string;
 }
 
-interface Agent {
-  id: number;
-  name: string;
-  description: string;
-  status: string;
-  confidence: number;
-  icon: string;
-}
-
-interface AgentAnalytics {
-  issuesResolved: number;
-  avgResponseTime: number;
-  userSatisfaction: number;
-  conversationsCompleted: number;
-}
-
 const AgentChatPage = () => {
-  const { agentId } = useParams<AgentChatParams>();
-  const [agent, setAgent] = useState<Agent | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [analytics, setAnalytics] = useState<AgentAnalytics | null>(null);
+  const { agentId } = useParams<AgentParams>();
+  const [agent, setAgent] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<any>(null);
   const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     const fetchAgentData = async () => {
+      if (!agentId) return;
+      
+      setLoading(true);
       try {
-        setLoading(true);
-        if (!agentId) return;
+        const [agentData, analyticsData, recommendationsData] = await Promise.all([
+          getAgentById(Number(agentId)),
+          getAgentAnalytics(Number(agentId)),
+          getAgentRecommendations(Number(agentId))
+        ]);
         
-        const agentData = await getAgentById(parseInt(agentId));
-        if (agentData) {
-          setAgent(agentData);
-          
-          // Fetch additional agent data in parallel
-          const [analyticsData, recommendationsData] = await Promise.all([
-            getAgentAnalytics(agentData.id),
-            getAgentRecommendations(agentData.id)
-          ]);
-          
-          setAnalytics(analyticsData);
-          setRecommendations(recommendationsData);
-        }
+        setAgent(agentData);
+        setAnalytics(analyticsData);
+        setRecommendations(recommendationsData);
       } catch (error) {
         console.error('Error fetching agent data:', error);
       } finally {
@@ -65,167 +46,134 @@ const AgentChatPage = () => {
     
     fetchAgentData();
   }, [agentId]);
-  
-  const getAgentIcon = () => {
-    switch (agent?.icon) {
-      case 'truck':
-        return <Zap className="h-6 w-6 text-white" />;
-      case 'bar-chart':
-        return <ChartBar className="h-6 w-6 text-white" />;
-      case 'zap':
-        return <Zap className="h-6 w-6 text-white" />;
-      case 'check-circle':
-        return <Check className="h-6 w-6 text-white" />;
-      case 'shield':
-        return <Shield className="h-6 w-6 text-white" />;
-      default:
-        return <BrainCircuit className="h-6 w-6 text-white" />;
-    }
-  };
-  
+
   if (loading) {
     return (
-      <div className="w-full min-h-screen bg-gray-50">
-        <Navigation />
-        <div data-main-content className="ml-64 p-8">
-          <Header pageTitle="Agent Interface" />
-          <div className="flex items-center justify-center h-80">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ey-yellow"></div>
+      <div className="min-h-screen bg-gray-50">
+        <Navigation agentId={Number(agentId)} />
+        <div data-main-content className="ml-64 p-8 transition-all duration-300">
+          <div className="flex justify-center items-center h-[60vh]">
+            <div className="animate-spin h-12 w-12 rounded-full border-4 border-purple-500 border-t-transparent"></div>
           </div>
         </div>
       </div>
     );
   }
-  
+
   if (!agent) {
     return (
-      <div className="w-full min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50">
         <Navigation />
-        <div data-main-content className="ml-64 p-8">
-          <Header pageTitle="Agent Not Found" />
-          <div className="flex flex-col items-center justify-center h-80">
-            <p className="text-ey-lightGray mb-4">The requested agent could not be found.</p>
-            <Link to="/">
-              <Button>Return to Dashboard</Button>
+        <div data-main-content className="ml-64 p-8 transition-all duration-300">
+          <div className="flex flex-col justify-center items-center h-[60vh]">
+            <h2 className="text-2xl font-bold text-ey-darkGray mb-4">Agent Not Found</h2>
+            <p className="text-ey-lightGray mb-6">The requested AI agent could not be found or has been deactivated.</p>
+            <Link to="/agents">
+              <button className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">
+                View All Agents
+              </button>
             </Link>
           </div>
         </div>
       </div>
     );
   }
-  
+
   return (
-    <div className="w-full min-h-screen bg-gray-50">
-      <Navigation agentId={parseInt(agentId || '0')} />
-      <div data-main-content className="ml-64 p-8">
-        <Header pageTitle={agent.name} />
+    <div className="min-h-screen bg-gray-50">
+      <Navigation agentId={Number(agentId)} />
+      
+      <div data-main-content className="ml-64 p-8 transition-all duration-300">
+        <Header 
+          pageTitle={`AI Agent: ${agent.name}`}
+          breadcrumbs={[
+            { label: 'Home', link: '/' },
+            { label: 'Agents', link: '/agents' },
+            { label: agent.name, link: `/agent/${agentId}` }
+          ]}
+        />
         
-        <div className="mb-6">
-          <Link to="/">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-6 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-6 text-white"
-        >
-          <div className="flex items-center mb-4">
-            <div className="h-12 w-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mr-4">
-              {getAgentIcon()}
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">{agent.name}</h1>
-              <p className="text-white/80">{agent.description}</p>
-            </div>
-          </div>
-          
-          {analytics && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                <div className="flex items-center mb-2">
-                  <CheckCircle2 className="h-5 w-5 text-white mr-2" />
-                  <h3 className="font-semibold">Issues Resolved</h3>
-                </div>
-                <p className="text-2xl font-bold">{analytics.issuesResolved}</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                <div className="flex items-center mb-2">
-                  <Clock className="h-5 w-5 text-white mr-2" />
-                  <h3 className="font-semibold">Avg. Response Time</h3>
-                </div>
-                <p className="text-2xl font-bold">{analytics.avgResponseTime}s</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                <div className="flex items-center mb-2">
-                  <MessagesSquare className="h-5 w-5 text-white mr-2" />
-                  <h3 className="font-semibold">Conversations</h3>
-                </div>
-                <p className="text-2xl font-bold">{analytics.conversationsCompleted}</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                <div className="flex items-center mb-2">
-                  <PieChart className="h-5 w-5 text-white mr-2" />
-                  <h3 className="font-semibold">User Satisfaction</h3>
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className="col-span-2">
+            <Card className="h-full">
+              <CardHeader className="pb-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-lg">
                 <div className="flex items-center">
-                  <p className="text-2xl font-bold mr-2">{analytics.userSatisfaction}%</p>
-                  <div className="flex-1">
-                    <Progress value={analytics.userSatisfaction} className="h-2 bg-white/30" indicatorClassName="bg-white" />
+                  <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                    <BrainCircuit className="h-6 w-6 text-white" />
                   </div>
+                  <div>
+                    <CardTitle className="text-xl font-bold">{agent.name}</CardTitle>
+                    <div className="text-white/80 text-sm">{agent.description}</div>
+                  </div>
+                  <Badge className="ml-auto bg-green-500 text-white">
+                    {agent.status === 'active' ? 'Active' : 'Learning'}
+                  </Badge>
                 </div>
-              </div>
-            </div>
-          )}
-        </motion.div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
-          <div className="lg:col-span-3">
-            <div className="ey-card h-full">
-              <div className="p-4 border-b">
-                <h2 className="text-lg font-medium">Chat with {agent.name}</h2>
-                <p className="text-sm text-ey-lightGray">Specialized AI agent for {agent.name.toLowerCase()} tasks</p>
-              </div>
-              <div className="p-0">
-                <AiChatInterface moduleContext={`agent-${agent.id}`} />
-              </div>
-            </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="p-6 h-[calc(100vh-350px)]">
+                  <AiChatInterface agentId={Number(agentId)} />
+                </div>
+              </CardContent>
+            </Card>
           </div>
           
-          <div className="lg:col-span-1">
-            <div className="ey-card h-full">
-              <div className="p-4 border-b">
-                <h2 className="text-lg font-medium">Agent Recommendations</h2>
-              </div>
-              <div className="p-4">
-                {recommendations.length > 0 ? (
-                  <ul className="space-y-4">
-                    {recommendations.map((recommendation, index) => (
-                      <motion.li 
+          <div className="col-span-1">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-bold flex items-center">
+                    <Activity className="h-5 w-5 text-purple-500 mr-2" />
+                    Agent Analytics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  {analytics && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-purple-50 p-3 rounded-lg">
+                        <div className="text-xs text-purple-600 mb-1">Issues Resolved</div>
+                        <div className="text-xl font-bold text-ey-darkGray">{analytics.issuesResolved}</div>
+                      </div>
+                      <div className="bg-blue-50 p-3 rounded-lg">
+                        <div className="text-xs text-blue-600 mb-1">Avg. Response</div>
+                        <div className="text-xl font-bold text-ey-darkGray">{analytics.avgResponseTime}s</div>
+                      </div>
+                      <div className="bg-green-50 p-3 rounded-lg">
+                        <div className="text-xs text-green-600 mb-1">Satisfaction</div>
+                        <div className="text-xl font-bold text-ey-darkGray">{analytics.userSatisfaction}%</div>
+                      </div>
+                      <div className="bg-indigo-50 p-3 rounded-lg">
+                        <div className="text-xs text-indigo-600 mb-1">Conversations</div>
+                        <div className="text-xl font-bold text-ey-darkGray">{analytics.conversationsCompleted}</div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-bold flex items-center">
+                    <Zap className="h-5 w-5 text-yellow-500 mr-2" />
+                    Agent Recommendations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="space-y-3">
+                    {recommendations.map((rec, index) => (
+                      <motion.div 
                         key={index}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 + 0.5 }}
-                        className="flex"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="bg-yellow-50 p-3 rounded-lg border-l-4 border-yellow-400"
                       >
-                        <div className="flex-shrink-0 h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center mr-3 mt-0.5">
-                          <Check className="h-3.5 w-3.5 text-purple-600" />
-                        </div>
-                        <p className="text-sm text-ey-darkGray">{recommendation}</p>
-                      </motion.li>
+                        <p className="text-sm text-ey-darkGray">{rec}</p>
+                      </motion.div>
                     ))}
-                  </ul>
-                ) : (
-                  <div className="flex items-center justify-center h-40">
-                    <p className="text-ey-lightGray text-sm">No recommendations available yet</p>
                   </div>
-                )}
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

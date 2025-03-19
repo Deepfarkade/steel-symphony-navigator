@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Truck, BarChart, Zap, CheckCircle, Shield, BrainCircuit, Loader2 } from 'lucide-react';
+import { Truck, BarChart3, Zap, CheckCircle, Shield, BrainCircuit, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface AiAgentProps {
@@ -30,7 +30,7 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
       case 'truck':
         return <Truck className="h-6 w-6 text-white" />;
       case 'bar-chart':
-        return <BarChart className="h-6 w-6 text-white" />;
+        return <BarChart3 className="h-6 w-6 text-white" />;
       case 'zap':
         return <Zap className="h-6 w-6 text-white" />;
       case 'check-circle':
@@ -88,13 +88,14 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
       
       {isExpanded && (
         <div className="mt-3">
-          {status === 'active' ? (
+          {status === 'learning' ? (
             <Button 
-              onClick={() => onActivate && onActivate(id)}
+              disabled
               variant="outline" 
               className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30"
             >
-              Interact with Agent
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Activating Agent...
             </Button>
           ) : (
             <Button 
@@ -102,8 +103,7 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
               variant="outline" 
               className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30"
             >
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Activating Agent...
+              Interact with Agent
             </Button>
           )}
         </div>

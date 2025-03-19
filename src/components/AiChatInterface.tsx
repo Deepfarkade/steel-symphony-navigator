@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 interface AiChatInterfaceProps {
   moduleContext?: string;
   floating?: boolean;
+  agentId?: number;
 }
 
 interface ChatMessage {
@@ -19,10 +20,12 @@ interface ChatMessage {
   timestamp: Date;
 }
 
-const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floating = false }) => {
+const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floating = false, agentId }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
-      text: `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${moduleContext || 'operations'} today?`,
+      text: agentId 
+        ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
+        : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${moduleContext || 'operations'} today?`,
       isUser: false,
       timestamp: new Date()
     }
@@ -99,6 +102,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
     websocketService.sendMessage('chat', { 
       text: inputText,
       moduleContext,
+      agentId,
       timestamp: new Date().toISOString(),
       isUser: true
     });
@@ -112,8 +116,10 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
     setIsFullscreen(!isFullscreen);
   };
 
-  const navigateToGlobalChat = () => {
-    if (moduleContext) {
+  const navigateToChat = () => {
+    if (agentId) {
+      navigate(`/agent/${agentId}`);
+    } else if (moduleContext) {
       navigate(`/chat/${moduleContext}`);
     } else {
       navigate('/chat');
@@ -128,7 +134,9 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
       <div className="flex items-center justify-between mb-4 p-4 border-b border-gray-100">
         <div className="flex items-center">
           <BrainCircuit className="h-5 w-5 text-indigo-600 mr-2" />
-          <h2 className="text-xl font-bold text-ey-darkGray">EY SECP</h2>
+          <h2 className="text-xl font-bold text-ey-darkGray">
+            {agentId ? `Agent #${agentId}` : 'EY SECP'}
+          </h2>
         </div>
         <div className="flex items-center space-x-2">
           <motion.span 
@@ -143,7 +151,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
             {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
           {!isFullscreen && (
-            <button onClick={navigateToGlobalChat} className="text-blue-500 hover:text-blue-700 transition-colors text-xs">
+            <button onClick={navigateToChat} className="text-blue-500 hover:text-blue-700 transition-colors text-xs">
               Open Full View
             </button>
           )}
@@ -208,7 +216,9 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Ask me about steel operations, production data, or insights..."
+            placeholder={agentId 
+              ? "Ask this agent about specialized steel insights..." 
+              : "Ask me about steel operations, production data, or insights..."}
             className="flex-1 border border-ey-lightGray/20 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             disabled={isLoading}
           />

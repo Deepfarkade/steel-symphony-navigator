@@ -9,7 +9,7 @@ interface ModuleCardProps {
   icon: React.ReactNode;
   path: string;
   color?: string;
-  completed?: number;
+  completed?: string | number;
 }
 
 const ModuleCard: React.FC<ModuleCardProps> = ({ 
