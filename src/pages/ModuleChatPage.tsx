@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MessageCircle, AlertTriangle } from 'lucide-react';
@@ -6,9 +5,9 @@ import ModuleLayout from '@/components/ModuleLayout';
 import { Button } from '@/components/ui/button';
 import { getModuleInsights } from '@/services/dataService';
 
-// Updated interface to properly handle useParams
 interface ModuleChatParams {
-  module: string;
+  [key: string]: string | undefined;
+  module?: string;
 }
 
 const ModuleChatPage = () => {
@@ -31,7 +30,6 @@ const ModuleChatPage = () => {
         let description = '';
         let icon = <MessageCircle className="h-5 w-5 text-ey-yellow" />;
         
-        // Map the module slug to a proper title and description
         switch(module) {
           case 'demand-planning':
             title = 'Demand Planning';
@@ -49,7 +47,6 @@ const ModuleChatPage = () => {
             icon = <MessageCircle className="h-5 w-5 text-purple-600" />;
             break;
           default:
-            // If no specific module is matched, use a generic title based on the slug
             title = module?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') || 'Chat';
             description = `AI-powered assistance for ${title}`;
             icon = <MessageCircle className="h-5 w-5 text-ey-yellow" />;
@@ -90,6 +87,7 @@ const ModuleChatPage = () => {
       title={moduleData.title}
       description={moduleData.description}
       icon={moduleData.icon}
+      moduleName={module}
     >
       <div className="ey-card p-6">
         <h2 className="text-xl font-semibold mb-4">Chat with {moduleData.title} AI Assistant</h2>

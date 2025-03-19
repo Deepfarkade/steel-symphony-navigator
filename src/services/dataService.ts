@@ -1,8 +1,73 @@
-
 import axios from 'axios';
 
 // Mock API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Add the getCoPilotAnalytics function
+export const getCoPilotAnalytics = async () => {
+  // Simulate API call
+  await delay(1000);
+  
+  return {
+    modelsAnalyzed: 24,
+    dataPointsProcessed: 1856432,
+    predictionsGenerated: 420,
+    status: "Active and Learning"
+  };
+};
+
+// Add the getNotifications function
+export const getNotifications = async () => {
+  // Simulate API call
+  await delay(800);
+  
+  return [
+    {
+      id: '1',
+      title: 'Production Yield Increased',
+      message: 'The production yield has increased by 2.3% in the last week.',
+      type: 'success',
+      timestamp: new Date(new Date().getTime() - 2 * 60 * 60 * 1000),
+      read: false,
+      module: 'factory-planning'
+    },
+    {
+      id: '2',
+      title: 'Energy Consumption Alert',
+      message: 'Energy consumption has exceeded the weekly threshold by 5%.',
+      type: 'warning',
+      timestamp: new Date(new Date().getTime() - 5 * 60 * 60 * 1000),
+      read: true,
+      module: 'factory-planning'
+    },
+    {
+      id: '3',
+      title: 'New AI Model Deployed',
+      message: 'The steel prediction model has been updated with new algorithm.',
+      type: 'info',
+      timestamp: new Date(new Date().getTime() - 1 * 24 * 60 * 60 * 1000),
+      read: false
+    },
+    {
+      id: '4',
+      title: 'Supply Chain Disruption',
+      message: 'Potential supply chain disruption detected in raw materials delivery.',
+      type: 'critical',
+      timestamp: new Date(new Date().getTime() - 2 * 24 * 60 * 60 * 1000),
+      read: false,
+      module: 'supply-planning'
+    },
+    {
+      id: '5',
+      title: 'Quality Inspection Completed',
+      message: 'Monthly quality inspection has been completed with A+ rating.',
+      type: 'success',
+      timestamp: new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000),
+      read: true,
+      module: 'quality-control'
+    }
+  ];
+};
 
 export const getKpis = async () => {
   // Simulate API call
@@ -218,27 +283,27 @@ export const getModuleInsights = async (module: string) => {
   switch(module) {
     case 'demand-planning':
       return [
-        'Demand for high-strength steel increased by 12% in the automotive sector',
-        'Seasonal pattern detected in construction steel demand, consider adjusting production schedule',
-        'New market opportunity identified in renewable energy sector for specialized steel components'
+        { id: 1, text: 'Demand for high-strength steel increased by 12% in the automotive sector' },
+        { id: 2, text: 'Seasonal pattern detected in construction steel demand, consider adjusting production schedule' },
+        { id: 3, text: 'New market opportunity identified in renewable energy sector for specialized steel components' }
       ];
     case 'supply-planning':
       return [
-        'Iron ore supplier in Brazil reporting 2-week shipping delays due to port congestion',
-        'Alternative supplier for manganese identified with competitive pricing',
-        'Opportunity to consolidate orders from multiple suppliers to reduce shipping costs'
+        { id: 1, text: 'Iron ore supplier in Brazil reporting 2-week shipping delays due to port congestion' },
+        { id: 2, text: 'Alternative supplier for manganese identified with competitive pricing' },
+        { id: 3, text: 'Opportunity to consolidate orders from multiple suppliers to reduce shipping costs' }
       ];
     case 'factory-planning':
       return [
-        'Production Line 3 showing 7% efficiency improvement after recent maintenance',
-        'Potential bottleneck identified in heat treatment process during peak production periods',
-        'Energy consumption optimization opportunity during overnight shifts'
+        { id: 1, text: 'Production Line 3 showing 7% efficiency improvement after recent maintenance' },
+        { id: 2, text: 'Potential bottleneck identified in heat treatment process during peak production periods' },
+        { id: 3, text: 'Energy consumption optimization opportunity during overnight shifts' }
       ];
     default:
       return [
-        'AI analysis suggests 5% potential efficiency improvement',
-        'Market trends indicate shifting demand patterns in your sector',
-        'Consider reviewing your strategy based on recent industry developments'
+        { id: 1, text: 'AI analysis suggests 5% potential efficiency improvement' },
+        { id: 2, text: 'Market trends indicate shifting demand patterns in your sector' },
+        { id: 3, text: 'Consider reviewing your strategy based on recent industry developments' }
       ];
   }
 };

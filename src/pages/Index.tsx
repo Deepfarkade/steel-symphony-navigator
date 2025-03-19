@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
@@ -46,10 +45,8 @@ const Index = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch KPIs
         setKpisLoading(true);
         const kpiData = await getKpis();
-        // Convert string trends to the expected union type and ensure chart values are numbers
         const typedKpiData = kpiData.map((kpi: any) => ({
           ...kpi,
           chart: Array.isArray(kpi.chart) ? kpi.chart.map((val: any) => Number(val)) : []
@@ -57,19 +54,16 @@ const Index = () => {
         setKpis(typedKpiData as KpiData[]);
         setKpisLoading(false);
         
-        // Fetch Insights
         setInsightsLoading(true);
         const insightData = await getAiInsights();
         setInsights(insightData);
         setInsightsLoading(false);
         
-        // Fetch Chart Data
         setChartLoading(true);
         const chartData = await getChartData('production');
         setProductionData(chartData);
         setChartLoading(false);
         
-        // Fetch Latest Industry News
         setNewsLoading(true);
         const newsData = await getLatestNews();
         setLatestNews(newsData);
@@ -86,7 +80,6 @@ const Index = () => {
     fetchData();
   }, []);
   
-  // Get top KPIs
   const topKpis = kpis.slice(0, 3);
   
   const modules = [
@@ -94,7 +87,7 @@ const Index = () => {
       id: '1', 
       title: 'Demand Planning', 
       path: '/demand-planning', 
-      completed: '82', 
+      completed: 82,
       icon: <BarChart3 className="h-5 w-5 text-blue-600" />,
       description: 'Forecast demand and plan production schedules with AI-driven insights.' 
     },
@@ -102,7 +95,7 @@ const Index = () => {
       id: '2', 
       title: 'Supply Planning', 
       path: '/supply-planning', 
-      completed: '68', 
+      completed: 68,
       icon: <Globe className="h-5 w-5 text-green-600" />,
       description: 'Optimize your supply chain with predictive analytics and real-time monitoring.' 
     },
@@ -110,7 +103,7 @@ const Index = () => {
       id: '3', 
       title: 'Factory Planning', 
       path: '/factory-planning', 
-      completed: '95', 
+      completed: 95,
       icon: <Factory className="h-5 w-5 text-purple-600" />,
       description: 'Streamline production workflows and maximize operational efficiency.' 
     },
@@ -118,7 +111,7 @@ const Index = () => {
       id: '4', 
       title: 'Inventory Optimization', 
       path: '/inventory-optimization', 
-      completed: '74', 
+      completed: 74,
       icon: <Package className="h-5 w-5 text-orange-600" />,
       description: 'Balance inventory levels to reduce costs while maintaining service levels.' 
     },
@@ -126,7 +119,7 @@ const Index = () => {
       id: '5', 
       title: 'Logistics', 
       path: '/logistics', 
-      completed: '88', 
+      completed: 88,
       icon: <Truck className="h-5 w-5 text-cyan-600" />,
       description: 'Plan transportation and distribution to minimize costs and delivery times.' 
     },
@@ -134,7 +127,7 @@ const Index = () => {
       id: '6', 
       title: 'Risk Management', 
       path: '/risk-management', 
-      completed: '61', 
+      completed: 61,
       icon: <AlertTriangle className="h-5 w-5 text-red-600" />,
       description: 'Identify and mitigate supply chain risks before they impact your business.' 
     },
@@ -146,10 +139,8 @@ const Index = () => {
       <div className="lg:ml-64 ml-20 transition-all duration-300" data-main-content>
         <Header pageTitle="Dashboard" />
         <main className="p-6 space-y-6">
-          {/* EY Co-Pilot Section */}
           <EyCoPilot />
           
-          {/* KPIs Section */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-1">
             <h2 className="text-xl font-semibold text-ey-darkGray">Key Performance Indicators</h2>
             <Link to="/analytics">
@@ -182,9 +173,7 @@ const Index = () => {
             )}
           </div>
           
-          {/* Main Dashboard Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Modules Column */}
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-ey-darkGray">Planning Modules</h2>
@@ -208,7 +197,6 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Production Chart Column */}
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-ey-darkGray">Steel Production</h2>
@@ -234,7 +222,6 @@ const Index = () => {
                 </CardContent>
               </Card>
               
-              {/* Latest Industry News Section (replacing AI Agents) */}
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-ey-darkGray">Latest Industry News</h2>
                 <Link to="/news">
@@ -280,13 +267,11 @@ const Index = () => {
                 </CardContent>
               </Card>
               
-              {/* AI Agents deployment button */}
               <div className="flex justify-end">
                 <AiAgentsDeployment />
               </div>
             </div>
             
-            {/* AI Insights Column */}
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold text-ey-darkGray">AI Powered Insights</h2>

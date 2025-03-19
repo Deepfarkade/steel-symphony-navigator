@@ -112,7 +112,6 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
                     </DrawerDescription>
                   </DrawerHeader>
                   <div className="p-4 space-y-4">
-                    {/* Filter options would go here */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Date Range</label>
                       <div className="flex space-x-2">
