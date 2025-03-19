@@ -16,12 +16,19 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+
+interface Breadcrumb {
+  label: string;
+  link: string;
+}
 
 interface HeaderProps {
   pageTitle: string;
+  breadcrumbs?: Breadcrumb[];
 }
 
-const Header: React.FC<HeaderProps> = ({ pageTitle }) => {
+const Header: React.FC<HeaderProps> = ({ pageTitle, breadcrumbs }) => {
   const { user } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,14 +56,34 @@ const Header: React.FC<HeaderProps> = ({ pageTitle }) => {
     <header className="flex items-center justify-between mb-8 animate-fade-in">
       <div>
         <h1 className="text-3xl font-bold text-ey-darkGray">{pageTitle}</h1>
-        <p className="text-ey-lightGray mt-1">
-          {new Date().toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}
-        </p>
+        
+        {breadcrumbs && breadcrumbs.length > 0 && (
+          <div className="flex items-center text-sm text-ey-lightGray mt-2">
+            {breadcrumbs.map((crumb, index) => (
+              <React.Fragment key={index}>
+                {index > 0 && <span className="mx-2">/</span>}
+                {index === breadcrumbs.length - 1 ? (
+                  <span className="font-medium text-ey-darkGray">{crumb.label}</span>
+                ) : (
+                  <Link to={crumb.link} className="hover:text-ey-yellow transition-colors">
+                    {crumb.label}
+                  </Link>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+        
+        {!breadcrumbs && (
+          <p className="text-ey-lightGray mt-1">
+            {new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+        )}
       </div>
       
       <div className="flex items-center space-x-4">

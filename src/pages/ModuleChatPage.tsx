@@ -8,6 +8,7 @@ import Header from '../components/Header';
 import AiChatInterface from '../components/AiChatInterface';
 
 interface ModuleChatParams {
+  [key: string]: string;
   module: string;
 }
 
