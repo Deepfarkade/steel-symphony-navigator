@@ -38,7 +38,12 @@ const Index = () => {
         // Fetch KPIs
         setKpisLoading(true);
         const kpiData = await getKpis();
-        setKpis(kpiData);
+        // Ensure data conforms to KpiData type
+        const typedKpiData = kpiData.map(item => ({
+          ...item,
+          trend: item.trend as 'up' | 'down' | 'flat'
+        }));
+        setKpis(typedKpiData);
         setKpisLoading(false);
         
         // Fetch Insights
@@ -67,19 +72,19 @@ const Index = () => {
   const topKpis = kpis.slice(0, 3);
   
   const modules = [
-    { name: 'Demand Planning', path: '/demand-planning', completed: '82%', icon: 'bar-chart-2' },
-    { name: 'Supply Planning', path: '/supply-planning', completed: '68%', icon: 'globe' },
-    { name: 'Factory Planning', path: '/factory-planning', completed: '95%', icon: 'factory' },
-    { name: 'Inventory Optimization', path: '/inventory-optimization', completed: '74%', icon: 'package' },
-    { name: 'Logistics', path: '/logistics', completed: '88%', icon: 'truck' },
-    { name: 'Risk Management', path: '/risk-management', completed: '61%', icon: 'alert-triangle' },
+    { id: '1', title: 'Demand Planning', path: '/demand-planning', completed: '82%', icon: 'bar-chart-2' },
+    { id: '2', title: 'Supply Planning', path: '/supply-planning', completed: '68%', icon: 'globe' },
+    { id: '3', title: 'Factory Planning', path: '/factory-planning', completed: '95%', icon: 'factory' },
+    { id: '4', title: 'Inventory Optimization', path: '/inventory-optimization', completed: '74%', icon: 'package' },
+    { id: '5', title: 'Logistics', path: '/logistics', completed: '88%', icon: 'truck' },
+    { id: '6', title: 'Risk Management', path: '/risk-management', completed: '61%', icon: 'alert-triangle' },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       <div className="lg:ml-64 ml-20 transition-all duration-300" data-main-content>
-        <Header title="Dashboard" />
+        <Header pageTitle="Dashboard" />
         <main className="p-6 space-y-6">
           {/* EY Co-Pilot Section */}
           <EyCoPilot />
@@ -98,9 +103,9 @@ const Index = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {kpisLoading ? (
               <>
-                <KpiCard loading />
-                <KpiCard loading />
-                <KpiCard loading />
+                <KpiCard id="loading-1" title="Loading..." value="--" change="--" trend="flat" sparklineData={[]} />
+                <KpiCard id="loading-2" title="Loading..." value="--" change="--" trend="flat" sparklineData={[]} />
+                <KpiCard id="loading-3" title="Loading..." value="--" change="--" trend="flat" sparklineData={[]} />
               </>
             ) : (
               topKpis.map(kpi => (
@@ -132,8 +137,9 @@ const Index = () => {
               <div className="grid grid-cols-1 gap-4">
                 {modules.map((module) => (
                   <ModuleCard
-                    key={module.name}
-                    name={module.name}
+                    key={module.id}
+                    id={module.id}
+                    title={module.title}
                     path={module.path}
                     completed={module.completed}
                     icon={module.icon}
@@ -163,7 +169,6 @@ const Index = () => {
                       data={productionData} 
                       color="#5850BB" 
                       title="Steel Production (tons)" 
-                      height={300}
                     />
                   )}
                 </CardContent>

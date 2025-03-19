@@ -139,7 +139,6 @@ const EnergyChartDetails = () => {
                       data={chartData.daily} 
                       title="Daily Energy Consumption (Last 30 Days)" 
                       color="#FFE600" 
-                      height={500}
                     />
                   </TabsContent>
                   
@@ -148,7 +147,6 @@ const EnergyChartDetails = () => {
                       data={chartData.weekly} 
                       title="Weekly Energy Consumption (Last 12 Weeks)" 
                       color="#FFE600" 
-                      height={500}
                     />
                   </TabsContent>
                   
@@ -157,7 +155,6 @@ const EnergyChartDetails = () => {
                       data={chartData.monthly} 
                       title="Monthly Energy Consumption (Last 12 Months)" 
                       color="#FFE600" 
-                      height={500}
                     />
                   </TabsContent>
                   
@@ -166,7 +163,6 @@ const EnergyChartDetails = () => {
                       data={chartData.byProcess} 
                       title="Energy Consumption by Process (%)" 
                       color="#4F46E5" 
-                      height={500}
                     />
                   </TabsContent>
                 </Tabs>

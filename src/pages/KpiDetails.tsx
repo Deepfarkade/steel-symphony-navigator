@@ -161,7 +161,6 @@ const KpiDetails = () => {
                       data={data.trendData} 
                       title="Historical Trend" 
                       color="#2E2E38" 
-                      height={400}
                     />
                   </TabsContent>
                   
@@ -170,7 +169,6 @@ const KpiDetails = () => {
                       data={data.breakdownData} 
                       title="Category Breakdown" 
                       color="#FFE600" 
-                      height={400}
                     />
                   </TabsContent>
                   
@@ -179,7 +177,6 @@ const KpiDetails = () => {
                       data={data.forecastData} 
                       title="Future Forecast (AI Generated)" 
                       color="#4F46E5" 
-                      height={400}
                     />
                   </TabsContent>
                 </Tabs>

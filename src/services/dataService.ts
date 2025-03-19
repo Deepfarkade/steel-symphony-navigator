@@ -1,4 +1,3 @@
-
 // AI Service for handling all AI-related functionality across steel industry modules
 import { generateModuleInsights } from './aiService';
 
@@ -67,25 +66,25 @@ export const getAiInsights = async () => {
   return [
     {
       id: 1,
-      type: 'alert',
+      type: 'alert' as 'alert',
       message: 'Potential supply chain disruption detected in source material from Australia. Recommend increasing safety stock by 15%.',
       timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString() // 30 minutes ago
     },
     {
       id: 2,
-      type: 'success',
+      type: 'success' as 'success',
       message: 'Factory efficiency improved by 7.2% after implementing ML-based process optimization suggestions.',
       timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString() // 2 hours ago
     },
     {
       id: 3,
-      type: 'opportunity',
+      type: 'opportunity' as 'opportunity',
       message: 'Analysis suggests potential cost saving of $420,000 by optimizing shipping routes to East Coast distribution centers.',
       timestamp: new Date(Date.now() - 1000 * 60 * 240).toISOString() // 4 hours ago
     },
     {
       id: 4,
-      type: 'suggestion',
+      type: 'suggestion' as 'suggestion',
       message: 'Consider adjusting production schedule to optimize energy usage during off-peak hours, estimated savings of 8.3%.',
       timestamp: new Date(Date.now() - 1000 * 60 * 360).toISOString() // 6 hours ago
     }
@@ -162,7 +161,7 @@ export const getKpis = async () => {
       title: 'Production Yield',
       value: '92.7%',
       change: '+1.2%',
-      trend: 'up',
+      trend: 'up' as 'up',
       chart: [65, 60, 70, 68, 72, 74, 75, 80, 85, 90, 92, 93],
       module: 'factory-planning'
     },
@@ -171,7 +170,7 @@ export const getKpis = async () => {
       title: 'OEE',
       value: '78.6%',
       change: '-2.4%',
-      trend: 'down',
+      trend: 'down' as 'down',
       chart: [80, 82, 80, 76, 78, 74, 75, 77, 73, 74, 76, 79],
       module: 'factory-planning'
     },
@@ -180,7 +179,7 @@ export const getKpis = async () => {
       title: 'Inventory Turnover',
       value: '12.3',
       change: '+0.8',
-      trend: 'up',
+      trend: 'up' as 'up',
       chart: [11.2, 11.4, 11.8, 11.5, 12.0, 12.1, 11.9, 12.4, 12.5, 12.3, 12.4, 12.3],
       module: 'inventory-optimization'
     },
@@ -189,7 +188,7 @@ export const getKpis = async () => {
       title: 'Order Fulfillment',
       value: '94.5%',
       change: '+2.1%',
-      trend: 'up',
+      trend: 'up' as 'up',
       chart: [89, 90, 91, 92, 90, 92, 91, 93, 94, 94.5, 94, 94.5],
       module: 'order-promising'
     },
@@ -198,7 +197,7 @@ export const getKpis = async () => {
       title: 'Energy Efficiency',
       value: '82.3%',
       change: '+3.2%',
-      trend: 'up',
+      trend: 'up' as 'up',
       chart: [75, 76, 78, 77, 79, 80, 79, 81, 80, 81, 82, 82.3],
       module: 'factory-planning'
     },
@@ -207,7 +206,7 @@ export const getKpis = async () => {
       title: 'On-Time Delivery',
       value: '89.7%',
       change: '-1.3%',
-      trend: 'down',
+      trend: 'down' as 'down',
       chart: [92, 91, 90, 92, 91, 90, 89, 90, 91, 90, 89, 89.7],
       module: 'logistics'
     }
@@ -361,6 +360,106 @@ export const getProductionData = async () => {
       { name: 'Week 2', value: 5800 },
       { name: 'Week 3', value: 5600 },
       { name: 'Week 4', value: 6100 }
+    ]
+  };
+};
+
+// Add the missing functions for KPI detail, energy chart, and production chart data
+export const getKpiDetailData = async (kpiId: string) => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1200));
+  
+  // Return mock data based on KPI ID
+  return {
+    id: kpiId,
+    title: kpiId === 'production-yield' 
+      ? 'Production Yield' 
+      : kpiId === 'energy-consumption' 
+        ? 'Energy Consumption' 
+        : kpiId === 'quality-rating' 
+          ? 'Quality Rating' 
+          : 'On-Time Delivery',
+    currentValue: kpiId === 'production-yield' 
+      ? '94.8%' 
+      : kpiId === 'energy-consumption' 
+        ? '1,235 MWh' 
+        : kpiId === 'quality-rating' 
+          ? 'A+' 
+          : '92.3%',
+    change: kpiId === 'production-yield' 
+      ? 2.3 
+      : kpiId === 'energy-consumption' 
+        ? -5.7 
+        : kpiId === 'quality-rating' 
+          ? 1.2 
+          : -0.8,
+    trendData: Array(12).fill(0).map((_, i) => ({
+      name: `Week ${i+1}`,
+      value: 75 + Math.random() * 20,
+    })),
+    breakdownData: Array(5).fill(0).map((_, i) => ({
+      name: `Category ${i+1}`,
+      value: 10 + Math.random() * 30,
+    })),
+    forecastData: Array(6).fill(0).map((_, i) => ({
+      name: `Month ${i+1}`,
+      value: 80 + (Math.random() * 15),
+      forecast: true,
+    })),
+    description: `Detailed analysis and insights for ${kpiId?.replace('-', ' ')} across all steel manufacturing operations.`
+  };
+};
+
+export const getEnergyDetailData = async () => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  return {
+    daily: Array(30).fill(0).map((_, i) => ({
+      name: `Day ${i+1}`,
+      value: 30 + Math.random() * 15,
+    })),
+    weekly: Array(12).fill(0).map((_, i) => ({
+      name: `Week ${i+1}`,
+      value: 200 + Math.random() * 50,
+    })),
+    monthly: Array(12).fill(0).map((_, i) => ({
+      name: `Month ${i+1}`,
+      value: 900 + Math.random() * 200,
+    })),
+    byProcess: [
+      { name: 'Blast Furnace', value: 40 },
+      { name: 'Rolling Mill', value: 25 },
+      { name: 'Heat Treatment', value: 20 },
+      { name: 'Coating Lines', value: 10 },
+      { name: 'Auxiliary Processes', value: 5 },
+    ]
+  };
+};
+
+export const getProductionDetailData = async () => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  return {
+    daily: Array(30).fill(0).map((_, i) => ({
+      name: `Day ${i+1}`,
+      value: 800 + Math.random() * 200,
+    })),
+    weekly: Array(12).fill(0).map((_, i) => ({
+      name: `Week ${i+1}`,
+      value: 5000 + Math.random() * 1000,
+    })),
+    monthly: Array(12).fill(0).map((_, i) => ({
+      name: `Month ${i+1}`,
+      value: 22000 + Math.random() * 5000,
+    })),
+    byProduct: [
+      { name: 'Hot Rolled Coil', value: 35 },
+      { name: 'Cold Rolled Coil', value: 25 },
+      { name: 'Galvanized Steel', value: 20 },
+      { name: 'Steel Plate', value: 15 },
+      { name: 'Steel Pipe', value: 5 },
     ]
   };
 };

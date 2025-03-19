@@ -44,6 +44,7 @@ const ModuleChatPage = () => {
     <ModuleLayout
       title={agentData ? `Chat with ${agentData.name}` : `${formatModuleName(module)} Assistant`}
       description={agentData ? agentData.description : "Ask questions and get AI-powered assistance related to your steel operations"}
+      icon={agentData ? agentData.icon || "message-square" : "message-square"}
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="lg:col-span-2">

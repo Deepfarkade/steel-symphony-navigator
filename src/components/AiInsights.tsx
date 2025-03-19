@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, CheckCircle, TrendingUp, Lightbulb, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,12 @@ const AiInsights: React.FC<AiInsightsProps> = ({ insights: propInsights, loading
     const fetchInsights = async () => {
       try {
         const data = await getAiInsights();
-        setInsights(data);
+        // Ensure data conforms to Insight type
+        const typedData = data.map(item => ({
+          ...item,
+          type: item.type as 'alert' | 'success' | 'opportunity' | 'suggestion'
+        }));
+        setInsights(typedData);
       } catch (error) {
         console.error('Error fetching AI insights:', error);
       } finally {

@@ -139,7 +139,6 @@ const ProductionChartDetails = () => {
                       data={chartData.daily} 
                       title="Daily Production Output (Last 30 Days)" 
                       color="#2E2E38" 
-                      height={500}
                     />
                   </TabsContent>
                   
@@ -148,7 +147,6 @@ const ProductionChartDetails = () => {
                       data={chartData.weekly} 
                       title="Weekly Production Output (Last 12 Weeks)" 
                       color="#2E2E38" 
-                      height={500}
                     />
                   </TabsContent>
                   
@@ -157,7 +155,6 @@ const ProductionChartDetails = () => {
                       data={chartData.monthly} 
                       title="Monthly Production Output (Last 12 Months)" 
                       color="#2E2E38" 
-                      height={500}
                     />
                   </TabsContent>
                   
@@ -166,7 +163,6 @@ const ProductionChartDetails = () => {
                       data={chartData.byProduct} 
                       title="Production by Product Type (%)" 
                       color="#4F46E5" 
-                      height={500}
                     />
                   </TabsContent>
                 </Tabs>
