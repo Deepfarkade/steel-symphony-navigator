@@ -4,6 +4,7 @@ import Navigation from './Navigation';
 import Header from './Header';
 import AiChatInterface from './AiChatInterface';
 import { getModuleInsights } from '@/services/dataService';
+import { ModuleInsight } from '@/hooks/useModuleInsights';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,11 +22,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-
-interface ModuleInsight {
-  id: number;
-  text: string;
-}
 
 interface ModuleLayoutProps {
   title: string;

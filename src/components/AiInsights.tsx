@@ -24,7 +24,12 @@ const AiInsights: React.FC<AiInsightsProps> = ({ insights: propInsights, loading
 
   useEffect(() => {
     if (propInsights) {
-      setInsights(propInsights);
+      // Ensure data conforms to Insight type
+      const typedInsights = propInsights.map(item => ({
+        ...item,
+        type: item.type as 'alert' | 'success' | 'opportunity' | 'suggestion'
+      }));
+      setInsights(typedInsights);
       setLoading(false);
       return;
     }
@@ -87,15 +92,19 @@ const AiInsights: React.FC<AiInsightsProps> = ({ insights: propInsights, loading
       if (typeof insight === 'object' && insight.id && insight.type && insight.message) {
         return {
           ...insight,
+          type: insight.type as 'alert' | 'success' | 'opportunity' | 'suggestion',
           timestamp: insight.timestamp || new Date().toISOString()
         };
       }
       
+      // Default type based on index if not specified
+      const defaultType = index % 4 === 0 ? 'alert' : 
+                        index % 4 === 1 ? 'success' : 
+                        index % 4 === 2 ? 'opportunity' : 'suggestion';
+      
       return {
         id: typeof insight.id === 'number' ? insight.id : index + 1,
-        type: insight.type || (index % 4 === 0 ? 'alert' : 
-               index % 4 === 1 ? 'success' : 
-               index % 4 === 2 ? 'opportunity' : 'suggestion'),
+        type: (insight.type || defaultType) as 'alert' | 'success' | 'opportunity' | 'suggestion',
         message: typeof insight === 'string' ? insight : insight.message || `AI insight ${index + 1}`,
         timestamp: insight.timestamp || new Date().toISOString()
       };

@@ -6,7 +6,7 @@ import Navigation from "../components/Navigation";
 import Header from "../components/Header";
 import ModuleCard from "../components/ModuleCard";
 import KpiCard from "../components/KpiCard";
-import { ArrowUpRight, BadgePlus, BarChart3, Bell } from "lucide-react";
+import { ArrowUpRight, BadgePlus, BarChart3, Bell, Factory, Globe, Package, Truck, AlertTriangle } from "lucide-react";
 import AreaChart from "../components/AreaChart";
 import { Button } from "@/components/ui/button";
 import AiInsights from "../components/AiInsights";
@@ -38,12 +38,7 @@ const Index = () => {
         // Fetch KPIs
         setKpisLoading(true);
         const kpiData = await getKpis();
-        // Ensure data conforms to KpiData type
-        const typedKpiData = kpiData.map(item => ({
-          ...item,
-          trend: item.trend as 'up' | 'down' | 'flat'
-        }));
-        setKpis(typedKpiData);
+        setKpis(kpiData as KpiData[]);
         setKpisLoading(false);
         
         // Fetch Insights
@@ -72,12 +67,54 @@ const Index = () => {
   const topKpis = kpis.slice(0, 3);
   
   const modules = [
-    { id: '1', title: 'Demand Planning', path: '/demand-planning', completed: '82%', icon: 'bar-chart-2' },
-    { id: '2', title: 'Supply Planning', path: '/supply-planning', completed: '68%', icon: 'globe' },
-    { id: '3', title: 'Factory Planning', path: '/factory-planning', completed: '95%', icon: 'factory' },
-    { id: '4', title: 'Inventory Optimization', path: '/inventory-optimization', completed: '74%', icon: 'package' },
-    { id: '5', title: 'Logistics', path: '/logistics', completed: '88%', icon: 'truck' },
-    { id: '6', title: 'Risk Management', path: '/risk-management', completed: '61%', icon: 'alert-triangle' },
+    { 
+      id: '1', 
+      title: 'Demand Planning', 
+      path: '/demand-planning', 
+      completed: '82%', 
+      icon: <BarChart3 className="h-5 w-5 text-blue-600" />,
+      description: 'Forecast demand and plan production schedules with AI-driven insights.' 
+    },
+    { 
+      id: '2', 
+      title: 'Supply Planning', 
+      path: '/supply-planning', 
+      completed: '68%', 
+      icon: <Globe className="h-5 w-5 text-green-600" />,
+      description: 'Optimize your supply chain with predictive analytics and real-time monitoring.' 
+    },
+    { 
+      id: '3', 
+      title: 'Factory Planning', 
+      path: '/factory-planning', 
+      completed: '95%', 
+      icon: <Factory className="h-5 w-5 text-purple-600" />,
+      description: 'Streamline production workflows and maximize operational efficiency.' 
+    },
+    { 
+      id: '4', 
+      title: 'Inventory Optimization', 
+      path: '/inventory-optimization', 
+      completed: '74%', 
+      icon: <Package className="h-5 w-5 text-orange-600" />,
+      description: 'Balance inventory levels to reduce costs while maintaining service levels.' 
+    },
+    { 
+      id: '5', 
+      title: 'Logistics', 
+      path: '/logistics', 
+      completed: '88%', 
+      icon: <Truck className="h-5 w-5 text-cyan-600" />,
+      description: 'Plan transportation and distribution to minimize costs and delivery times.' 
+    },
+    { 
+      id: '6', 
+      title: 'Risk Management', 
+      path: '/risk-management', 
+      completed: '61%', 
+      icon: <AlertTriangle className="h-5 w-5 text-red-600" />,
+      description: 'Identify and mitigate supply chain risks before they impact your business.' 
+    },
   ];
 
   return (
@@ -103,9 +140,9 @@ const Index = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {kpisLoading ? (
               <>
-                <KpiCard id="loading-1" title="Loading..." value="--" change="--" trend="flat" sparklineData={[]} />
-                <KpiCard id="loading-2" title="Loading..." value="--" change="--" trend="flat" sparklineData={[]} />
-                <KpiCard id="loading-3" title="Loading..." value="--" change="--" trend="flat" sparklineData={[]} />
+                <KpiCard id="loading-1" title="Loading..." value="--" change="--" trend="flat" sparklineData={[0, 0, 0, 0, 0]} />
+                <KpiCard id="loading-2" title="Loading..." value="--" change="--" trend="flat" sparklineData={[0, 0, 0, 0, 0]} />
+                <KpiCard id="loading-3" title="Loading..." value="--" change="--" trend="flat" sparklineData={[0, 0, 0, 0, 0]} />
               </>
             ) : (
               topKpis.map(kpi => (
@@ -138,11 +175,11 @@ const Index = () => {
                 {modules.map((module) => (
                   <ModuleCard
                     key={module.id}
-                    id={module.id}
                     title={module.title}
                     path={module.path}
                     completed={module.completed}
                     icon={module.icon}
+                    description={module.description}
                   />
                 ))}
               </div>
