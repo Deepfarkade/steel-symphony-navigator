@@ -6,12 +6,14 @@ import ModuleLayout from '@/components/ModuleLayout';
 import { Button } from '@/components/ui/button';
 import { getModuleInsights } from '@/services/dataService';
 
+// Update the interface to make it a Record<string, string>
 interface ModuleChatParams {
+  [key: string]: string;
   module: string;
 }
 
 const ModuleChatPage = () => {
-  const { module } = useParams<ModuleChatParams>();
+  const { module } = useParams<keyof ModuleChatParams>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [moduleData, setModuleData] = useState({

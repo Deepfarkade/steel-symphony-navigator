@@ -38,7 +38,13 @@ const Index = () => {
         // Fetch KPIs
         setKpisLoading(true);
         const kpiData = await getKpis();
-        setKpis(kpiData as KpiData[]);
+        // Convert string trends to the expected union type
+        const typedKpiData = kpiData.map((kpi: any) => ({
+          ...kpi,
+          // Ensure chart values are numbers, not strings
+          chart: Array.isArray(kpi.chart) ? kpi.chart.map((val: any) => Number(val)) : []
+        }));
+        setKpis(typedKpiData as KpiData[]);
         setKpisLoading(false);
         
         // Fetch Insights
@@ -153,7 +159,7 @@ const Index = () => {
                   value={kpi.value}
                   change={kpi.change}
                   trend={kpi.trend}
-                  sparklineData={kpi.chart}
+                  sparklineData={kpi.chart.map(Number)} // Ensure numbers
                 />
               ))
             )}
