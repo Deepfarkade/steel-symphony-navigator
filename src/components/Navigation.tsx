@@ -19,11 +19,17 @@ import {
   Brain,
   ChevronDown,
   ChevronRight,
-  Plus
+  Plus,
+  Lock,
+  ArrowRight,
+  TrendingUp,
+  BarChart2,
+  Tool,
+  Users
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { getAiAgents } from '@/services/dataService';
+import { getAiAgents, getAvailableAgents, addAgentToUser } from '@/services/dataService';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -39,6 +45,8 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useToast } from '@/hooks/use-toast';
 
 interface NavigationProps {
   agentId?: number;
@@ -107,16 +115,21 @@ interface Agent {
   name: string;
   status: string;
   icon: string;
+  description?: string;
+  confidence?: number;
 }
 
 const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isAgentsOpen, setIsAgentsOpen] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [availableAgents, setAvailableAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showMarketplace, setShowMarketplace] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Select the main content container that needs to be adjusted
@@ -142,7 +155,7 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
   }, [agentId, location.pathname]);
 
   const fetchAgents = async () => {
-    if (loading || agents.length > 0) return;
+    if (loading) return;
     
     try {
       setLoading(true);
@@ -155,13 +168,51 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
     }
   };
 
+  const fetchAvailableAgents = async () => {
+    try {
+      const data = await getAvailableAgents();
+      setAvailableAgents(data);
+    } catch (error) {
+      console.error('Error fetching available agents:', error);
+    }
+  };
+
+  const handleMarketplaceOpen = () => {
+    setShowMarketplace(true);
+    fetchAvailableAgents();
+  };
+
+  const addAgent = async (agentId: number) => {
+    try {
+      await addAgentToUser(agentId);
+      toast({
+        title: "Agent added successfully",
+        description: "The agent has been added to your workspace and is now available.",
+      });
+      fetchAgents(); // Refresh the agents list
+      setShowMarketplace(false);
+    } catch (error) {
+      console.error('Error adding agent:', error);
+      toast({
+        variant: "destructive",
+        title: "Failed to add agent",
+        description: "Please try again later.",
+      });
+    }
+  };
+
   const getAgentIcon = (iconName: string) => {
     switch (iconName) {
       case 'truck': return <Truck className="h-4 w-4" />;
       case 'bar-chart': return <BarChart3 className="h-4 w-4" />;
+      case 'bar-chart-2': return <BarChart2 className="h-4 w-4" />;
       case 'zap': return <Brain className="h-4 w-4" />;
       case 'check-circle': return <Box className="h-4 w-4" />;
       case 'shield': return <AlertTriangle className="h-4 w-4" />;
+      case 'trending-up': return <TrendingUp className="h-4 w-4" />;
+      case 'tool': return <Tool className="h-4 w-4" />;
+      case 'package': return <Package className="h-4 w-4" />;
+      case 'users': return <Users className="h-4 w-4" />;
       default: return <BrainCog className="h-4 w-4" />;
     }
   };
@@ -223,33 +274,35 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
               ))}
               
               {/* Your Agents section */}
-              {isExpanded && (
-                <Collapsible
-                  open={isAgentsOpen}
-                  onOpenChange={(open) => {
-                    setIsAgentsOpen(open);
-                    if (open) fetchAgents();
-                  }}
-                  className="w-full"
-                >
-                  <CollapsibleTrigger asChild>
-                    <button className={`w-full flex items-center justify-between p-3 rounded-lg transition-all duration-300 ${
-                      isAgentsOpen ? 'bg-purple-100 text-purple-700' : 'text-ey-darkGray/70 hover:bg-ey-yellow/10'
-                    }`}>
-                      <div className="flex items-center">
-                        <BrainCog className="h-5 w-5" />
-                        <span className="ml-3 whitespace-nowrap">Your Agents</span>
-                      </div>
-                      {isAgentsOpen ? (
+              <Collapsible
+                open={isAgentsOpen}
+                onOpenChange={(open) => {
+                  setIsAgentsOpen(open);
+                  if (open) fetchAgents();
+                }}
+                className="w-full"
+              >
+                <CollapsibleTrigger asChild>
+                  <button className={`w-full flex items-center justify-between p-3 rounded-lg transition-all duration-300 ${
+                    isAgentsOpen ? 'bg-purple-100 text-purple-700' : 'text-ey-darkGray/70 hover:bg-ey-yellow/10'
+                  }`}>
+                    <div className="flex items-center">
+                      <BrainCog className="h-5 w-5" />
+                      {isExpanded && <span className="ml-3 whitespace-nowrap">Your Agents</span>}
+                    </div>
+                    {isExpanded && (
+                      isAgentsOpen ? (
                         <ChevronDown className="h-4 w-4" />
                       ) : (
                         <ChevronRight className="h-4 w-4" />
-                      )}
-                    </button>
-                  </CollapsibleTrigger>
-                  
-                  <ScrollArea className="mt-2 max-h-60">
-                    <CollapsibleContent className="ml-2 space-y-1">
+                      )
+                    )}
+                  </button>
+                </CollapsibleTrigger>
+                
+                {isExpanded && (
+                  <CollapsibleContent className="ml-2 space-y-1">
+                    <ScrollArea className="max-h-60">
                       {loading ? (
                         <div className="animate-pulse p-2">
                           {[1, 2, 3].map(i => (
@@ -281,7 +334,7 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
                           ))}
                           
                           <button
-                            onClick={() => navigate('/agents')}
+                            onClick={handleMarketplaceOpen}
                             className="flex items-center w-full p-2 rounded-md text-sm text-purple-600 hover:bg-purple-50"
                           >
                             <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
@@ -291,10 +344,10 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
                           </button>
                         </>
                       )}
-                    </CollapsibleContent>
-                  </ScrollArea>
-                </Collapsible>
-              )}
+                    </ScrollArea>
+                  </CollapsibleContent>
+                )}
+              </Collapsible>
             </div>
           </ScrollArea>
         </div>
@@ -361,6 +414,58 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
           )}
         </div>
       </div>
+
+      {/* Agent Marketplace Dialog */}
+      <Dialog open={showMarketplace} onOpenChange={setShowMarketplace}>
+        <DialogContent className="sm:max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold flex items-center">
+              <BrainCog className="h-5 w-5 mr-2 text-purple-500" />
+              AI Agent Marketplace
+            </DialogTitle>
+            <DialogDescription>
+              Discover and add specialized AI agents to enhance your steel operations.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="h-[60vh] pr-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {availableAgents.map((agent) => (
+                <div 
+                  key={agent.id}
+                  className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center">
+                      <div className={`w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3`}>
+                        {getAgentIcon(agent.icon)}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-ey-darkGray">{agent.name}</h3>
+                        <p className="text-sm text-ey-lightGray">{agent.description}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full mb-2">
+                        {agent.confidence}% Confidence
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => addAgent(agent.id)}
+                        className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                      >
+                        <Plus className="h-3.5 w-3.5 mr-1" />
+                        Add Agent
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </aside>
   );
 };

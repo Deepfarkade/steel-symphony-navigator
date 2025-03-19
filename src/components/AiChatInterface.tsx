@@ -12,6 +12,8 @@ interface AiChatInterfaceProps {
   moduleContext?: string;
   floating?: boolean;
   agentId?: number;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface ChatMessage {
@@ -20,7 +22,13 @@ interface ChatMessage {
   timestamp: Date;
 }
 
-const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floating = false, agentId }) => {
+const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ 
+  moduleContext, 
+  floating = false, 
+  agentId,
+  isOpen: propIsOpen,
+  onOpenChange
+}) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       text: agentId 
@@ -33,11 +41,18 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(propIsOpen || false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Sync with external open state if provided
+  useEffect(() => {
+    if (propIsOpen !== undefined) {
+      setIsDrawerOpen(propIsOpen);
+    }
+  }, [propIsOpen]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -116,6 +131,13 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
     setIsFullscreen(!isFullscreen);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setIsDrawerOpen(open);
+    if (onOpenChange) {
+      onOpenChange(open);
+    }
+  };
+
   const navigateToChat = () => {
     if (agentId) {
       navigate(`/agent/${agentId}`);
@@ -160,7 +182,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
               if (isFullscreen) {
                 setIsFullscreen(false);
               } else {
-                setIsDrawerOpen(false);
+                handleOpenChange(false);
               }
             }} className="text-ey-lightGray hover:text-ey-darkGray transition-colors">
               <X size={18} />
@@ -237,17 +259,13 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ moduleContext, floati
   if (floating) {
     return (
       <>
-        <Drawer open={isDrawerOpen || isFullscreen} onOpenChange={(open) => {
-          if (!isFullscreen) {
-            setIsDrawerOpen(open);
-          }
-        }}>
+        <Drawer open={isDrawerOpen || isFullscreen} onOpenChange={handleOpenChange}>
           <DrawerTrigger asChild>
             <Button 
               variant="outline" 
               size="icon" 
               className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg border-0"
-              onClick={() => setIsDrawerOpen(true)}
+              onClick={() => handleOpenChange(true)}
             >
               <BrainCircuit className="h-6 w-6" />
               <span className="absolute top-0 right-0 h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>

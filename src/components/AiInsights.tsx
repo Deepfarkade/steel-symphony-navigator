@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertTriangle, CheckCircle, TrendingUp, Lightbulb } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
+import { getAiInsights } from '@/services/dataService';
 
 interface Insight {
   id: number;
@@ -12,10 +13,34 @@ interface Insight {
 }
 
 interface AiInsightsProps {
-  insights: Insight[];
+  insights?: Insight[];
+  loading?: boolean;
 }
 
-const AiInsights: React.FC<AiInsightsProps> = ({ insights }) => {
+const AiInsights: React.FC<AiInsightsProps> = ({ insights: propInsights, loading: propLoading }) => {
+  const [insights, setInsights] = useState<Insight[]>([]);
+  const [loading, setLoading] = useState(propLoading || false);
+
+  useEffect(() => {
+    if (propInsights && propInsights.length > 0) {
+      setInsights(propInsights);
+    } else {
+      const fetchInsights = async () => {
+        setLoading(true);
+        try {
+          const data = await getAiInsights();
+          setInsights(data);
+        } catch (error) {
+          console.error('Error fetching AI insights:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchInsights();
+    }
+  }, [propInsights]);
+
   const getIcon = (type: string) => {
     switch (type) {
       case 'alert':
@@ -46,26 +71,6 @@ const AiInsights: React.FC<AiInsightsProps> = ({ insights }) => {
     }
   };
 
-  // Map the strings to actual Insight objects
-  const formattedInsights: Insight[] = Array.isArray(insights) 
-    ? insights.map((insight, index) => {
-        // If insight is already an Insight object, return it
-        if (typeof insight === 'object' && insight.id) {
-          return insight;
-        }
-        
-        // If insight is a string, convert it to an Insight object
-        return {
-          id: index + 1,
-          type: index % 4 === 0 ? 'alert' : 
-                index % 4 === 1 ? 'success' : 
-                index % 4 === 2 ? 'opportunity' : 'suggestion',
-          message: typeof insight === 'string' ? insight : `AI insight ${index + 1}`,
-          timestamp: new Date().toLocaleString()
-        };
-      })
-    : [];
-
   return (
     <div className="ey-card p-6 animate-slide-up">
       <div className="flex items-center justify-between mb-4">
@@ -76,8 +81,24 @@ const AiInsights: React.FC<AiInsightsProps> = ({ insights }) => {
       </div>
       
       <div className="space-y-4 stagger-animate">
-        {formattedInsights.length > 0 ? (
-          formattedInsights.map((insight) => (
+        {loading ? (
+          <>
+            {[1, 2, 3, 4].map((_, index) => (
+              <div key={index} className="animate-pulse p-4 rounded-lg bg-gray-100">
+                <div className="flex">
+                  <div className="flex-shrink-0 mr-3">
+                    <div className="h-5 w-5 bg-gray-200 rounded-full"></div>
+                  </div>
+                  <div className="w-full">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </>
+        ) : insights && insights.length > 0 ? (
+          insights.map((insight) => (
             <div 
               key={insight.id} 
               className={`p-4 rounded-lg border ${getBgColor(insight.type)} border-${insight.type === 'suggestion' ? 'purple-200' : insight.type === 'alert' ? 'red-100' : insight.type === 'success' ? 'green-100' : 'blue-100'}`}

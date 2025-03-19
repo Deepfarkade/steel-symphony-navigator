@@ -15,12 +15,17 @@ export const authenticateUser = async (email: string, password: string): Promise
     setTimeout(() => {
       // Simulate validation
       if (email && password.length >= 6) {
-        resolve({
+        const user = {
           id: '1',
           name: email.split('@')[0],
           email,
           role: 'user'
-        });
+        };
+        
+        // Store user in localStorage
+        localStorage.setItem('ey-user', JSON.stringify(user));
+        
+        resolve(user);
       } else {
         reject(new Error('Invalid credentials'));
       }
@@ -33,12 +38,17 @@ export const registerUser = async (name: string, email: string, password: string
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (name && email && password.length >= 6) {
-        resolve({
+        const user = {
           id: '1',
           name,
           email,
           role: 'user'
-        });
+        };
+        
+        // Store user in localStorage
+        localStorage.setItem('ey-user', JSON.stringify(user));
+        
+        resolve(user);
       } else {
         reject(new Error('Invalid registration data'));
       }
@@ -53,5 +63,4 @@ export const checkAuthStatus = (): User | null => {
 
 export const logoutUser = (): void => {
   localStorage.removeItem('ey-user');
-  window.location.href = '/login';
 };

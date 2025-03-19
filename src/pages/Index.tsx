@@ -40,7 +40,13 @@ import AiChatInterface from '../components/AiChatInterface';
 import AiAgentsDeployment from '../components/AiAgentsDeployment';
 import AiAgentCard from '../components/AiAgentCard';
 import LatestIndustryNews from '../components/LatestIndustryNews';
-import { getProductionData, getEnergyConsumptionData, getKpiData, getAiInsights, getCoPilotAnalytics } from '@/services/dataService';
+import { 
+  getProductionData, 
+  getEnergyConsumptionData, 
+  getKpiData, 
+  getAiInsights, 
+  getCoPilotAnalytics 
+} from '@/services/dataService';
 import { useAuth } from '@/context/AuthContext';
 import { 
   Card, 
@@ -52,7 +58,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -206,20 +211,13 @@ const Index = () => {
             </div>
             
             <div>
-              <Drawer open={chatOpen} onOpenChange={setChatOpen}>
-                <DrawerTrigger asChild>
-                  <Button 
-                    className="bg-white hover:bg-white/90 text-purple-700 border-none shadow-lg" 
-                    onClick={() => setChatOpen(true)}
-                  >
-                    <Brain className="h-4 w-4 mr-2" />
-                    <span>Ask Co-Pilot</span>
-                  </Button>
-                </DrawerTrigger>
-                <DrawerContent className="p-0 h-[95vh]">
-                  <AiChatInterface />
-                </DrawerContent>
-              </Drawer>
+              <Button 
+                className="bg-white hover:bg-white/90 text-purple-700 border-none shadow-lg" 
+                onClick={() => setChatOpen(true)}
+              >
+                <Brain className="h-4 w-4 mr-2" />
+                <span>Ask Co-Pilot</span>
+              </Button>
             </div>
           </div>
         </motion.div>
@@ -337,7 +335,7 @@ const Index = () => {
             </Card>
           </div>
           <div className="col-span-1">
-            <AiInsights insights={insights} />
+            <AiInsights insights={insights} loading={loading} />
           </div>
         </motion.div>
         
@@ -540,6 +538,9 @@ const Index = () => {
           </div>
         </motion.div>
       </div>
+      
+      {/* Global chat interface */}
+      <AiChatInterface floating isOpen={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
 };

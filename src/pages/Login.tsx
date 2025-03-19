@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { authenticateUser } from '@/services/authService';
+import { authenticateUser, checkAuthStatus } from '@/services/authService';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -22,6 +22,14 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
+  // Check if user is already logged in
+  useEffect(() => {
+    const user = checkAuthStatus();
+    if (user) {
+      navigate('/');
+    }
+  }, [navigate]);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,25 +39,20 @@ const Login = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (isLoading) return; // Prevent multiple submissions
+    
     setIsLoading(true);
     
     try {
-      const user = await authenticateUser(values.email, values.password);
+      await authenticateUser(values.email, values.password);
+      
       toast({
         title: "Success!",
         description: "You have been logged in successfully.",
       });
       
-      // Simulate successful login
-      setTimeout(() => {
-        localStorage.setItem('ey-user', JSON.stringify({
-          id: '1',
-          email: values.email,
-          name: values.email.split('@')[0],
-          role: 'user'
-        }));
-        navigate('/');
-      }, 1000);
+      // Navigate to home page after successful login
+      navigate('/');
     } catch (error) {
       toast({
         variant: "destructive",
