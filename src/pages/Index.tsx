@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
@@ -154,9 +155,9 @@ const Index = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {kpisLoading ? (
               <>
-                <KpiCard id="loading-1" title="Loading..." value="--" change="--" trend="flat" sparklineData={[0, 0, 0, 0, 0]} />
-                <KpiCard id="loading-2" title="Loading..." value="--" change="--" trend="flat" sparklineData={[0, 0, 0, 0, 0]} />
-                <KpiCard id="loading-3" title="Loading..." value="--" change="--" trend="flat" sparklineData={[0, 0, 0, 0, 0]} />
+                <KpiCard id="loading-1" title="Loading..." value="--" change={0} trend="flat" sparklineData={[0, 0, 0, 0, 0]} />
+                <KpiCard id="loading-2" title="Loading..." value="--" change={0} trend="flat" sparklineData={[0, 0, 0, 0, 0]} />
+                <KpiCard id="loading-3" title="Loading..." value="--" change={0} trend="flat" sparklineData={[0, 0, 0, 0, 0]} />
               </>
             ) : (
               topKpis.map(kpi => (
@@ -165,7 +166,7 @@ const Index = () => {
                   id={kpi.id}
                   title={kpi.title}
                   value={kpi.value}
-                  change={kpi.change}
+                  change={parseFloat(kpi.change)}
                   trend={kpi.trend}
                   sparklineData={kpi.chart}
                 />
@@ -189,7 +190,7 @@ const Index = () => {
                     key={module.id}
                     title={module.title}
                     path={module.path}
-                    completed={parseInt(module.completed)}
+                    completed={module.completed.toString()}
                     icon={module.icon}
                     description={module.description}
                   />

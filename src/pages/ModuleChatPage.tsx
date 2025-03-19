@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MessageCircle, AlertTriangle } from 'lucide-react';
@@ -6,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { getModuleInsights } from '@/services/dataService';
 
 interface ModuleChatParams {
-  [key: string]: string | undefined;
   module?: string;
+  [key: string]: string | undefined;
 }
 
 const ModuleChatPage = () => {

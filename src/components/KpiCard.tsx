@@ -3,21 +3,24 @@ import React from 'react';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 
 interface KpiCardProps {
+  id: string;
   title: string;
   value: string | number;
   change?: number;
-  icon: React.ReactNode;
-  color?: string;
+  trend: 'up' | 'down' | 'flat';
+  sparklineData: number[];
 }
 
 const KpiCard: React.FC<KpiCardProps> = ({ 
+  id,
   title, 
   value, 
   change, 
-  icon,
-  color = 'bg-ey-yellow/10'
+  trend,
+  sparklineData
 }) => {
-  const isPositive = change !== undefined && change >= 0;
+  const isPositive = trend === 'up';
+  const isNegative = trend === 'down';
   
   return (
     <div className="ey-card p-6 animate-slide-up transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg">
@@ -30,19 +33,32 @@ const KpiCard: React.FC<KpiCardProps> = ({
             <div className="flex items-center mt-2">
               {isPositive ? (
                 <ArrowUp className="h-4 w-4 text-green-500 mr-1" />
-              ) : (
+              ) : isNegative ? (
                 <ArrowDown className="h-4 w-4 text-red-500 mr-1" />
-              )}
-              <span className={`text-sm font-medium ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                {Math.abs(change)}%
+              ) : null}
+              <span className={`text-sm font-medium ${isPositive ? 'text-green-500' : isNegative ? 'text-red-500' : 'text-gray-500'}`}>
+                {change ? Math.abs(change) : 0}%
               </span>
               <span className="text-ey-lightGray text-sm ml-1">vs last month</span>
             </div>
           )}
         </div>
         
-        <div className={`p-3 rounded-full ${color} transition-all duration-300 hover:scale-110`}>
-          {icon}
+        {/* Sparkline chart visualization would go here */}
+        <div className="w-24 h-12 flex items-end">
+          {sparklineData && sparklineData.length > 0 && (
+            <div className="flex items-end w-full h-full space-x-1">
+              {sparklineData.map((value, index) => (
+                <div 
+                  key={`${id}-sparkline-${index}`}
+                  className={`w-1 rounded-t ${isPositive ? 'bg-green-500' : isNegative ? 'bg-red-500' : 'bg-gray-400'}`}
+                  style={{ 
+                    height: `${Math.max(10, (value / Math.max(...sparklineData)) * 100)}%` 
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
