@@ -9,7 +9,6 @@ interface ModuleCardProps {
   icon: React.ReactNode;
   path: string;
   color?: string;
-  completed?: string;
 }
 
 const ModuleCard: React.FC<ModuleCardProps> = ({ 
@@ -17,8 +16,7 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
   description, 
   icon, 
   path,
-  color = 'bg-ey-yellow/10',
-  completed
+  color = 'bg-ey-yellow/10' 
 }) => {
   return (
     <Link to={path} className="block group">
@@ -31,18 +29,6 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
         </div>
         
         <p className="text-ey-lightGray mb-4 line-clamp-2">{description}</p>
-        
-        {completed && (
-          <div className="mb-3">
-            <div className="h-2 bg-gray-200 rounded-full">
-              <div 
-                className="h-2 bg-green-500 rounded-full" 
-                style={{ width: completed }}
-              ></div>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">{completed} complete</p>
-          </div>
-        )}
         
         <div className="flex items-center text-ey-yellow group-hover:underline text-sm font-medium transition-all">
           <span>Explore</span>

@@ -1,14 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BrainCircuit, Sparkles, Plus } from 'lucide-react';
+import { BrainCircuit, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import AiAgentCard from './AiAgentCard';
 import { getAiAgents } from '@/services/dataService';
 import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
 
 const AiAgentsDeployment = () => {
   const [open, setOpen] = useState(false);
@@ -16,7 +15,6 @@ const AiAgentsDeployment = () => {
   const [loading, setLoading] = useState(true);
   const [deployingAgent, setDeployingAgent] = useState<number | null>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (open) {
@@ -42,20 +40,10 @@ const AiAgentsDeployment = () => {
     // Simulate deployment process
     setTimeout(() => {
       setDeployingAgent(null);
-      
-      // Find the deployed agent details
-      const deployedAgent = agents.find(agent => agent.id === id);
-      
       toast({
-        title: `${deployedAgent?.name || 'Agent'} deployed successfully`,
+        title: "Agent deployed successfully",
         description: `The AI agent is now active and analyzing your steel operations data.`,
       });
-      
-      // Navigate to chat with the specific agent
-      navigate(`/chat?agent=${id}`);
-      
-      // Close the dialog
-      setOpen(false);
     }, 2000);
   };
 
@@ -84,7 +72,7 @@ const AiAgentsDeployment = () => {
           <div className="mt-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium">Available Agents</h3>
-              <Badge className="bg-ey-yellow text-black">Powered by EY SECP</Badge>
+              <Badge className="bg-purple-500 text-white">Powered by EY SECP</Badge>
             </div>
             
             {loading ? (
@@ -121,26 +109,6 @@ const AiAgentsDeployment = () => {
                     isExpanded={true}
                   />
                 ))}
-                
-                {/* Add New Agent Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: agents.length * 0.1 }}
-                  className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/20 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-colors h-full min-h-[200px]"
-                  onClick={() => toast({
-                    title: "Coming Soon",
-                    description: "Custom agent creation will be available soon."
-                  })}
-                >
-                  <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
-                    <Plus className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="font-medium text-white text-center mb-2">Create Custom Agent</h3>
-                  <p className="text-sm text-white/70 text-center">
-                    Design your own AI agent for specific steel industry needs
-                  </p>
-                </motion.div>
               </motion.div>
             )}
           </div>

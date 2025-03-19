@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { generateModuleInsights } from '../services/aiService';
 
-export interface ModuleInsight {
+interface ModuleInsight {
   id: number;
   text: string;
 }

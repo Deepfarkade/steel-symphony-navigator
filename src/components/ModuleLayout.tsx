@@ -4,7 +4,6 @@ import Navigation from './Navigation';
 import Header from './Header';
 import AiChatInterface from './AiChatInterface';
 import { getModuleInsights } from '@/services/dataService';
-import { ModuleInsight } from '@/hooks/useModuleInsights';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +21,11 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+
+interface ModuleInsight {
+  id: number;
+  text: string;
+}
 
 interface ModuleLayoutProps {
   title: string;
@@ -112,6 +116,7 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
                     </DrawerDescription>
                   </DrawerHeader>
                   <div className="p-4 space-y-4">
+                    {/* Filter options would go here */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Date Range</label>
                       <div className="flex space-x-2">
