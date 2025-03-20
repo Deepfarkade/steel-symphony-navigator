@@ -155,13 +155,9 @@ const InventoryOptimization = () => {
                 <div className="h-64">
                   <AreaChart
                     data={inventoryData}
-                    margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-                  >
-                    {/* Chart elements would go here */}
-                    <div className="mt-8 text-center text-sm text-gray-500">
-                      Inventory Trend vs Target - Last 7 Months
-                    </div>
-                  </AreaChart>
+                    color="#2E2E38"
+                    title="Inventory Trend vs Target - Last 7 Months"
+                  />
                 </div>
                 <div className="grid grid-cols-3 gap-4 mt-4">
                   <div className="border rounded-md p-3 bg-gray-50">
