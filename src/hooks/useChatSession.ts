@@ -9,14 +9,29 @@ interface ChatMessage {
 }
 
 export const useChatSession = (moduleContext?: string, agentId?: number) => {
+  const [fullscreen, setFullscreen] = useState(false);
+  
+  // Try to get context, but handle the case when it's not available
+  let contextValues;
+  try {
+    contextValues = useChatContext();
+  } catch (error) {
+    // Provide default values when context is not available
+    return {
+      currentMessages: [],
+      isLoading: false,
+      handleSendMessage: () => console.warn("Chat context not available"),
+      fullscreen,
+      setFullscreen
+    };
+  }
+  
   const { 
     chatSessions, 
     currentSessionId, 
     isLoading, 
     sendMessage 
-  } = useChatContext();
-
-  const [fullscreen, setFullscreen] = useState(false);
+  } = contextValues;
 
   const currentMessages = chatSessions[currentSessionId] || [];
 

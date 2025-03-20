@@ -29,12 +29,6 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   const [isDrawerOpen, setIsDrawerOpen] = useState(propIsOpen || false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const navigate = useNavigate();
-  
-  const { 
-    currentMessages,
-    isLoading,
-    handleSendMessage
-  } = useChatSession(moduleContext, agentId);
 
   useEffect(() => {
     if (propIsOpen !== undefined) {
@@ -71,74 +65,71 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     }
   };
 
+  // Wrapper component to avoid hook call issues
+  const ChatInterface = () => {
+    const { 
+      currentMessages,
+      isLoading,
+      handleSendMessage,
+      fullscreen,
+      setFullscreen
+    } = useChatSession(moduleContext, agentId);
+
+    useEffect(() => {
+      setIsFullscreen(fullscreen);
+    }, [fullscreen]);
+
+    return (
+      <ChatWindow
+        messages={currentMessages}
+        isLoading={isLoading}
+        onSendMessage={handleSendMessage}
+        agentId={agentId}
+        isFullscreen={isFullscreen}
+        toggleFullscreen={toggleFullscreen}
+        handleClose={handleClose}
+        navigateToChat={navigateToChat}
+        isExpanded={isExpanded}
+        floating={floating}
+      />
+    );
+  };
+
   if (!floating) {
     return isFullscreen ? (
       <ChatProvider moduleContext={moduleContext} agentId={agentId}>
         <div className="fixed inset-0 z-50 bg-white">
-          <ChatWindow
-            messages={currentMessages}
-            isLoading={isLoading}
-            onSendMessage={handleSendMessage}
-            agentId={agentId}
-            isFullscreen={isFullscreen}
-            toggleFullscreen={toggleFullscreen}
-            handleClose={handleClose}
-            navigateToChat={navigateToChat}
-            isExpanded={isExpanded}
-            floating={false}
-          />
+          <ChatInterface />
         </div>
       </ChatProvider>
     ) : (
       <ChatProvider moduleContext={moduleContext} agentId={agentId}>
-        <ChatWindow
-          messages={currentMessages}
-          isLoading={isLoading}
-          onSendMessage={handleSendMessage}
-          agentId={agentId}
-          isFullscreen={isFullscreen}
-          toggleFullscreen={toggleFullscreen}
-          handleClose={handleClose}
-          navigateToChat={navigateToChat}
-          isExpanded={isExpanded}
-          floating={false}
-        />
+        <ChatInterface />
       </ChatProvider>
     );
   }
 
   return (
-    <ChatProvider moduleContext={moduleContext} agentId={agentId}>
-      <Drawer open={isDrawerOpen || isFullscreen} onOpenChange={handleOpenChange}>
-        {!disableFloatingButton && (
-          <DrawerTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg border-0"
-              onClick={() => handleOpenChange(true)}
-            >
-              <BrainCircuit className="h-6 w-6" />
-              <span className="absolute top-0 right-0 h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
-            </Button>
-          </DrawerTrigger>
-        )}
-        <DrawerContent className={`p-0 max-h-[90vh] ${isFullscreen ? 'h-screen w-screen max-w-full' : ''}`}>
-          <ChatWindow
-            messages={currentMessages}
-            isLoading={isLoading}
-            onSendMessage={handleSendMessage}
-            agentId={agentId}
-            isFullscreen={isFullscreen}
-            toggleFullscreen={toggleFullscreen}
-            handleClose={handleClose}
-            navigateToChat={navigateToChat}
-            isExpanded={isExpanded}
-            floating={true}
-          />
-        </DrawerContent>
-      </Drawer>
-    </ChatProvider>
+    <Drawer open={isDrawerOpen || isFullscreen} onOpenChange={handleOpenChange}>
+      {!disableFloatingButton && (
+        <DrawerTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg border-0"
+            onClick={() => handleOpenChange(true)}
+          >
+            <BrainCircuit className="h-6 w-6" />
+            <span className="absolute top-0 right-0 h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
+          </Button>
+        </DrawerTrigger>
+      )}
+      <DrawerContent className={`p-0 max-h-[90vh] ${isFullscreen ? 'h-screen w-screen max-w-full' : ''}`}>
+        <ChatProvider moduleContext={moduleContext} agentId={agentId}>
+          <ChatInterface />
+        </ChatProvider>
+      </DrawerContent>
+    </Drawer>
   );
 };
 

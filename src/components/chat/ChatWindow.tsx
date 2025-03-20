@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, MessageSquare, ChevronRight, ChevronLeft } from 'lucide-react';
@@ -59,6 +58,24 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [activeSessionId, setActiveSessionId] = useState<string>('default');
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
 
+  // Keep messages updated with props
+  useEffect(() => {
+    if (messages && messages.length > 0) {
+      setSessions(prev => {
+        const sessionIndex = prev.findIndex(s => s.id === activeSessionId);
+        if (sessionIndex >= 0) {
+          const updatedSessions = [...prev];
+          updatedSessions[sessionIndex] = {
+            ...updatedSessions[sessionIndex],
+            messages: messages
+          };
+          return updatedSessions;
+        }
+        return prev;
+      });
+    }
+  }, [messages, activeSessionId]);
+
   const handleNewSession = () => {
     const newSession: ChatSession = {
       id: `session-${Date.now()}`,
@@ -106,63 +123,61 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       />
       
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex h-full relative">
-          <Collapsible 
-            open={showSidebar} 
-            onOpenChange={setShowSidebar}
-            className="h-full"
-          >
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 -ml-3 z-10">
-              <CollapsibleTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="h-6 w-6 rounded-full border border-gray-200 bg-white shadow-md"
-                >
-                  {showSidebar ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-                </Button>
-              </CollapsibleTrigger>
-            </div>
+        <Collapsible 
+          open={showSidebar} 
+          onOpenChange={setShowSidebar}
+          className="h-full"
+        >
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 -ml-3 z-10">
+            <CollapsibleTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-6 w-6 rounded-full border border-gray-200 bg-white shadow-md"
+              >
+                {showSidebar ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              </Button>
+            </CollapsibleTrigger>
+          </div>
 
-            <CollapsibleContent className="w-64 border-r border-gray-100 flex flex-col h-full data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up transition-all">
-              <div className="p-3">
-                <Button 
-                  onClick={handleNewSession}
-                  className="w-full flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white"
-                >
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  New Chat
-                </Button>
-              </div>
-              
-              <ScrollArea className="flex-1">
-                <div className="p-2 space-y-2">
-                  {sessions.map((session) => (
-                    <button
-                      key={session.id}
-                      onClick={() => setActiveSessionId(session.id)}
-                      className={`w-full text-left p-2 rounded-lg flex items-center ${
-                        activeSessionId === session.id 
-                          ? 'bg-indigo-100 text-indigo-700' 
-                          : 'hover:bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      <div className="overflow-hidden">
-                        <div className="font-medium truncate">{session.name}</div>
-                        <div className="text-xs text-gray-500">
-                          {session.createdAt.toLocaleDateString()}
-                        </div>
+          <CollapsibleContent className="w-64 border-r border-gray-100 flex flex-col h-full data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up transition-all">
+            <div className="p-3">
+              <Button 
+                onClick={handleNewSession}
+                className="w-full flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                New Chat
+              </Button>
+            </div>
+            
+            <ScrollArea className="flex-1">
+              <div className="p-2 space-y-2">
+                {sessions.map((session) => (
+                  <button
+                    key={session.id}
+                    onClick={() => setActiveSessionId(session.id)}
+                    className={`w-full text-left p-2 rounded-lg flex items-center ${
+                      activeSessionId === session.id 
+                        ? 'bg-indigo-100 text-indigo-700' 
+                        : 'hover:bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    <div className="overflow-hidden">
+                      <div className="font-medium truncate">{session.name}</div>
+                      <div className="text-xs text-gray-500">
+                        {session.createdAt.toLocaleDateString()}
                       </div>
-                    </button>
-                  ))}
-                </div>
-              </ScrollArea>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+          </CollapsibleContent>
+        </Collapsible>
         
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className={`flex-1 flex flex-col overflow-hidden ${showSidebar ? 'ml-64' : ''} transition-all duration-300`}>
           <ChatMessageList 
             messages={activeSession.messages}
             isLoading={isLoading}
