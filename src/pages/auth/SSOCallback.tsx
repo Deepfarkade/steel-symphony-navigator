@@ -36,6 +36,11 @@ const SSOCallback: React.FC = () => {
           throw new Error('Authentication failed');
         }
         
+        // Set session expiry (7 days from now)
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 7);
+        localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
+        
         setStatus('success');
         
         // Notify the user

@@ -29,6 +29,9 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Set a long session timeout (7 days by default)
+const SESSION_EXPIRY_DAYS = 7;
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,14 +42,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Check if current route is an SSO callback route
   const isSSOCallback = location.pathname === '/auth/callback';
   
+  // Function to set a session expiry timestamp
+  const setSessionExpiry = () => {
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + SESSION_EXPIRY_DAYS);
+    localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
+  };
+  
+  // Function to check if the session is valid
+  const isSessionValid = (): boolean => {
+    const expiryStr = localStorage.getItem('ey-session-expiry');
+    if (!expiryStr) return false;
+    
+    const expiry = new Date(expiryStr);
+    return expiry > new Date();
+  };
+  
   useEffect(() => {
     const checkAuth = () => {
       setIsLoading(true);
-      const currentUser = checkAuthStatus();
       
-      if (currentUser) {
+      // Check if we have a valid session and user data
+      const currentUser = checkAuthStatus();
+      const validSession = isSessionValid();
+      
+      if (currentUser && validSession) {
         setUser(currentUser);
       } else {
+        // Clear any invalid session data
+        if (currentUser && !validSession) {
+          logoutUser();
+        }
+        
         setUser(null);
         
         // Redirect to login if not authenticated and not already on login, signup or SSO callback
@@ -68,6 +95,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     logoutUser();
     setUser(null);
+    localStorage.removeItem('ey-session-expiry');
+    
     toast({
       title: "Logged out",
       description: "You have been successfully logged out.",
@@ -79,6 +108,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Use the actual SSO service function
     initiateSSOLogin(provider);
   };
+  
+  // When a user logs in, set the session expiry
+  useEffect(() => {
+    if (user && !isSessionValid()) {
+      setSessionExpiry();
+    }
+  }, [user]);
   
   const value = {
     user,
