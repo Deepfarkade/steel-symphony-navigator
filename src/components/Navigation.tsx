@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -28,7 +27,12 @@ import {
   Zap,
   Settings2,
   Gauge,
-  UserRound
+  UserRound,
+  Trash,
+  CheckCircle,
+  Shield,
+  Globe,
+  Lightbulb
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -888,156 +892,4 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          className="hover:bg-ey-yellow/10 text-red-500"
-                          onClick={logout}
-                        >
-                          <LogOut className="h-5 w-5" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <p>Logout</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        onClick={() => setIsExpanded(!isExpanded)}
-                        className="w-full flex items-center justify-center p-3 rounded-lg bg-ey-yellow/30 text-ey-darkGray hover:bg-ey-yellow/40 transition-all duration-300"
-                      >
-                        <ChevronRight className="h-5 w-5" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p>Expand Sidebar</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Agent Marketplace Dialog */}
-        <Dialog open={showMarketplace} onOpenChange={setShowMarketplace}>
-          <DialogContent className="sm:max-w-4xl">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold flex items-center">
-                <BrainCog className="h-5 w-5 mr-2 text-purple-500" />
-                AI Agent Marketplace
-              </DialogTitle>
-              <DialogDescription>
-                Discover and add specialized AI agents to enhance your steel operations.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <ScrollArea className="h-[60vh] pr-4">
-              {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="border rounded-lg p-4 h-28 animate-pulse bg-gray-100"></div>
-                  ))}
-                </div>
-              ) : availableAgents.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {availableAgents.map((agent) => (
-                    <div 
-                      key={agent.id}
-                      className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-center">
-                          <div className={`w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3`}>
-                            {getAgentIcon(agent.icon)}
-                          </div>
-                          <div>
-                            <h3 className="font-medium text-ey-darkGray">{agent.name}</h3>
-                            <p className="text-sm text-ey-lightGray">{agent.description}</p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end">
-                          <div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full mb-2">
-                            {agent.confidence}% Confidence
-                          </div>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            onClick={() => addAgent(agent.id)}
-                            disabled={addingAgent === agent.id}
-                            className="text-purple-600 border-purple-200 hover:bg-purple-50"
-                          >
-                            {addingAgent === agent.id ? (
-                              <div className="h-4 w-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mr-1" />
-                            ) : (
-                              <Plus className="h-3.5 w-3.5 mr-1" />
-                            )}
-                            Add Agent
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <BrainCog className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-lg font-medium text-ey-darkGray mb-2">No available agents</h3>
-                  <p className="text-ey-lightGray">
-                    You've already added all available agents to your workspace.
-                  </p>
-                </div>
-              )}
-            </ScrollArea>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowMarketplace(false)}>
-                Close
-              </Button>
-              <Button 
-                className="bg-purple-600 hover:bg-purple-700"
-                onClick={() => {
-                  setShowMarketplace(false);
-                  navigate('/create-agent');
-                }}
-              >
-                Create Custom Agent
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Agent remove confirmation dialog */}
-        <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Remove Agent</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to remove {selectedAgentToRemove?.name} from your workspace? 
-                You can always add it back later from the marketplace.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={confirmRemoveAgent}
-                className="bg-red-500 hover:bg-red-600"
-              >
-                {removingAgent === selectedAgentToRemove?.id ? (
-                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
-                ) : (
-                  <Trash className="h-4 w-4 mr-1" />
-                )}
-                Remove
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </motion.aside>
-    </TooltipProvider>
-  );
-};
-
-// Fix for missing icon imports
-import { CheckCircle, Shield, Globe, Lightbulb } from 'lucide-react';
-
-export default Navigation;
+                          className="hover
