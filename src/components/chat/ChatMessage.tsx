@@ -1,14 +1,15 @@
 
 import React from 'react';
 import { Bot, User } from 'lucide-react';
+import { ChatMessageData } from './ChatMessageList';
 
 interface ChatMessageProps {
-  text: string;
-  isUser: boolean;
-  timestamp: Date;
+  message: ChatMessageData;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ text, isUser, timestamp }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
+  const isUser = message.role === 'user';
+  
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}>
       <div className={`flex items-start max-w-[80%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -22,9 +23,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ text, isUser, timestamp }) =>
               : 'bg-ey-darkGray/10 text-ey-darkGray'
           }`}
         >
-          <p className="whitespace-pre-line">{text}</p>
+          <p className="whitespace-pre-line">{message.content}</p>
           <p className="text-xs text-ey-lightGray mt-1">
-            {timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {message.timestamp instanceof Date 
+              ? message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              : new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
           </p>
         </div>
       </div>

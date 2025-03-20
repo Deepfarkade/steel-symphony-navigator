@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import ChatHeader from './ChatHeader';
-import ChatMessageList from './ChatMessageList';
+import ChatMessageList, { ChatMessageData } from './ChatMessageList';
 import ChatInput from './ChatInput';
 import ChatSidebar from './ChatSidebar';
 import SidebarToggle from './SidebarToggle';
@@ -108,6 +109,16 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   // Get active session messages
   const activeSession = sessions.find(session => session.id === activeSessionId) || sessions[0];
+  
+  // Convert ChatMessage[] to ChatMessageData[]
+  const convertToChatMessageData = (messages: ChatMessage[]): ChatMessageData[] => {
+    return messages.map((msg, index) => ({
+      id: `msg-${index}-${Date.now()}`,
+      role: msg.isUser ? 'user' : 'assistant',
+      content: msg.text,
+      timestamp: msg.timestamp
+    }));
+  };
 
   return (
     <div className={`ey-card ${floating ? 'fixed bottom-4 right-4 z-50 shadow-xl w-96' : 'w-full'} 
@@ -152,7 +163,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           }}
         >
           <ChatMessageList 
-            messages={activeSession.messages}
+            messages={convertToChatMessageData(activeSession.messages)}
             isLoading={isLoading}
           />
           
