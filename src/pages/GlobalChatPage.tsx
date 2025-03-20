@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Header from '@/components/Header';
@@ -7,6 +6,7 @@ import { Brain, BrainCircuit, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { useLocation } from 'react-router-dom';
+import { ChatProvider } from '@/context/ChatContext';
 
 const GlobalChatPage = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -84,7 +84,9 @@ const GlobalChatPage = () => {
         
         <Card className="max-w-6xl mx-auto p-0 overflow-hidden">
           <div className="bg-white h-[calc(100vh-300px)]">
-            <AiChatInterface disableFloatingButton={true} />
+            <ChatProvider>
+              <AiChatInterface disableFloatingButton={true} />
+            </ChatProvider>
           </div>
         </Card>
       </div>

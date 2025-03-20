@@ -7,6 +7,7 @@ import Navigation from '../components/Navigation';
 import Header from '../components/Header';
 import AiChatInterface from '../components/AiChatInterface';
 import { Card } from "@/components/ui/card";
+import { ChatProvider } from '@/context/ChatContext';
 
 interface ModuleChatParams {
   [key: string]: string;
@@ -85,7 +86,9 @@ const ModuleChatPage = () => {
           </div>
           
           <div className="h-[calc(100vh-250px)] bg-white dark:bg-white rounded-lg overflow-hidden">
-            <AiChatInterface moduleContext={module} disableFloatingButton={true} />
+            <ChatProvider moduleContext={module}>
+              <AiChatInterface moduleContext={module} disableFloatingButton={true} />
+            </ChatProvider>
           </div>
         </Card>
       </div>
