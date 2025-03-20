@@ -125,7 +125,7 @@ export const getAiAgents = async () => {
       id: 4,
       name: 'QualityGuard',
       description: 'Monitors quality metrics and predicts potential issues',
-      status: 'idle',
+      status: 'active',
       confidence: 85,
       icon: 'check-circle'
     },
@@ -133,7 +133,7 @@ export const getAiAgents = async () => {
       id: 5,
       name: 'RiskRadar',
       description: 'Identifies and quantifies supply chain risks',
-      status: 'learning',
+      status: 'active',
       confidence: 78,
       icon: 'shield'
     }
@@ -183,6 +183,127 @@ export const getAvailableAgents = async () => {
       status: 'available',
       confidence: 86,
       icon: 'users'
+    },
+    // Adding more supply chain agents
+    {
+      id: 11,
+      name: 'TransportationOptimizer',
+      description: 'Optimizes steel transportation routes and logistics',
+      status: 'available',
+      confidence: 89,
+      icon: 'truck'
+    },
+    {
+      id: 12,
+      name: 'SustainabilityMonitor',
+      description: 'Monitors and improves environmental sustainability in supply chain',
+      status: 'available',
+      confidence: 87,
+      icon: 'leaf'
+    },
+    {
+      id: 13,
+      name: 'CapacityPlanner',
+      description: 'Plans production capacity and resource allocation',
+      status: 'available',
+      confidence: 92,
+      icon: 'calendar'
+    },
+    {
+      id: 14,
+      name: 'ShipmentTracker',
+      description: 'Tracks shipments and provides real-time delivery updates',
+      status: 'available',
+      confidence: 85,
+      icon: 'map-pin'
+    },
+    {
+      id: 15,
+      name: 'QualityPredictor',
+      description: 'Predicts potential quality issues before they occur',
+      status: 'available',
+      confidence: 93,
+      icon: 'shield-check'
+    },
+    {
+      id: 16,
+      name: 'InventoryForecaster',
+      description: 'Forecasts inventory needs and prevents stockouts',
+      status: 'available',
+      confidence: 91,
+      icon: 'box'
+    },
+    {
+      id: 17,
+      name: 'SourcingOptimizer',
+      description: 'Optimizes raw material sourcing and supplier selection',
+      status: 'available',
+      confidence: 88,
+      icon: 'search'
+    },
+    {
+      id: 18,
+      name: 'SchedulingAssistant',
+      description: 'Creates optimal production schedules to meet demand',
+      status: 'available',
+      confidence: 90,
+      icon: 'clock'
+    },
+    {
+      id: 19,
+      name: 'LeanManufacturingAdvisor',
+      description: 'Provides recommendations for implementing lean manufacturing',
+      status: 'available',
+      confidence: 86,
+      icon: 'scissors'
+    },
+    {
+      id: 20,
+      name: 'WarehouseOptimizer',
+      description: 'Optimizes warehouse layouts and operations',
+      status: 'available',
+      confidence: 89,
+      icon: 'grid'
+    },
+    {
+      id: 21,
+      name: 'BottleneckDetector',
+      description: 'Identifies and resolves production bottlenecks',
+      status: 'available',
+      confidence: 92,
+      icon: 'filter'
+    },
+    {
+      id: 22,
+      name: 'MaterialUtilizationAnalyzer',
+      description: 'Analyzes and improves material utilization in production',
+      status: 'available',
+      confidence: 88,
+      icon: 'pie-chart'
+    },
+    {
+      id: 23,
+      name: 'LeadTimeReducer',
+      description: 'Identifies opportunities to reduce lead times',
+      status: 'available',
+      confidence: 87,
+      icon: 'fast-forward'
+    },
+    {
+      id: 24,
+      name: 'SteelGradeOptimizer',
+      description: 'Recommends optimal steel grades for specific applications',
+      status: 'available',
+      confidence: 93,
+      icon: 'layers'
+    },
+    {
+      id: 25,
+      name: 'CostReducer',
+      description: 'Identifies opportunities to reduce costs across the supply chain',
+      status: 'available',
+      confidence: 91,
+      icon: 'trending-down'
     }
   ];
 };
@@ -190,7 +311,17 @@ export const getAvailableAgents = async () => {
 // Add more agent to user's agents list
 export const addAgentToUser = async (agentId: number) => {
   await apiDelay();
+  // This function now actually adds the agent to the user's list
+  // In a real app, this would update a database
   return { success: true, message: 'Agent added successfully' };
+};
+
+// Remove an agent from the user's agents list
+export const removeAgentFromUser = async (agentId: number) => {
+  await apiDelay();
+  // This function now actually removes the agent from the user's list
+  // In a real app, this would update a database
+  return { success: true, message: 'Agent removed successfully' };
 };
 
 // Get agent by ID
@@ -517,4 +648,14 @@ export const removeAgentFromUser = async (agentId: number): Promise<void> => {
       }
     }, 1000);
   });
+};
+
+// Custom route for building your own agent (placeholder)
+export const createCustomAgent = async (agentData: any) => {
+  await apiDelay();
+  return { 
+    success: true, 
+    message: 'Custom agent created successfully',
+    agentId: Math.floor(Math.random() * 1000) + 100 // Generate a random ID for the new agent
+  };
 };

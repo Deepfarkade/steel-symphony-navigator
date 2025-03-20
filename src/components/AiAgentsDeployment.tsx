@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BrainCircuit, Sparkles, Loader } from 'lucide-react';
@@ -72,6 +73,10 @@ const AiAgentsDeployment = () => {
         description: `The AI agent is now active and analyzing your steel operations data.`,
       });
       
+      // Refresh the list of agents after adding one
+      await fetchAllAgents();
+      
+      // Navigate to the newly added agent
       navigate(`/agent/${id}`);
       setOpen(false);
     } catch (error) {
@@ -222,9 +227,21 @@ const AiAgentsDeployment = () => {
             </Button>
             <Button 
               className="bg-purple-500 hover:bg-purple-600"
-              onClick={() => navigate('/agents')}
+              onClick={() => {
+                setOpen(false);
+                navigate('/agents');
+              }}
             >
               View All Agents
+            </Button>
+            <Button 
+              className="bg-indigo-500 hover:bg-indigo-600"
+              onClick={() => {
+                setOpen(false);
+                navigate('/create-agent');
+              }}
+            >
+              Create Custom Agent
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BrainCircuit, Plus, Search, Filter, BrainCog, Download, ArrowUpDown } from 'lucide-react';
+import { BrainCircuit, Plus, Search, Filter, BrainCog, Download, ArrowUpDown, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Header from '../components/Header';
@@ -122,13 +122,22 @@ const AgentsPage = () => {
                     </CardDescription>
                   </div>
                 </div>
-                <Button 
-                  className="bg-white hover:bg-white/90 text-purple-700"
-                  onClick={() => setShowNewAgentDialog(true)}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Deploy New Agent
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    className="bg-white hover:bg-white/90 text-purple-700"
+                    onClick={() => setShowNewAgentDialog(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Deploy New Agent
+                  </Button>
+                  <Button 
+                    className="bg-indigo-500 hover:bg-indigo-600 text-white"
+                    onClick={() => navigate('/create-agent')}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Make Your Own Agent
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="pt-6">
@@ -182,6 +191,8 @@ const AgentsPage = () => {
                           confidence={agent.confidence}
                           icon={agent.icon}
                           isExpanded={true}
+                          deploying={false}
+                          isUserAgent={true}
                         />
                       </motion.div>
                     </Link>
@@ -194,12 +205,21 @@ const AgentsPage = () => {
                   <p className="text-ey-lightGray mb-6">
                     {searchQuery ? 'No agents match your search criteria.' : 'You haven\'t deployed any AI agents yet.'}
                   </p>
-                  <Button 
-                    onClick={() => setShowNewAgentDialog(true)}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Deploy Your First Agent
-                  </Button>
+                  <div className="flex items-center justify-center gap-4">
+                    <Button 
+                      onClick={() => setShowNewAgentDialog(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Deploy Your First Agent
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => navigate('/create-agent')}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Create Custom Agent
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
