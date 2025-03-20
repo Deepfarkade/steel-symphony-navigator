@@ -24,7 +24,7 @@ import {
   Newspaper
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import Navigation from '../components/Navigation';
 import Header from '../components/Header';
@@ -109,6 +109,7 @@ const Index = () => {
   const [aiAgentActive, setAiAgentActive] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [aiStats, setAiStats] = useState({
     modelsAnalyzed: 0,
@@ -158,7 +159,8 @@ const Index = () => {
   }
   
   const handleAskCoPilot = () => {
-    setChatOpen(true);
+    navigate('/chat');
+    
     toast({
       title: "Co-Pilot Activated",
       description: "Your EY Steel Ecosystem Co-Pilot is ready to assist you.",

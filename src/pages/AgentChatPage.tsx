@@ -46,25 +46,28 @@ const AgentChatPage = () => {
         setAgent(agentData);
         setAnalytics(analyticsData);
         
-        // Process recommendations with proper typing
+        // Process recommendations properly
         if (Array.isArray(recommendationsData)) {
-          // If recommendationsData is an array of objects that match Recommendation interface
-          if (recommendationsData.length > 0 && typeof recommendationsData[0] === 'object' && 'title' in recommendationsData[0]) {
-            setRecommendations(recommendationsData as Recommendation[]);
-          } 
-          // If recommendationsData is an array of strings, convert to Recommendation objects
-          else if (recommendationsData.length > 0 && typeof recommendationsData[0] === 'string') {
-            const formattedRecommendations: Recommendation[] = recommendationsData.map((rec: string, index: number) => ({
-              id: index + 1,
-              title: `Recommendation ${index + 1}`,
-              description: rec,
-              impact: ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)],
-              category: 'AI'
-            }));
-            setRecommendations(formattedRecommendations);
-          }
-          // If it's an empty array, set an empty array
-          else {
+          if (recommendationsData.length > 0) {
+            if (typeof recommendationsData[0] === 'object' && 'title' in recommendationsData[0]) {
+              // It's already in the right format
+              setRecommendations(recommendationsData as Recommendation[]);
+            } 
+            else if (typeof recommendationsData[0] === 'string') {
+              // Convert string array to Recommendation objects
+              const formatted: Recommendation[] = [];
+              recommendationsData.forEach((rec: string, index: number) => {
+                formatted.push({
+                  id: index + 1,
+                  title: `Recommendation ${index + 1}`,
+                  description: rec,
+                  impact: ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)],
+                  category: 'AI'
+                });
+              });
+              setRecommendations(formatted);
+            }
+          } else {
             setRecommendations([]);
           }
         } else {

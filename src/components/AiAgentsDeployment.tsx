@@ -148,12 +148,13 @@ const AiAgentsDeployment = () => {
                           id={agent.id}
                           name={agent.name}
                           description={agent.description}
-                          status={agent.status}
+                          status={agent.status || "active"}
                           confidence={agent.confidence}
                           icon={agent.icon}
                           onActivate={deployAgent}
                           isExpanded={true}
-                          alreadyDeployed={true}
+                          deploying={false}
+                          isUserAgent={true}
                         />
                       ))}
                     </motion.div>
@@ -186,12 +187,13 @@ const AiAgentsDeployment = () => {
                         id={agent.id}
                         name={agent.name}
                         description={agent.description}
-                        status="ready"
+                        status="active"
                         confidence={agent.confidence}
                         icon={agent.icon}
                         onActivate={deployAgent}
                         isExpanded={true}
                         deploying={deployingAgent === agent.id}
+                        isUserAgent={false}
                       />
                     ))}
                   </motion.div>

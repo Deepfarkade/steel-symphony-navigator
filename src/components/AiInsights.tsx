@@ -34,7 +34,7 @@ const AiInsights: React.FC<AiInsightsProps> = ({ insights: propInsights, loading
           // Ensure the data matches the expected Insight type
           const typedInsights: Insight[] = data.map((item: any) => ({
             id: item.id,
-            // Use type assertion to ensure the type is one of the allowed values
+            // Ensure type is one of the allowed values
             type: (item.type as 'alert' | 'success' | 'opportunity' | 'suggestion'),
             message: item.message,
             timestamp: item.timestamp
