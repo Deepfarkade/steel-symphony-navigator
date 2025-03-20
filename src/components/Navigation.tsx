@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
@@ -45,6 +46,9 @@ const Navigation: React.FC = () => {
     expanded: { width: '256px' },
     collapsed: { width: '70px' }
   };
+
+  // Determine if we should show the "no agents" message
+  const showNoAgentsMessage = !loading && agents.length === 0;
 
   return (
     <motion.aside
@@ -192,9 +196,12 @@ const Navigation: React.FC = () => {
                 />
               ))
             ) : (
-              <div className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'} py-2 px-3`}>
-                No agents deployed yet
-              </div>
+              // Only display this message when sidebar is expanded
+              !isCollapsed && (
+                <div className={`text-sm ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'} py-2 px-3`}>
+                  No agents deployed yet
+                </div>
+              )
             )}
             
             <SidebarItem
