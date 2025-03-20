@@ -6,9 +6,11 @@ import AiChatInterface from '@/components/AiChatInterface';
 import { Brain, BrainCircuit, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
+import { useLocation } from 'react-router-dom';
 
 const GlobalChatPage = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const location = useLocation();
   
   useEffect(() => {
     const handleSidebarChange = (event: CustomEvent) => {

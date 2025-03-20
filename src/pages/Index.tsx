@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
@@ -141,7 +140,6 @@ const Index = () => {
       setSidebarCollapsed(isCollapsed);
     };
 
-    // Add event listener for sidebar state change
     document.addEventListener('sidebar-state-changed', handleSidebarChange as EventListener);
     
     return () => {
@@ -576,8 +574,7 @@ const Index = () => {
         </motion.div>
       </div>
       
-      {/* Disable the floating chatbot */}
-      {/* <AiChatInterface floating isOpen={chatOpen} onOpenChange={setChatOpen} /> */}
+      <AiChatInterface floating isOpen={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
 };
