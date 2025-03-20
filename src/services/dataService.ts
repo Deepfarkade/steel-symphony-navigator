@@ -245,7 +245,7 @@ export const getAgentAnalytics = async (agentId: number) => {
   await apiDelay();
   return {
     issuesResolved: faker.number.int({ min: 32, max: 124 }),
-    avgResponseTime: faker.number.float({ min: 1.2, max: 4.8, precision: 0.1 }),
+    avgResponseTime: faker.number.float({ min: 1.2, max: 4.8, fractionDigits: 1 }),
     userSatisfaction: faker.number.int({ min: 78, max: 97 }),
     conversationsCompleted: faker.number.int({ min: 45, max: 210 }),
     trendsIdentified: faker.number.int({ min: 8, max: 35 }),
@@ -317,6 +317,16 @@ export const createCustomAgent = async (agentData: any) => {
     message: 'Custom agent created successfully',
     agent: newAgent,
     agentId: newAgent.id
+  };
+};
+
+// Function to get Co-Pilot analytics data
+export const getCoPilotAnalytics = async () => {
+  await apiDelay();
+  return {
+    modelsAnalyzed: faker.number.int({ min: 12, max: 48 }),
+    dataPointsProcessed: faker.number.int({ min: 150000, max: 500000 }),
+    predictionsGenerated: faker.number.int({ min: 230, max: 890 })
   };
 };
 

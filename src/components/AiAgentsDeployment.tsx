@@ -15,7 +15,7 @@ interface Agent {
   id: number;
   name: string;
   description: string;
-  status: string;
+  status: 'active' | 'inactive' | 'learning';
   confidence: number;
   icon: string;
 }
@@ -156,7 +156,7 @@ const AiAgentsDeployment = () => {
                           id={agent.id}
                           name={agent.name}
                           description={agent.description}
-                          status={agent.status || "active"}
+                          status={agent.status}
                           confidence={agent.confidence}
                           icon={agent.icon}
                           onActivate={deployAgent}

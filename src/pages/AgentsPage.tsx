@@ -26,7 +26,7 @@ interface Agent {
   id: number;
   name: string;
   description: string;
-  status: string;
+  status: 'active' | 'inactive' | 'learning';
   confidence: number;
   icon: string;
 }
