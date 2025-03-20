@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { ArrowLeft, BrainCircuit, Zap, Activity } from 'lucide-react';
@@ -55,16 +54,13 @@ const AgentChatPage = () => {
             } 
             else if (typeof recommendationsData[0] === 'string') {
               // Convert string array to Recommendation objects
-              const formatted: Recommendation[] = [];
-              recommendationsData.forEach((rec: string, index: number) => {
-                formatted.push({
-                  id: index + 1,
-                  title: `Recommendation ${index + 1}`,
-                  description: rec,
-                  impact: ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)],
-                  category: 'AI'
-                });
-              });
+              const formatted: Recommendation[] = recommendationsData.map((rec: string, index: number) => ({
+                id: index + 1,
+                title: `Recommendation ${index + 1}`,
+                description: rec,
+                impact: ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)],
+                category: 'AI'
+              }));
               setRecommendations(formatted);
             }
           } else {

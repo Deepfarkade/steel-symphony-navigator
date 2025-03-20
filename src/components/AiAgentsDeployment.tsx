@@ -35,7 +35,6 @@ const AiAgentsDeployment = () => {
       
       setAgents(userAgents);
       
-      // Filter out agents that the user already has
       const userAgentIds = userAgents.map((agent: any) => agent.id);
       const filteredAvailableAgents = marketplaceAgents.filter(
         (agent: any) => !userAgentIds.includes(agent.id)
@@ -55,21 +54,17 @@ const AiAgentsDeployment = () => {
   };
 
   const deployAgent = async (id: number) => {
-    // Check if agent is already deployed (user already has it)
     const isAlreadyDeployed = agents.some(agent => agent.id === id);
     
     if (isAlreadyDeployed) {
-      // If already deployed, just navigate to it
       navigate(`/agent/${id}`);
       setOpen(false);
       return;
     }
     
-    // Otherwise, add the agent first
     setDeployingAgent(id);
     
     try {
-      // Add the agent to the user's agents
       await addAgentToUser(id);
       
       toast({
@@ -77,7 +72,6 @@ const AiAgentsDeployment = () => {
         description: `The AI agent is now active and analyzing your steel operations data.`,
       });
       
-      // Navigate to the agent's chat interface
       navigate(`/agent/${id}`);
       setOpen(false);
     } catch (error) {

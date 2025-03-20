@@ -13,6 +13,8 @@ interface AiAgentProps {
   icon: string;
   onActivate?: (id: number) => void;
   isExpanded?: boolean;
+  deploying?: boolean;
+  isUserAgent?: boolean;
 }
 
 const AiAgentCard: React.FC<AiAgentProps> = ({ 
@@ -23,7 +25,9 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
   confidence, 
   icon,
   onActivate,
-  isExpanded = false
+  isExpanded = false,
+  deploying = false,
+  isUserAgent = false
 }) => {
   const getIcon = () => {
     switch (icon) {
@@ -88,14 +92,14 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
       
       {isExpanded && (
         <div className="mt-3">
-          {status === 'learning' ? (
+          {deploying || status === 'learning' ? (
             <Button 
               disabled
               variant="outline" 
               className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30"
             >
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Activating Agent...
+              {deploying ? "Deploying Agent..." : "Activating Agent..."}
             </Button>
           ) : (
             <Button 
@@ -103,7 +107,7 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
               variant="outline" 
               className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30"
             >
-              Interact with Agent
+              {isUserAgent ? "Interact with Agent" : "Deploy Agent"}
             </Button>
           )}
         </div>

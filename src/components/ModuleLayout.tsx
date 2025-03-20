@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Rocket, Sparkles, Download, ChevronDown, Filter, Brain, LightbulbIcon, Zap, TrendingUp, BarChart2 } from 'lucide-react';
 import Navigation from './Navigation';
@@ -85,7 +84,7 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
             }));
           }
           // If data is already an array of ModuleInsight objects
-          else if (data.length > 0 && typeof data[0] === 'object' && 'text' in data[0]) {
+          else if (data.length > 0 && typeof data[0] === 'object' && data[0] !== null && 'text' in data[0]) {
             typedInsights = data.map((item: any, index: number) => ({
               id: item.id || index + 1,
               text: item.text,
@@ -163,7 +162,6 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
     }
   };
 
-  // Generate AI Dashboard metrics based on the module
   const getAiMetrics = () => {
     const metricsByModule: Record<string, any> = {
       'demand-planning': {
@@ -423,7 +421,6 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
                     </DrawerDescription>
                   </DrawerHeader>
                   <div className="p-4 space-y-4">
-                    {/* Filter options would go here */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Date Range</label>
                       <div className="flex space-x-2">
