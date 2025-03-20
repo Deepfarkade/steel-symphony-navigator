@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import { Package2, TrendingDown } from 'lucide-react';
 import ModuleLayout from '../components/ModuleLayout';
 import ModuleContent from '../components/ModuleContent';
@@ -7,6 +8,11 @@ import { generateAIResponse } from '../services/aiService';
 
 const InventoryLiquidation = () => {
   const { insights, isLoading } = useModuleInsights('inventory-liquidation');
+  
+  // Ensure page starts at the top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   // Function to handle AI-generated liquidation strategies
   const handleGenerateLiquidationStrategies = async () => {

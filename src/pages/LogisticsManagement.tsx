@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Truck } from 'lucide-react';
 import ModuleLayout from '../components/ModuleLayout';
 import ModuleContent from '../components/ModuleContent';
@@ -7,6 +7,11 @@ import { useModuleInsights } from '../hooks/useModuleInsights';
 
 const LogisticsManagement = () => {
   const { insights, isLoading } = useModuleInsights('logistics');
+  
+  // Ensure page starts at the top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   return (
     <ModuleLayout

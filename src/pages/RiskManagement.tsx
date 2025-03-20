@@ -35,6 +35,11 @@ const RiskManagement = () => {
   const [riskData, setRiskData] = useState<RiskAssessmentData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
+  // Ensure page starts at the top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   useEffect(() => {
     const fetchRiskData = async () => {
       try {

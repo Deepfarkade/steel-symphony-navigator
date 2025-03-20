@@ -16,17 +16,21 @@ interface ChatMessageListProps {
 
 const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLoading }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prevMessagesLengthRef = useRef<number>(0);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Only scroll when messages change, not on component mount
+  // Only scroll when new messages are added, not on component mount
   useEffect(() => {
-    // Only scroll if we have messages
-    if (messages.length > 0) {
+    // Only scroll if we have messages and if the messages array length has increased
+    if (messages.length > 0 && messages.length > prevMessagesLengthRef.current) {
       scrollToBottom();
     }
+    
+    // Update the previous messages length reference
+    prevMessagesLengthRef.current = messages.length;
   }, [messages]);
 
   return (
