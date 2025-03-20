@@ -47,6 +47,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     <Link
       to={to}
       className={`w-full p-3 rounded-md flex items-center justify-between transition-all duration-200 ${getLinkStyles()}`}
+      aria-label={title}
     >
       <div className="flex items-center">
         <span className={`${!isCollapsed ? 'mr-3' : ''}`}>{icon}</span>
@@ -58,7 +59,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
   if (isCollapsed) {
     return (
-      <TooltipProvider>
+      <TooltipProvider delayDuration={0}>
         <Tooltip>
           <TooltipTrigger asChild>
             {content}

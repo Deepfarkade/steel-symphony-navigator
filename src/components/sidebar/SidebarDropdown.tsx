@@ -53,12 +53,13 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
   return (
     <div className="mb-2">
       {isCollapsed ? (
-        <TooltipProvider>
+        <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>
               <button 
                 onClick={toggleDropdown}
                 className={`w-full p-3 rounded-md flex items-center justify-center transition-all duration-200 ${getButtonStyles()}`}
+                aria-label={title}
               >
                 {icon}
               </button>
@@ -72,6 +73,7 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
         <button
           onClick={toggleDropdown}
           className={`w-full p-3 rounded-md flex items-center justify-between transition-all duration-200 ${getButtonStyles()}`}
+          aria-label={title}
         >
           <div className="flex items-center">
             <span className="mr-3">{icon}</span>
@@ -97,6 +99,11 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
         >
           {isOpen && children}
         </motion.div>
+      )}
+
+      {/* We need to render the children even when collapsed, but not visible */}
+      {isCollapsed && isOpen && (
+        <div className="hidden">{children}</div>
       )}
     </div>
   );
