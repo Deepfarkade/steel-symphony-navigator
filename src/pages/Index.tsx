@@ -117,6 +117,14 @@ const Index = () => {
     predictionsGenerated: 0
   });
 
+  const getUserDisplayName = () => {
+    if (!user) return 'User';
+    if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`;
+    if (user.firstName) return user.firstName;
+    if (user.lastName) return user.lastName;
+    return user.email.split('@')[0];
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowWelcome(false);
@@ -173,7 +181,7 @@ const Index = () => {
       
       <div data-main-content className="ml-64 p-8 relative transition-all duration-300"> 
         <AiPulse />
-        <Header pageTitle={`Welcome, ${user?.name || 'User'}!`} />
+        <Header pageTitle={`Welcome, ${getUserDisplayName()}!`} />
         
         <AiIntroduction />
         

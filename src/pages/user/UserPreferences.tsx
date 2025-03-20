@@ -43,7 +43,15 @@ const UserPreferences = () => {
     logout();
     navigate('/login');
   };
-  
+
+  const getUserFullName = () => {
+    if (!user) return 'John Doe';
+    if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`;
+    if (user.firstName) return user.firstName;
+    if (user.lastName) return user.lastName;
+    return user.email.split('@')[0];
+  };
+
   return (
     <div className="w-full min-h-screen bg-background">
       <Navigation />
@@ -83,7 +91,7 @@ const UserPreferences = () => {
                     <div className="space-y-6">
                       <div className="space-y-2">
                         <Label htmlFor="name">Full Name</Label>
-                        <Input id="name" defaultValue={user?.name || 'John Doe'} />
+                        <Input id="name" defaultValue={getUserFullName()} />
                       </div>
                       
                       <div className="space-y-2">

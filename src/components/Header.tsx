@@ -52,6 +52,15 @@ const Header: React.FC<HeaderProps> = ({ pageTitle, breadcrumbs }) => {
     setNotifications(notifications.map(n => ({ ...n, read: true })));
   };
 
+  // Helper function to get user's display name
+  const getUserDisplayName = () => {
+    if (!user) return 'User';
+    if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`;
+    if (user.firstName) return user.firstName;
+    if (user.lastName) return user.lastName;
+    return user.email.split('@')[0];
+  };
+
   return (
     <header className="flex items-center justify-between mb-8 animate-fade-in">
       <div>
@@ -166,7 +175,7 @@ const Header: React.FC<HeaderProps> = ({ pageTitle, breadcrumbs }) => {
           <div className="h-10 w-10 rounded-full bg-ey-darkGray flex items-center justify-center text-white mr-2">
             <User className="h-5 w-5" />
           </div>
-          <span className="font-medium text-ey-darkGray">{user?.name || 'User'}</span>
+          <span className="font-medium text-ey-darkGray">{getUserDisplayName()}</span>
         </div>
       </div>
 
