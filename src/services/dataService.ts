@@ -1,8 +1,7 @@
-
 import { faker } from '@faker-js/faker';
 
 // Helper function for simulating API delay
-const apiDelay = () => new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 300));
+const apiDelay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 300));
 
 // Mock user agents
 let userAgents = [

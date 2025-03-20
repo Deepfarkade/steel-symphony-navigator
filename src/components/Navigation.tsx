@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
@@ -118,7 +119,7 @@ const modules = [
 interface Agent {
   id: number;
   name: string;
-  status: string;
+  status: 'active' | 'inactive' | 'learning';
   icon: string;
   description?: string;
   confidence?: number;
