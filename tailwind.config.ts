@@ -55,9 +55,11 @@ const config = {
         },
         // EY specific colors
         "ey-yellow": "#FFE600",
-        "ey-black": "#000000",
-        "ey-darkGray": "#2E2E38",
-        "ey-lightGray": "#7D7D81",
+        "ey-black": "#161D23",
+        "ey-darkGray": "#333333",
+        "ey-lightGray": "#999999",
+        "ey-midGray": "#cccccc",
+        "ey-white": "#FFFFFF",
       },
       borderRadius: {
         lg: "var(--radius)",

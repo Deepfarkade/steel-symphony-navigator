@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Bell, Eye, Key, BrainCircuit, Moon, Sun, Monitor } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
@@ -14,11 +14,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 
 const UserPreferences = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { toast } = useToast();
-  const [theme, setTheme] = useState('system');
+  const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
   const [preferences, setPreferences] = useState({
     emailNotifications: true,
     pushNotifications: true,
@@ -37,9 +39,14 @@ const UserPreferences = () => {
       description: "Your user preferences have been updated successfully.",
     });
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   
   return (
-    <div className="w-full min-h-screen bg-gray-50">
+    <div className="w-full min-h-screen bg-background">
       <Navigation />
       <div data-main-content className="ml-64 p-8">
         <Header pageTitle="User Preferences" />
@@ -138,7 +145,7 @@ const UserPreferences = () => {
                           </Button>
                           <Button
                             variant={theme === 'system' ? 'default' : 'outline'}
-                            className="flex-1"
+                            className="flex-1 bg-ey-yellow text-ey-black"
                             onClick={() => setTheme('system')}
                           >
                             <Monitor className="h-4 w-4 mr-2" />
@@ -163,7 +170,7 @@ const UserPreferences = () => {
                         </Select>
                       </div>
                       
-                      <Button onClick={handleSavePreferences}>Save General Preferences</Button>
+                      <Button onClick={handleSavePreferences} className="bg-ey-yellow text-ey-black hover:bg-ey-yellow/90">Save General Preferences</Button>
                     </div>
                   </TabsContent>
                   
