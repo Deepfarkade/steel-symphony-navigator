@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { BrainCircuit, Sparkles, Loader, Trash } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -8,12 +8,12 @@ import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from 'react-router-dom';
 import AiAgentCard from './AiAgentCard';
-import { getAiAgents, getAvailableAgents, addAgentToUser, removeAgentFromUser } from '@/services/dataService';
+import { addAgentToUser } from '@/services/dataService';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useAgents } from '@/hooks/useAgents';
 
-// Mock agents for immediate rendering
+// Use the same mock agents as the marketplace for consistency
 const mockAvailableAgents = [
   {
     id: 1,
@@ -62,13 +62,92 @@ const mockAvailableAgents = [
     status: "active" as const,
     confidence: 87,
     icon: "lightbulb"
+  },
+  {
+    id: 7,
+    name: "Predictive Maintenance AI",
+    description: "Predicts equipment failures before they occur",
+    status: "active" as const,
+    confidence: 95,
+    icon: "tool"
+  },
+  {
+    id: 8,
+    name: "Quality Control Monitor",
+    description: "Analyzes product quality and identifies improvement areas",
+    status: "active" as const,
+    confidence: 93,
+    icon: "check-circle"
+  },
+  {
+    id: 9,
+    name: "Market Trend Analyzer",
+    description: "Identifies steel market trends and predicts price movements",
+    status: "active" as const,
+    confidence: 88,
+    icon: "trending-up"
+  },
+  {
+    id: 10,
+    name: "Carbon Footprint Tracker",
+    description: "Monitors carbon emissions and suggests reduction strategies",
+    status: "active" as const,
+    confidence: 90,
+    icon: "leaf"
+  },
+  {
+    id: 11,
+    name: "Logistics Optimization AI",
+    description: "Optimizes logistics routes and reduces transportation costs",
+    status: "active" as const,
+    confidence: 92,
+    icon: "map"
+  },
+  {
+    id: 12,
+    name: "Inventory Management AI",
+    description: "Optimizes inventory levels to reduce costs",
+    status: "active" as const,
+    confidence: 94,
+    icon: "package"
+  },
+  {
+    id: 13,
+    name: "Demand Forecasting AI",
+    description: "Forecasts customer demand for better production planning",
+    status: "active" as const,
+    confidence: 91,
+    icon: "bar-chart-2"
+  },
+  {
+    id: 14,
+    name: "Safety Compliance Monitor",
+    description: "Ensures compliance with safety regulations and standards",
+    status: "active" as const,
+    confidence: 96,
+    icon: "shield"
+  },
+  {
+    id: 15,
+    name: "Employee Performance Optimizer",
+    description: "Analyzes worker productivity and suggests improvements",
+    status: "active" as const,
+    confidence: 88,
+    icon: "users"
+  },
+  {
+    id: 16,
+    name: "Equipment Efficiency Analyzer",
+    description: "Monitors equipment performance and suggests optimizations",
+    status: "active" as const,
+    confidence: 93,
+    icon: "settings"
   }
 ];
 
 const AiAgentsDeployment = () => {
   const [open, setOpen] = useState(false);
   const [availableAgents, setAvailableAgents] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
   const [deployingAgent, setDeployingAgent] = useState<number | null>(null);
   const [selectedAgentToRemove, setSelectedAgentToRemove] = useState<any | null>(null);
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
@@ -76,40 +155,23 @@ const AiAgentsDeployment = () => {
   const navigate = useNavigate();
   const { agents, refreshAgents, deleteAgent } = useAgents();
 
-  // Immediately set mock data for faster UI rendering when dialog opens
+  // Pre-filter the available agents for immediate display
+  const filteredAvailableAgents = useMemo(() => {
+    const userAgentIds = agents.map(agent => agent.id);
+    return mockAvailableAgents.filter(agent => !userAgentIds.includes(agent.id));
+  }, [agents]);
+
+  // Set filtered agents immediately when dialog opens
   useEffect(() => {
     if (open) {
-      // Filter out agents that are already in the user's list 
-      const userAgentIds = agents.map(agent => agent.id);
-      const filteredMockAgents = mockAvailableAgents.filter(
-        agent => !userAgentIds.includes(agent.id)
-      );
-      setAvailableAgents(filteredMockAgents);
-      
-      // Then fetch real data in the background
-      fetchAvailableAgents();
+      setAvailableAgents(filteredAvailableAgents);
     }
-  }, [open, agents]);
+  }, [open, filteredAvailableAgents]);
 
-  const fetchAvailableAgents = async () => {
-    try {
-      setLoading(true);
-      const marketplaceAgents = await getAvailableAgents();
-      
-      const userAgentIds = agents.map(agent => agent.id);
-      const filtered = (marketplaceAgents as any[]).filter(
-        agent => !userAgentIds.includes(agent.id)
-      );
-      
-      // Only update if we have real data
-      if (filtered && filtered.length > 0) {
-        setAvailableAgents(filtered);
-      }
-    } catch (error) {
-      console.error('Error fetching available agents:', error);
-    } finally {
-      setLoading(false);
-    }
+  // Simpler deployment function that uses the same route as the marketplace page
+  const goToMarketplace = () => {
+    setOpen(false);
+    navigate('/agents');
   };
 
   const deployAgent = async (id: number) => {
@@ -225,7 +287,7 @@ const AiAgentsDeployment = () => {
                       visible: {
                         opacity: 1,
                         transition: {
-                          staggerChildren: 0.1
+                          staggerChildren: 0.05 // Faster loading
                         }
                       }
                     }}
@@ -265,12 +327,12 @@ const AiAgentsDeployment = () => {
                     visible: {
                       opacity: 1,
                       transition: {
-                        staggerChildren: 0.1
+                        staggerChildren: 0.05 // Faster loading
                       }
                     }
                   }}
                 >
-                  {availableAgents.map((agent) => (
+                  {availableAgents.slice(0, 6).map((agent) => (
                     <AiAgentCard
                       key={agent.id}
                       id={agent.id}
@@ -293,6 +355,17 @@ const AiAgentsDeployment = () => {
                   <p className="text-white/70">
                     You've already deployed all available AI agents to your workspace.
                   </p>
+                </div>
+              )}
+              
+              {availableAgents.length > 6 && (
+                <div className="mt-4 text-center">
+                  <Button 
+                    onClick={goToMarketplace}
+                    className="bg-white/20 hover:bg-white/30 text-white"
+                  >
+                    View more agents in the marketplace
+                  </Button>
                 </div>
               )}
             </div>

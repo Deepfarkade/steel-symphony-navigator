@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { BrainCog } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AiAgentCard from '../AiAgentCard';
-import { useToast } from '@/hooks/use-toast';
 
 interface MarketplaceAgentsListProps {
   agents: any[];
@@ -21,6 +20,7 @@ const MarketplaceAgentsList: React.FC<MarketplaceAgentsListProps> = ({
 }) => {
   const navigate = useNavigate();
   
+  // Immediate filter rendering for better performance
   const filteredAgents = agents.filter(agent => 
     agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     agent.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -38,13 +38,15 @@ const MarketplaceAgentsList: React.FC<MarketplaceAgentsListProps> = ({
     );
   }
   
+  // Enhanced rendering with staggered animations for better perceived performance
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {filteredAgents.map((agent) => (
+      {filteredAgents.map((agent, index) => (
         <motion.div
           key={agent.id}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: Math.min(index * 0.05, 0.3) }} // Cap delay for better performance
           className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg overflow-hidden border border-white/10"
         >
           <AiAgentCard

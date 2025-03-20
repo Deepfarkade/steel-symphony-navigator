@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Truck, BarChart3, Zap, CheckCircle, Shield, BrainCircuit, Loader2, Trash } from 'lucide-react';
+import { Truck, BarChart3, Zap, CheckCircle, Shield, BrainCircuit, Loader2, Trash, TrendingUp, Leaf, Map, Package, BarChart2, Users, Settings, Tool } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -50,8 +50,31 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
         return <BrainCircuit className="h-6 w-6 text-white" />;
       case 'lightbulb':
         return <BrainCircuit className="h-6 w-6 text-white" />;
+      case 'trending-up':
+        return <TrendingUp className="h-6 w-6 text-white" />;
+      case 'leaf':
+        return <Leaf className="h-6 w-6 text-white" />;
+      case 'map':
+        return <Map className="h-6 w-6 text-white" />;
+      case 'package':
+        return <Package className="h-6 w-6 text-white" />;
+      case 'bar-chart-2':
+        return <BarChart2 className="h-6 w-6 text-white" />;
+      case 'users':
+        return <Users className="h-6 w-6 text-white" />;
+      case 'settings':
+        return <Settings className="h-6 w-6 text-white" />;
+      case 'tool':
+        return <Tool className="h-6 w-6 text-white" />;
       default:
         return <BrainCircuit className="h-6 w-6 text-white" />;
+    }
+  };
+
+  // Handle click without preventing navigation
+  const handleActivateClick = () => {
+    if (onActivate) {
+      onActivate(id);
     }
   };
 
@@ -59,7 +82,7 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: id * 0.1 }}
+      transition={{ duration: 0.3 }}
       className={`bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 relative group ${
         isExpanded ? 'col-span-1' : ''
       }`}
@@ -69,7 +92,10 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <button 
-                onClick={() => onRemove(id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove(id);
+                }}
                 className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors"
                 aria-label="Remove agent"
               >
@@ -113,7 +139,7 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
             className="h-full bg-purple-400 rounded-full" 
             initial={{ width: 0 }}
             animate={{ width: `${confidence}%` }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           />
         </div>
       </div>
@@ -131,7 +157,7 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
             </Button>
           ) : (
             <Button 
-              onClick={() => onActivate && onActivate(id)}
+              onClick={handleActivateClick}
               variant="outline" 
               className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30"
             >
