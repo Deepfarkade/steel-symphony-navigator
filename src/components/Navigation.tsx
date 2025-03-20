@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { 
+  Home,
   ChartBar, 
   BarChart3,
   PieChart, 
@@ -45,43 +46,26 @@ const Navigation: React.FC = () => {
       <SidebarHeader isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
       
       <div className="flex-1 overflow-y-auto py-4 px-3">
-        {/* Agents Section */}
-        <SidebarDropdown 
-          title="Your Agents" 
-          icon={<BrainCircuit className="h-5 w-5 text-ey-yellow" />} 
+        {/* Home */}
+        <SidebarItem
+          title="Home"
+          icon={<Home className="h-5 w-5 text-white" />}
+          to="/"
           isCollapsed={isCollapsed}
-          isActive={location.pathname.includes('/agent/')}
-        >
-          <div className="py-2 space-y-1">
-            {loading ? (
-              Array(3).fill(0).map((_, i) => (
-                <div key={i} className="w-full h-10 bg-gray-700/20 animate-pulse rounded-md mb-1"></div>
-              ))
-            ) : agents.length > 0 ? (
-              agents.map(agent => (
-                <AgentItem
-                  key={agent.id}
-                  id={agent.id}
-                  name={agent.name}
-                  icon={getIconComponent(agent.icon)}
-                  to={`/agent/${agent.id}`}
-                  isCollapsed={isCollapsed}
-                  onDelete={deleteAgent}
-                />
-              ))
-            ) : (
-              <div className="text-sm text-gray-400 py-2 px-3">
-                No agents deployed yet
-              </div>
-            )}
-          </div>
-        </SidebarDropdown>
+        />
         
         {/* Supply Chain Modules Section */}
         <SidebarDropdown 
           title="Supply Chain Modules" 
           icon={<ChartBar className="h-5 w-5 text-green-400" />} 
           isCollapsed={isCollapsed}
+          isActive={location.pathname.includes('/demand-planning') || 
+                   location.pathname.includes('/supply-planning') || 
+                   location.pathname.includes('/order-promising') || 
+                   location.pathname.includes('/factory-planning') || 
+                   location.pathname.includes('/inventory-optimization') || 
+                   location.pathname.includes('/inventory-liquidation') || 
+                   location.pathname.includes('/logistics')}
         >
           <div className="py-2 space-y-1">
             <SidebarItem
@@ -134,6 +118,8 @@ const Navigation: React.FC = () => {
           title="Risk & Analytics" 
           icon={<AlertTriangle className="h-5 w-5 text-amber-400" />} 
           isCollapsed={isCollapsed}
+          isActive={location.pathname.includes('/risk-management') || 
+                   location.pathname.includes('/analytics')}
         >
           <div className="py-2 space-y-1">
             <SidebarItem
@@ -147,6 +133,55 @@ const Navigation: React.FC = () => {
               icon={<PieChart className="h-5 w-5 text-amber-400" />}
               to="/analytics"
               isCollapsed={isCollapsed}
+            />
+          </div>
+        </SidebarDropdown>
+        
+        {/* Agents Section */}
+        <SidebarDropdown 
+          title="Your Agents" 
+          icon={<BrainCircuit className="h-5 w-5 text-ey-yellow" />} 
+          isCollapsed={isCollapsed}
+          isActive={location.pathname.includes('/agent/') || 
+                   location.pathname.includes('/agents')}
+        >
+          <div className="py-2 space-y-1">
+            {loading ? (
+              Array(3).fill(0).map((_, i) => (
+                <div key={i} className="w-full h-10 bg-gray-700/20 animate-pulse rounded-md mb-1"></div>
+              ))
+            ) : agents.length > 0 ? (
+              agents.map(agent => (
+                <AgentItem
+                  key={agent.id}
+                  id={agent.id}
+                  name={agent.name}
+                  icon={getIconComponent(agent.icon)}
+                  to={`/agent/${agent.id}`}
+                  isCollapsed={isCollapsed}
+                  onDelete={deleteAgent}
+                />
+              ))
+            ) : (
+              <div className="text-sm text-gray-400 py-2 px-3">
+                No agents deployed yet
+              </div>
+            )}
+            
+            <SidebarItem
+              title="Add New Agent"
+              icon={getIconComponent('plus', "h-5 w-5 text-ey-yellow")}
+              to="/agents"
+              isCollapsed={isCollapsed}
+              badge={<span className="px-2 py-0.5 text-xs bg-ey-yellow/20 text-ey-yellow rounded-full">Marketplace</span>}
+            />
+            
+            <SidebarItem
+              title="All Agents"
+              icon={getIconComponent('layout-grid', "h-5 w-5 text-ey-yellow")}
+              to="/agents"
+              isCollapsed={isCollapsed}
+              activeCheck={(path) => path === "/agents"}
             />
           </div>
         </SidebarDropdown>

@@ -54,7 +54,10 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
             {content}
           </TooltipTrigger>
           <TooltipContent side="right" className="bg-gray-800 text-white border-none">
-            <p>{title}</p>
+            <div className="flex items-center">
+              <p>{title}</p>
+              {badge && <div className="ml-2">{badge}</div>}
+            </div>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

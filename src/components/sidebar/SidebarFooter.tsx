@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Settings, LogOut, Plus } from 'lucide-react';
+import { Settings, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { 
   Tooltip,
@@ -8,7 +8,6 @@ import {
   TooltipProvider,
   TooltipTrigger 
 } from "@/components/ui/tooltip";
-import { Button } from '@/components/ui/button';
 
 interface SidebarFooterProps {
   isCollapsed: boolean;
@@ -18,51 +17,23 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ isCollapsed }) => {
   return (
     <div className="mt-auto p-4 border-t border-gray-600/20">
       {!isCollapsed ? (
-        <div className="space-y-3">
-          <Link to="/create-agent">
-            <Button 
-              variant="outline" 
-              className="w-full bg-ey-yellow/20 hover:bg-ey-yellow/30 text-ey-yellow border-ey-yellow/30"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add New Agent
-            </Button>
+        <div className="flex justify-between">
+          <Link 
+            to="/user/preferences" 
+            className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700/30 transition-colors"
+          >
+            <Settings className="h-5 w-5" />
           </Link>
           
-          <div className="flex justify-between">
-            <Link 
-              to="/user/preferences" 
-              className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700/30 transition-colors"
-            >
-              <Settings className="h-5 w-5" />
-            </Link>
-            
-            <Link 
-              to="/login" 
-              className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700/30 transition-colors"
-            >
-              <LogOut className="h-5 w-5" />
-            </Link>
-          </div>
+          <Link 
+            to="/login" 
+            className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700/30 transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+          </Link>
         </div>
       ) : (
         <div className="flex flex-col items-center space-y-4">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link 
-                  to="/create-agent"
-                  className="p-2 rounded-full bg-ey-yellow/20 text-ey-yellow hover:bg-ey-yellow/30 transition-colors"
-                >
-                  <Plus className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right" className="bg-gray-800 text-white border-none">
-                <p>Add New Agent</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
           <div className="flex flex-col space-y-3">
             <TooltipProvider>
               <Tooltip>

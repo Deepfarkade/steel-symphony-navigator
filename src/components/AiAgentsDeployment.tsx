@@ -13,16 +13,8 @@ import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useAgents } from '@/hooks/useAgents';
 
-interface Agent {
-  id: number;
-  name: string;
-  description: string;
-  status: 'active' | 'inactive' | 'learning';
-  confidence: number;
-  icon: string;
-}
-
-const mockAgents = [
+// Mock agents for immediate rendering
+const mockAvailableAgents = [
   {
     id: 1,
     name: "Production Intelligence",
@@ -75,28 +67,26 @@ const mockAgents = [
 
 const AiAgentsDeployment = () => {
   const [open, setOpen] = useState(false);
-  const [availableAgents, setAvailableAgents] = useState<Agent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [availableAgents, setAvailableAgents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [deployingAgent, setDeployingAgent] = useState<number | null>(null);
-  const [selectedAgentToRemove, setSelectedAgentToRemove] = useState<Agent | null>(null);
+  const [selectedAgentToRemove, setSelectedAgentToRemove] = useState<any | null>(null);
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { agents, refreshAgents, deleteAgent } = useAgents();
 
-  // Immediately set mock data for faster UI rendering
+  // Immediately set mock data for faster UI rendering when dialog opens
   useEffect(() => {
     if (open) {
-      // Ensure we have at least the mock data loaded
-      if (availableAgents.length === 0) {
-        const userAgentIds = agents.map(agent => agent.id);
-        const filteredAvailableAgents = mockAgents.filter(
-          agent => !userAgentIds.includes(agent.id)
-        );
-        setAvailableAgents(filteredAvailableAgents);
-        setLoading(false);
-      }
+      // Filter out agents that are already in the user's list 
+      const userAgentIds = agents.map(agent => agent.id);
+      const filteredMockAgents = mockAvailableAgents.filter(
+        agent => !userAgentIds.includes(agent.id)
+      );
+      setAvailableAgents(filteredMockAgents);
       
+      // Then fetch real data in the background
       fetchAvailableAgents();
     }
   }, [open, agents]);
@@ -107,27 +97,16 @@ const AiAgentsDeployment = () => {
       const marketplaceAgents = await getAvailableAgents();
       
       const userAgentIds = agents.map(agent => agent.id);
-      let filteredAvailableAgents = (marketplaceAgents as Agent[]).filter(
+      const filtered = (marketplaceAgents as any[]).filter(
         agent => !userAgentIds.includes(agent.id)
       );
       
-      // If we got no available agents, use mock data
-      if (filteredAvailableAgents.length === 0) {
-        filteredAvailableAgents = mockAgents.filter(
-          agent => !userAgentIds.includes(agent.id)
-        );
+      // Only update if we have real data
+      if (filtered && filtered.length > 0) {
+        setAvailableAgents(filtered);
       }
-      
-      setAvailableAgents(filteredAvailableAgents);
     } catch (error) {
       console.error('Error fetching available agents:', error);
-      
-      // Use mock data as fallback
-      const userAgentIds = agents.map(agent => agent.id);
-      const filteredAvailableAgents = mockAgents.filter(
-        agent => !userAgentIds.includes(agent.id)
-      );
-      setAvailableAgents(filteredAvailableAgents);
     } finally {
       setLoading(false);
     }
@@ -153,11 +132,8 @@ const AiAgentsDeployment = () => {
       });
       
       // Add the agent to the user's list immediately for better UX
-      const agentToAdd = availableAgents.find(agent => agent.id === id);
-      if (agentToAdd) {
-        refreshAgents();
-        setAvailableAgents(prev => prev.filter(agent => agent.id !== id));
-      }
+      refreshAgents();
+      setAvailableAgents(prev => prev.filter(agent => agent.id !== id));
       
       // Navigate to the newly added agent
       navigate(`/agent/${id}`);
@@ -190,7 +166,7 @@ const AiAgentsDeployment = () => {
     }
   };
 
-  const handleRemoveAgent = (agent: Agent) => {
+  const handleRemoveAgent = (agent: any) => {
     setSelectedAgentToRemove(agent);
     setShowRemoveDialog(true);
   };
@@ -232,61 +208,16 @@ const AiAgentsDeployment = () => {
           </DialogHeader>
           
           <ScrollArea className="flex-1 overflow-y-auto px-1">
-            {loading ? (
-              <div className="flex justify-center items-center py-12">
-                <Loader className="h-8 w-8 text-white/70 animate-spin" />
-              </div>
-            ) : (
-              <div className="mt-4">
-                {agents.length > 0 && (
-                  <>
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-medium">Your Active Agents</h3>
-                      <Badge className="bg-green-500 text-white">Already Deployed</Badge>
-                    </div>
-                    
-                    <motion.div 
-                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
-                      initial="hidden"
-                      animate="visible"
-                      variants={{
-                        hidden: { opacity: 0 },
-                        visible: {
-                          opacity: 1,
-                          transition: {
-                            staggerChildren: 0.1
-                          }
-                        }
-                      }}
-                    >
-                      {agents.map((agent) => (
-                        <AiAgentCard
-                          key={agent.id}
-                          id={agent.id}
-                          name={agent.name}
-                          description={agent.description || ''}
-                          status={agent.status as 'active' | 'inactive' | 'learning'}
-                          confidence={agent.confidence || 0}
-                          icon={agent.icon}
-                          onActivate={deployAgent}
-                          onRemove={(id) => handleRemoveAgent(agent)}
-                          isExpanded={true}
-                          deploying={false}
-                          isUserAgent={true}
-                        />
-                      ))}
-                    </motion.div>
-                  </>
-                )}
-
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium">Available Agents</h3>
-                  <Badge className="bg-purple-500 text-white">Marketplace</Badge>
-                </div>
-                
-                {availableAgents.length > 0 ? (
+            <div className="mt-4">
+              {agents.length > 0 && (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium">Your Active Agents</h3>
+                    <Badge className="bg-green-500 text-white">Already Deployed</Badge>
+                  </div>
+                  
                   <motion.div 
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
                     initial="hidden"
                     animate="visible"
                     variants={{
@@ -299,33 +230,72 @@ const AiAgentsDeployment = () => {
                       }
                     }}
                   >
-                    {availableAgents.map((agent) => (
+                    {agents.map((agent) => (
                       <AiAgentCard
                         key={agent.id}
                         id={agent.id}
                         name={agent.name}
                         description={agent.description || ''}
-                        status={'active'}
+                        status={agent.status as 'active' | 'inactive' | 'learning'}
                         confidence={agent.confidence || 0}
                         icon={agent.icon}
                         onActivate={deployAgent}
+                        onRemove={(id) => handleRemoveAgent(agent)}
                         isExpanded={true}
-                        deploying={deployingAgent === agent.id}
-                        isUserAgent={false}
+                        deploying={false}
+                        isUserAgent={true}
                       />
                     ))}
                   </motion.div>
-                ) : (
-                  <div className="bg-white/10 rounded-lg p-6 text-center">
-                    <BrainCircuit className="h-12 w-12 mx-auto mb-4 text-white/50" />
-                    <h4 className="text-lg font-medium mb-2">All Agents Deployed</h4>
-                    <p className="text-white/70">
-                      You've already deployed all available AI agents to your workspace.
-                    </p>
-                  </div>
-                )}
+                </>
+              )}
+
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium">Available Agents</h3>
+                <Badge className="bg-purple-500 text-white">Marketplace</Badge>
               </div>
-            )}
+              
+              {availableAgents.length > 0 ? (
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.1
+                      }
+                    }
+                  }}
+                >
+                  {availableAgents.map((agent) => (
+                    <AiAgentCard
+                      key={agent.id}
+                      id={agent.id}
+                      name={agent.name}
+                      description={agent.description || ''}
+                      status={'active'}
+                      confidence={agent.confidence || 0}
+                      icon={agent.icon}
+                      onActivate={deployAgent}
+                      isExpanded={true}
+                      deploying={deployingAgent === agent.id}
+                      isUserAgent={false}
+                    />
+                  ))}
+                </motion.div>
+              ) : (
+                <div className="bg-white/10 rounded-lg p-6 text-center">
+                  <BrainCircuit className="h-12 w-12 mx-auto mb-4 text-white/50" />
+                  <h4 className="text-lg font-medium mb-2">All Agents Deployed</h4>
+                  <p className="text-white/70">
+                    You've already deployed all available AI agents to your workspace.
+                  </p>
+                </div>
+              )}
+            </div>
             
             <div className="mt-6 bg-white/10 p-4 rounded-lg">
               <h4 className="font-medium mb-2">About EY Steel Ecosystem AI Agents</h4>
