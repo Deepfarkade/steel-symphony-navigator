@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, MessageSquare, ChevronRight, ChevronLeft } from 'lucide-react';
+import { PlusCircle, MessageSquare, ChevronRight, ChevronLeft, ExternalLink } from 'lucide-react';
 import ChatHeader from './ChatHeader';
 import ChatMessageList from './ChatMessageList';
 import ChatInput from './ChatInput';
@@ -57,6 +57,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   
   const [activeSessionId, setActiveSessionId] = useState<string>('default');
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Keep messages updated with props
   useEffect(() => {
@@ -75,6 +76,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       });
     }
   }, [messages, activeSessionId]);
+
+  // When sidebar visibility changes, adjust the scrollable area width
+  useEffect(() => {
+    // Force layout recalculation on sidebar toggle
+    if (contentRef.current) {
+      contentRef.current.style.width = showSidebar ? 'calc(100% - 16rem)' : '100%';
+    }
+  }, [showSidebar]);
 
   const handleNewSession = () => {
     const newSession: ChatSession = {
@@ -110,7 +119,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     <div className={`ey-card ${floating ? 'fixed bottom-4 right-4 z-50 shadow-xl w-96' : 'w-full'} 
                 ${isExpanded ? 'h-[80vh] w-[500px]' : 'h-[500px]'}
                 ${isFullscreen ? 'fixed inset-0 w-full h-full rounded-none z-50' : ''}
-                flex flex-col transition-all duration-300 ease-in-out`}>
+                flex flex-col transition-all duration-300 ease-in-out bg-white dark:bg-gray-900 rounded-lg overflow-hidden`}>
       <ChatHeader 
         agentId={agentId}
         isFullscreen={isFullscreen}
@@ -122,13 +131,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         showSidebar={showSidebar}
       />
       
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         <Collapsible 
           open={showSidebar} 
           onOpenChange={setShowSidebar}
-          className="h-full"
+          className="absolute left-0 top-0 h-full z-10"
         >
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 -ml-3 z-10">
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20">
             <CollapsibleTrigger asChild>
               <Button 
                 variant="outline" 
@@ -140,7 +149,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             </CollapsibleTrigger>
           </div>
 
-          <CollapsibleContent className="w-64 border-r border-gray-100 flex flex-col h-full data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up transition-all">
+          <CollapsibleContent className="w-64 border-r border-gray-100 flex flex-col h-full data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up transition-all bg-white dark:bg-gray-900">
             <div className="p-3">
               <Button 
                 onClick={handleNewSession}
@@ -177,7 +186,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           </CollapsibleContent>
         </Collapsible>
         
-        <div className={`flex-1 flex flex-col overflow-hidden ${showSidebar ? 'ml-64' : ''} transition-all duration-300`}>
+        <div 
+          ref={contentRef}
+          className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out`}
+          style={{ width: showSidebar ? 'calc(100% - 16rem)' : '100%', marginLeft: showSidebar ? '16rem' : '0' }}
+        >
           <ChatMessageList 
             messages={activeSession.messages}
             isLoading={isLoading}

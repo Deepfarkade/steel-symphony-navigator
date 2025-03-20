@@ -18,7 +18,13 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
   } catch (error) {
     // Provide default values when context is not available
     return {
-      currentMessages: [],
+      currentMessages: [{
+        text: agentId 
+          ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
+          : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${moduleContext || 'operations'} today?`,
+        isUser: false,
+        timestamp: new Date()
+      }],
       isLoading: false,
       handleSendMessage: () => console.warn("Chat context not available"),
       fullscreen,
@@ -39,7 +45,7 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
     sendMessage(message, sessionId);
     
     // Auto expand to fullscreen on first message if not already expanded
-    if (!fullscreen && Object.keys(chatSessions).length <= 1) {
+    if (!fullscreen && currentMessages.length <= 1) {
       setFullscreen(true);
     }
   };

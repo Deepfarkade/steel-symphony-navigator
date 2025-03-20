@@ -48,6 +48,15 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   };
 
   const navigateToChat = () => {
+    // Close drawer or fullscreen before navigating
+    if (isDrawerOpen) {
+      handleOpenChange(false);
+    }
+    
+    if (isFullscreen) {
+      setIsFullscreen(false);
+    }
+    
     if (agentId) {
       navigate(`/agent/${agentId}`);
     } else if (moduleContext) {
@@ -65,7 +74,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     }
   };
 
-  // Wrapper component to avoid hook call issues
+  // ChatInterface component to avoid hook call issues
   const ChatInterface = () => {
     const { 
       currentMessages,
@@ -78,6 +87,10 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     useEffect(() => {
       setIsFullscreen(fullscreen);
     }, [fullscreen]);
+
+    useEffect(() => {
+      setFullscreen(isFullscreen);
+    }, [isFullscreen, setFullscreen]);
 
     return (
       <ChatWindow
@@ -95,16 +108,13 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     );
   };
 
+  // Render the chat interface based on whether it's floating or not
   if (!floating) {
-    return isFullscreen ? (
+    return (
       <ChatProvider moduleContext={moduleContext} agentId={agentId}>
-        <div className="fixed inset-0 z-50 bg-white">
+        <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-white' : 'w-full h-full'}`}>
           <ChatInterface />
         </div>
-      </ChatProvider>
-    ) : (
-      <ChatProvider moduleContext={moduleContext} agentId={agentId}>
-        <ChatInterface />
       </ChatProvider>
     );
   }
