@@ -9,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger 
 } from "@/components/ui/tooltip";
+import { useTheme } from '@/context/ThemeContext';
 
 interface SidebarHeaderProps {
   isCollapsed: boolean;
@@ -16,12 +17,15 @@ interface SidebarHeaderProps {
 }
 
 const SidebarHeader: React.FC<SidebarHeaderProps> = ({ isCollapsed, toggleSidebar }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
   return (
-    <div className="p-4 flex items-center justify-between border-b border-gray-200/20">
+    <div className={`p-4 flex items-center justify-between border-b ${isDark ? 'border-gray-700/20' : 'border-gray-200/20'}`}>
       {!isCollapsed && (
         <Link to="/" className="flex items-center">
           <BrainCircuit className="h-6 w-6 text-ey-yellow" />
-          <span className="ml-2 font-bold text-white/90">EY SECP</span>
+          <span className={`ml-2 font-bold ${isDark ? 'text-white/90' : 'text-gray-800'}`}>EY SECP</span>
         </Link>
       )}
       
@@ -35,7 +39,11 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({ isCollapsed, toggleSideba
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         onClick={toggleSidebar}
-        className="p-1 rounded-md bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+        className={`p-1 rounded-md ${
+          isDark 
+            ? 'bg-gray-700/50 text-gray-400 hover:text-white' 
+            : 'bg-gray-200/70 text-gray-600 hover:text-gray-900'
+        } transition-colors`}
         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         {isCollapsed ? (

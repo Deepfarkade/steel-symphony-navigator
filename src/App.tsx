@@ -79,7 +79,7 @@ const queryClient = new QueryClient({
     queries: {
       retry: 3, // Retry failed queries
       staleTime: 60 * 1000, // Consider data stale after 1 minute
-      gcTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes (formerly cacheTime)
+      gcTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes
       refetchOnWindowFocus: false, // Don't refetch when window regains focus
     },
     mutations: {

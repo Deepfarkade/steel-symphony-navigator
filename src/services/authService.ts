@@ -23,20 +23,38 @@ export const authenticateUser = async (email: string, password: string): Promise
         // Store user in localStorage
         localStorage.setItem('ey-user', JSON.stringify(secureUser));
         
+        // Set session expiry (7 days)
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 7);
+        localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
+        
         resolve(secureUser);
-      } else if (email && password.length >= 6) {
-        // For demo purposes, allow any email/password combo that meets basic requirements
-        const user = {
+      } else if (email && password && password.length >= 6) {
+        // For demo purposes, if no users exist yet, create a default user
+        const newUser = {
           id: Math.random().toString(36).substring(2, 15),
           name: email.split('@')[0],
           email,
+          password,
           role: 'user'
         };
         
-        // Store user in localStorage
-        localStorage.setItem('ey-user', JSON.stringify(user));
+        // Store the user in the users array
+        users.push(newUser);
+        localStorage.setItem('ey-users', JSON.stringify(users));
         
-        resolve(user);
+        // Create a clean version without password for the session
+        const { password: _, ...secureUser } = newUser;
+        
+        // Store logged-in user state
+        localStorage.setItem('ey-user', JSON.stringify(secureUser));
+        
+        // Set session expiry (7 days)
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 7);
+        localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
+        
+        resolve(secureUser);
       } else {
         reject(new Error('Invalid credentials'));
       }
@@ -79,6 +97,11 @@ export const registerUser = async (name: string, email: string, password: string
         // Store logged-in user state
         localStorage.setItem('ey-user', JSON.stringify(secureUser));
         
+        // Set session expiry (7 days)
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 7);
+        localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
+        
         resolve(secureUser);
       } else {
         reject(new Error('Invalid registration data'));
@@ -89,9 +112,19 @@ export const registerUser = async (name: string, email: string, password: string
 
 export const checkAuthStatus = (): User | null => {
   const storedUser = localStorage.getItem('ey-user');
-  return storedUser ? JSON.parse(storedUser) : null;
+  if (!storedUser) return null;
+  
+  // Check if session is still valid
+  const expiryStr = localStorage.getItem('ey-session-expiry');
+  if (!expiryStr) return null;
+  
+  const expiry = new Date(expiryStr);
+  const isValid = expiry > new Date();
+  
+  return isValid ? JSON.parse(storedUser) : null;
 };
 
 export const logoutUser = (): void => {
   localStorage.removeItem('ey-user');
+  localStorage.removeItem('ey-session-expiry');
 };

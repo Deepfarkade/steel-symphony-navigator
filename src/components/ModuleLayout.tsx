@@ -39,7 +39,21 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
   const [insights, setInsights] = useState<ModuleInsight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAiDashboard, setShowAiDashboard] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { toast } = useToast();
+  
+  useEffect(() => {
+    // Listen for sidebar state changes
+    const handleSidebarStateChange = (e: any) => {
+      setSidebarCollapsed(e.detail.isCollapsed);
+    };
+    
+    document.addEventListener('sidebar-state-changed', handleSidebarStateChange);
+    
+    return () => {
+      document.removeEventListener('sidebar-state-changed', handleSidebarStateChange);
+    };
+  }, []);
   
   useEffect(() => {
     const fetchInsights = async () => {
@@ -115,10 +129,14 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
   const module = moduleName || title.toLowerCase().replace(/\s+/g, '-');
 
   return (
-    <div className="w-full min-h-screen bg-gray-50">
+    <div className="w-full min-h-screen bg-gray-50 dark:bg-[#1A1F2C]">
       <Navigation />
       
-      <div className="ml-64 p-8">
+      <div 
+        className={`transition-all duration-300 ${
+          sidebarCollapsed ? 'ml-[70px]' : 'ml-64'
+        } p-8`}
+      >
         <Header pageTitle={title} />
         
         <div className="mb-6 animate-fade-in">
@@ -128,13 +146,13 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
                 {icon}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-ey-darkGray">{title}</h1>
-                <p className="text-ey-lightGray">{description}</p>
+                <h1 className="text-2xl font-bold text-ey-darkGray dark:text-gray-100">{title}</h1>
+                <p className="text-ey-lightGray dark:text-gray-400">{description}</p>
               </div>
             </div>
             <Button
               variant="outline"
-              className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100"
+              className="bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800/50 dark:hover:bg-purple-800/30"
               onClick={() => setShowAiDashboard(!showAiDashboard)}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
@@ -143,7 +161,7 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
           </div>
           <div className="mt-2 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-ey-yellow mr-1"><path d="M6 12h.01M12 12h.01M18 12h.01M6 6h.01M12 6h.01M18 6h.01"/></svg>
-            <span className="text-sm text-ey-darkGray font-medium">AI-Powered Module</span>
+            <span className="text-sm text-ey-darkGray dark:text-gray-300 font-medium">AI-Powered Module</span>
           </div>
         </div>
         

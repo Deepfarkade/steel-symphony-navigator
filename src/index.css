@@ -63,33 +63,33 @@
   }
 
   .dark {
-    /* Dark Mode Colors - based on EY brand */
-    --background: 216 12% 8%; /* #161D23 - EY Black */
+    /* Dark Mode Colors - more subtle, avoiding pure black */
+    --background: 222 25% 13%; /* #1A1F2C - Dark navy blue instead of pure black */
     --foreground: 0 0% 98%; /* Off-white */
 
-    --card: 215 14% 10%; /* Slightly lighter than background */
+    --card: 224 30% 15%; /* #1F2437 - Slightly lighter than background */
     --card-foreground: 0 0% 98%; /* Off-white */
 
-    --popover: 215 14% 10%; /* Same as card */
+    --popover: 224 30% 15%; /* Same as card */
     --popover-foreground: 0 0% 98%; /* Off-white */
 
     --primary: 53 100% 50%; /* #FFE600 - EY Yellow */
-    --primary-foreground: 216 12% 8%; /* #161D23 - EY Black */
+    --primary-foreground: 224 30% 15%; /* Same as card - Dark navy blue */
 
-    --secondary: 216 13% 15%; /* #1e252d - Dark gray with a hint of blue */
+    --secondary: 223 25% 20%; /* #252D44 - Dark navy with a hint of blue */
     --secondary-foreground: 0 0% 98%; /* Off-white */
 
-    --muted: 216 13% 17%; /* Slightly lighter than secondary */
+    --muted: 223 25% 25%; /* #2D3653 - Slightly lighter than secondary */
     --muted-foreground: 0 0% 63%; /* #a1a1a1 */
 
-    --accent: 216 13% 15%; /* Same as secondary */
+    --accent: 223 25% 20%; /* Same as secondary */
     --accent-foreground: 0 0% 98%; /* Off-white */
 
     --destructive: 0 62% 35%; /* Darker red for dark mode */
     --destructive-foreground: 0 0% 98%; /* Off-white */
 
-    --border: 216 13% 17%; /* Dark gray border */
-    --input: 216 13% 17%; /* Dark gray input */
+    --border: 223 25% 22%; /* #282F47 - Dark blue-gray border */
+    --input: 223 25% 22%; /* Dark blue-gray input */
     --ring: 53 100% 50%; /* #FFE600 - EY Yellow */
     
     /* Shadows for Dark Mode */
@@ -100,15 +100,15 @@
     --shadow-card-hover: 0 10px 25px rgba(0, 0, 0, 0.25);
 
     /* Sidebar Custom Colors - Dark Mode */
-    --sidebar-background: 216 12% 8%; /* #161D23 - Same as background */
+    --sidebar-background: 222 25% 13%; /* #1A1F2C - Same as background */
     --sidebar-foreground: 0 0% 98%; /* Off-white */
     --sidebar-primary: 53 100% 50%; /* #FFE600 - EY Yellow */
-    --sidebar-primary-foreground: 216 12% 8%; /* #161D23 */
-    --sidebar-accent: 216 13% 15%; /* Same as secondary */
+    --sidebar-primary-foreground: 222 25% 13%; /* #1A1F2C */
+    --sidebar-accent: 223 25% 20%; /* Same as secondary */
     --sidebar-accent-foreground: 0 0% 98%; /* Off-white */
-    --sidebar-border: 216 13% 15%; /* Dark gray border */
+    --sidebar-border: 223 25% 20%; /* Dark navy blue border */
     --sidebar-ring: 53 100% 50%; /* #FFE600 - EY Yellow */
-    --sidebar-muted: 216 13% 12%; /* #1a2027 - Darker than accent */
+    --sidebar-muted: 222 22% 18%; /* #202636 - Darker than accent */
     --sidebar-muted-foreground: 0 0% 63%; /* #a1a1a1 */
   }
 }
@@ -140,7 +140,7 @@
 @layer components {
   /* Card Styles */
   .glass-card {
-    @apply bg-white/80 dark:bg-ey-black/40 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-glass rounded-xl;
+    @apply bg-white/80 dark:bg-card/80 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-glass rounded-xl;
   }
   
   .ey-card {
@@ -342,9 +342,9 @@
 
 /* Make sonner toasts use EY colors */
 .dark .sonner-toast {
-  --normal-bg: var(--ey-darkGray);
-  --normal-border: var(--border-subtle-dark);
-  --normal-text: var(--text-normal-dark);
+  --normal-bg: var(--card);
+  --normal-border: var(--border);
+  --normal-text: var(--foreground);
   --success-bg: #29422d;
   --success-border: #367d4a;
   --success-text: #a6f0c0;

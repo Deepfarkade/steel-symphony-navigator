@@ -25,7 +25,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     // Check if theme is stored in localStorage
     const savedTheme = localStorage.getItem('ey-theme') as Theme | null;
-    return savedTheme || 'light';
+    
+    // If no saved theme, check system preference
+    if (!savedTheme) {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return prefersDark ? 'dark' : 'light';
+    }
+    
+    return savedTheme;
   });
   
   const [isDarkMode, setIsDarkMode] = useState<boolean>(theme === 'dark');

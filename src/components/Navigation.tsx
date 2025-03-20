@@ -27,6 +27,13 @@ const Navigation: React.FC = () => {
   const location = useLocation();
   const { theme } = useTheme();
   
+  useEffect(() => {
+    // Dispatch an event when sidebar state changes so other components can react
+    document.dispatchEvent(new CustomEvent('sidebar-state-changed', { 
+      detail: { isCollapsed } 
+    }));
+  }, [isCollapsed]);
+  
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
