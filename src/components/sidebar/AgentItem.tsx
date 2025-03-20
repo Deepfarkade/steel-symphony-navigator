@@ -17,6 +17,7 @@ interface AgentItemProps {
   to: string;
   isCollapsed: boolean;
   onDelete: (id: number) => void;
+  theme?: 'light' | 'dark';
 }
 
 const AgentItem: React.FC<AgentItemProps> = ({ 
@@ -25,7 +26,8 @@ const AgentItem: React.FC<AgentItemProps> = ({
   icon, 
   to, 
   isCollapsed,
-  onDelete 
+  onDelete,
+  theme = 'dark'
 }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
@@ -58,14 +60,28 @@ const AgentItem: React.FC<AgentItemProps> = ({
     });
   };
 
+  const getLinkStyles = () => {
+    if (theme === 'light') {
+      return isActive 
+        ? 'bg-ey-yellow/80 text-gray-800 font-medium shadow-md' 
+        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-800 hover:shadow-sm';
+    } else {
+      return isActive 
+        ? 'bg-ey-yellow/20 text-ey-yellow' 
+        : 'text-gray-400 hover:bg-gray-700/30 hover:text-gray-200';
+    }
+  };
+
+  const getDeleteButtonStyles = () => {
+    return theme === 'light'
+      ? 'opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 hover:text-red-500'
+      : 'opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-500/20 hover:text-red-500';
+  };
+
   const content = (
     <Link
       to={to}
-      className={`group w-full p-3 rounded-md flex items-center justify-between transition-colors ${
-        isActive 
-          ? 'bg-ey-yellow/20 text-ey-yellow' 
-          : 'text-gray-400 hover:bg-gray-700/30 hover:text-gray-200'
-      }`}
+      className={`group w-full p-3 rounded-md flex items-center justify-between transition-all duration-200 ${getLinkStyles()}`}
     >
       <div className="flex items-center">
         <span className={`${!isCollapsed ? 'mr-3' : ''}`}>{icon}</span>
@@ -75,7 +91,7 @@ const AgentItem: React.FC<AgentItemProps> = ({
       {!isCollapsed && (
         <button
           onClick={handleDelete}
-          className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-500/20 hover:text-red-500"
+          className={getDeleteButtonStyles()}
           aria-label={`Delete ${name}`}
         >
           <Trash className="h-4 w-4" />
@@ -92,7 +108,7 @@ const AgentItem: React.FC<AgentItemProps> = ({
             <TooltipTrigger asChild>
               {content}
             </TooltipTrigger>
-            <TooltipContent side="right" className="bg-gray-800 text-white border-none">
+            <TooltipContent side="right" className={theme === 'light' ? "bg-white text-gray-800 border border-gray-200 shadow-lg" : "bg-gray-800 text-white border-none"}>
               <div className="flex items-center justify-between w-full">
                 <p>{name}</p>
                 <button

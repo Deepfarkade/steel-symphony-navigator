@@ -33,17 +33,66 @@ import NewsPage from "./pages/NewsPage";
 import AgentChatPage from "./pages/AgentChatPage";
 import AgentsPage from "./pages/AgentsPage";
 import CreateAgentPage from "./pages/CreateAgentPage";
+import SSOCallback from "./pages/auth/SSOCallback";
 
 // Install axios dependency
 import axios from 'axios';
 
-const queryClient = new QueryClient();
+// Create a custom retry function for axios to enhance scalability
+axios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const { config, response } = error;
+    
+    // Retry the request if it failed due to network errors or 5xx server errors
+    if (
+      (!response || response.status >= 500) && 
+      config && 
+      !config._retry &&
+      config.method !== 'post' // Don't retry POST requests to prevent duplicate submissions
+    ) {
+      config._retry = true;
+      
+      // Add exponential backoff (wait time increases with each retry)
+      const retryDelay = Math.min(1000 * (2 ** (config._retryCount || 0)), 10000);
+      
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
+      
+      // Track retry count
+      config._retryCount = (config._retryCount || 0) + 1;
+      
+      // Max 3 retries
+      if (config._retryCount <= 3) {
+        return axios(config);
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+// Create query client with retry and batch support for scalability
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3, // Retry failed queries
+      staleTime: 60 * 1000, // Consider data stale after 1 minute
+      cacheTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes
+      refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    },
+    mutations: {
+      retry: 2, // Retry failed mutations
+    },
+  },
+});
 
 const AppRoutes = () => (
   <Routes>
     {/* Public routes */}
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
+    <Route path="/auth/callback" element={<SSOCallback />} />
 
     {/* Protected routes */}
     <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />

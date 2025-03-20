@@ -15,6 +15,7 @@ interface SidebarDropdownProps {
   isCollapsed: boolean;
   isActive?: boolean;
   children: React.ReactNode;
+  theme?: 'light' | 'dark';
 }
 
 const SidebarDropdown: React.FC<SidebarDropdownProps> = ({ 
@@ -22,12 +23,31 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
   icon, 
   isCollapsed, 
   isActive = false,
-  children 
+  children,
+  theme = 'dark'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
+  };
+
+  const getButtonStyles = () => {
+    if (theme === 'light') {
+      return isActive 
+        ? 'bg-ey-yellow/80 text-gray-800 font-medium shadow-md' 
+        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-800 hover:shadow-sm';
+    } else {
+      return isActive 
+        ? 'bg-ey-yellow/20 text-ey-yellow' 
+        : 'text-gray-400 hover:bg-gray-700/30 hover:text-gray-200';
+    }
+  };
+
+  const getBorderStyles = () => {
+    return theme === 'light' 
+      ? 'border-l border-gray-300/80' 
+      : 'border-l border-gray-600/20';
   };
 
   return (
@@ -38,14 +58,12 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
             <TooltipTrigger asChild>
               <button 
                 onClick={toggleDropdown}
-                className={`w-full p-3 rounded-md flex items-center justify-center transition-colors ${
-                  isActive ? 'bg-ey-yellow/20 text-ey-yellow' : 'text-gray-400 hover:bg-gray-700/30 hover:text-gray-200'
-                }`}
+                className={`w-full p-3 rounded-md flex items-center justify-center transition-all duration-200 ${getButtonStyles()}`}
               >
                 {icon}
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right" className="bg-gray-800 text-white border-none">
+            <TooltipContent side="right" className={theme === 'light' ? "bg-white text-gray-800 border border-gray-200 shadow-lg" : "bg-gray-800 text-white border-none"}>
               <p>{title}</p>
             </TooltipContent>
           </Tooltip>
@@ -53,9 +71,7 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
       ) : (
         <button
           onClick={toggleDropdown}
-          className={`w-full p-3 rounded-md flex items-center justify-between transition-colors ${
-            isActive ? 'bg-ey-yellow/20 text-ey-yellow' : 'text-gray-400 hover:bg-gray-700/30 hover:text-gray-200'
-          }`}
+          className={`w-full p-3 rounded-md flex items-center justify-between transition-all duration-200 ${getButtonStyles()}`}
         >
           <div className="flex items-center">
             <span className="mr-3">{icon}</span>
@@ -77,7 +93,7 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
             opacity: isOpen ? 1 : 0,
           }}
           transition={{ duration: 0.3 }}
-          className="overflow-hidden ml-2 pl-5 border-l border-gray-600/20"
+          className={`overflow-hidden ml-2 pl-5 ${getBorderStyles()}`}
         >
           {isOpen && children}
         </motion.div>

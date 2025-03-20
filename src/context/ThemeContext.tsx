@@ -40,6 +40,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
     setIsDarkMode(theme === 'dark');
+    
+    // Dispatch a custom event that components can listen for
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme } }));
   }, [theme]);
 
   return (
