@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Truck, BarChart3, Zap, CheckCircle, Shield, BrainCircuit, Loader2 } from 'lucide-react';
+import { Truck, BarChart3, Zap, CheckCircle, Shield, BrainCircuit, Loader2, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface AiAgentProps {
   id: number;
@@ -12,6 +13,7 @@ interface AiAgentProps {
   confidence: number;
   icon: string;
   onActivate?: (id: number) => void;
+  onRemove?: (id: number) => void;
   isExpanded?: boolean;
   deploying?: boolean;
   isUserAgent?: boolean;
@@ -25,6 +27,7 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
   confidence, 
   icon,
   onActivate,
+  onRemove,
   isExpanded = false,
   deploying = false,
   isUserAgent = false
@@ -57,10 +60,29 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: id * 0.1 }}
-      className={`bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 ${
+      className={`bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 relative group ${
         isExpanded ? 'col-span-1' : ''
       }`}
     >
+      {isUserAgent && onRemove && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                onClick={() => onRemove(id)}
+                className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors"
+                aria-label="Remove agent"
+              >
+                <Trash className="h-3.5 w-3.5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Remove Agent</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+      
       <div className="flex items-center mb-3">
         <div className="h-12 w-12 rounded-full bg-purple-600 flex items-center justify-center mr-3">
           {getIcon()}

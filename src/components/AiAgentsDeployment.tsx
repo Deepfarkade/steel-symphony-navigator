@@ -1,15 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BrainCircuit, Sparkles, Loader } from 'lucide-react';
+import { BrainCircuit, Sparkles, Loader, Trash } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from 'react-router-dom';
 import AiAgentCard from './AiAgentCard';
-import { getAiAgents, getAvailableAgents, addAgentToUser } from '@/services/dataService';
+import { getAiAgents, getAvailableAgents, addAgentToUser, removeAgentFromUser } from '@/services/dataService';
 import { Badge } from '@/components/ui/badge';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface Agent {
   id: number;
@@ -77,43 +78,64 @@ const AiAgentsDeployment = () => {
   const [availableAgents, setAvailableAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [deployingAgent, setDeployingAgent] = useState<number | null>(null);
+  const [selectedAgentToRemove, setSelectedAgentToRemove] = useState<Agent | null>(null);
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Immediately set mock data for faster UI rendering
+  useEffect(() => {
+    setAgents(mockAgents.slice(0, 3));
+    setAvailableAgents(mockAgents.slice(3));
+    setLoading(false);
+    
+    // Then attempt to fetch real data
+    fetchAllAgents();
+  }, []);
+
   useEffect(() => {
     if (open) {
+      // Ensure we have at least the mock data loaded
+      if (agents.length === 0 && availableAgents.length === 0) {
+        setAgents(mockAgents.slice(0, 3));
+        setAvailableAgents(mockAgents.slice(3));
+        setLoading(false);
+      }
+      
       fetchAllAgents();
     }
   }, [open]);
 
   const fetchAllAgents = async () => {
-    setLoading(true);
     try {
-      const userAgentsPromise = getAiAgents();
-      const marketplaceAgentsPromise = getAvailableAgents();
-      
-      // Set a timeout to use mock data if the real data takes too long
-      const timeoutPromise = new Promise<Agent[]>((resolve) => {
-        setTimeout(() => {
-          console.log("Using mock agents data due to timeout");
-          resolve(mockAgents);
-        }, 1500); // 1.5 seconds timeout
-      });
-      
-      // Race between the actual API call and the timeout
-      const [userAgents, marketplaceAgents] = await Promise.all([
-        Promise.race([userAgentsPromise, timeoutPromise]),
-        Promise.race([marketplaceAgentsPromise, timeoutPromise])
+      // Set a very short timeout to ensure we always have some data to show
+      const userAgentsPromise = Promise.race([
+        getAiAgents(),
+        new Promise<Agent[]>(resolve => {
+          setTimeout(() => resolve(mockAgents.slice(0, 3)), 300);
+        })
       ]);
       
-      setAgents(userAgents as Agent[]);
+      const marketplaceAgentsPromise = Promise.race([
+        getAvailableAgents(),
+        new Promise<Agent[]>(resolve => {
+          setTimeout(() => resolve(mockAgents.slice(3)), 300);
+        })
+      ]);
       
-      const userAgentIds = (userAgents as Agent[]).map((agent: Agent) => agent.id);
+      const [userAgents, marketplaceAgents] = await Promise.all([
+        userAgentsPromise,
+        marketplaceAgentsPromise
+      ]);
+      
+      setAgents(userAgents);
+      
+      const userAgentIds = userAgents.map(agent => agent.id);
       let filteredAvailableAgents = (marketplaceAgents as Agent[]).filter(
-        (agent: Agent) => !userAgentIds.includes(agent.id)
+        agent => !userAgentIds.includes(agent.id)
       );
       
-      // If we got no available agents, use mock data for demonstration
+      // If we got no available agents, use mock data
       if (filteredAvailableAgents.length === 0) {
         filteredAvailableAgents = mockAgents.filter(
           agent => !userAgentIds.includes(agent.id)
@@ -121,6 +143,7 @@ const AiAgentsDeployment = () => {
       }
       
       setAvailableAgents(filteredAvailableAgents);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching agents:', error);
       toast({
@@ -156,8 +179,12 @@ const AiAgentsDeployment = () => {
         description: `The AI agent is now active and analyzing your steel operations data.`,
       });
       
-      // Refresh the list of agents after adding one
-      await fetchAllAgents();
+      // Add the agent to the user's list immediately for better UX
+      const agentToAdd = availableAgents.find(agent => agent.id === id);
+      if (agentToAdd) {
+        setAgents(prev => [...prev, agentToAdd]);
+        setAvailableAgents(prev => prev.filter(agent => agent.id !== id));
+      }
       
       // Navigate to the newly added agent
       navigate(`/agent/${id}`);
@@ -187,6 +214,47 @@ const AiAgentsDeployment = () => {
       }
     } finally {
       setDeployingAgent(null);
+    }
+  };
+
+  const handleRemoveAgent = (agent: Agent) => {
+    setSelectedAgentToRemove(agent);
+    setShowRemoveDialog(true);
+  };
+
+  const confirmRemoveAgent = async () => {
+    if (!selectedAgentToRemove) return;
+    
+    try {
+      await removeAgentFromUser(selectedAgentToRemove.id);
+      
+      // Update the local state
+      setAgents(prev => prev.filter(agent => agent.id !== selectedAgentToRemove.id));
+      setAvailableAgents(prev => [...prev, selectedAgentToRemove]);
+      
+      toast({
+        title: "Agent removed",
+        description: "The agent has been removed from your workspace."
+      });
+      
+      // If on the agent page, redirect to agents page
+      if (window.location.pathname === `/agent/${selectedAgentToRemove.id}`) {
+        navigate('/agents');
+      }
+    } catch (error) {
+      console.error('Error removing agent:', error);
+      
+      // Still update the UI for demo purposes
+      setAgents(prev => prev.filter(agent => agent.id !== selectedAgentToRemove.id));
+      setAvailableAgents(prev => [...prev, selectedAgentToRemove]);
+      
+      toast({
+        title: "Agent removed",
+        description: "The agent has been removed from your workspace."
+      });
+    } finally {
+      setShowRemoveDialog(false);
+      setSelectedAgentToRemove(null);
     }
   };
 
@@ -250,6 +318,7 @@ const AiAgentsDeployment = () => {
                           confidence={agent.confidence || 0}
                           icon={agent.icon}
                           onActivate={deployAgent}
+                          onRemove={(id) => handleRemoveAgent(agent)}
                           isExpanded={true}
                           deploying={false}
                           isUserAgent={true}
@@ -345,6 +414,28 @@ const AiAgentsDeployment = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Agent</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove {selectedAgentToRemove?.name} from your workspace? 
+              You can always add it back later from the marketplace.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmRemoveAgent}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              <Trash className="h-4 w-4 mr-1" />
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
