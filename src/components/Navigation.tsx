@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -732,7 +733,7 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
                                         )}
                                         <button
                                           onClick={(e) => handleRemoveAgent(agent, e)}
-                                          className="p-1 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                                          className="p-1 hover:bg-red-50 rounded opacity-100 group-hover:opacity-100 focus:opacity-100 transition-opacity"
                                           title="Remove agent"
                                         >
                                           <Trash className="h-3.5 w-3.5 text-red-500" />
@@ -892,4 +893,143 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          className="hover
+                          onClick={logout}
+                          className="hover:bg-red-50 text-red-500"
+                        >
+                          <LogOut className="h-5 w-5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p>Logout</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="w-full flex items-center justify-center p-2 rounded-lg bg-ey-yellow/30 text-ey-darkGray hover:bg-ey-yellow/40 transition-all duration-300"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>Expand Sidebar</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </motion.aside>
+      
+      {/* Dialog for marketplace */}
+      <Dialog open={showMarketplace} onOpenChange={setShowMarketplace}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>AI Agent Marketplace</DialogTitle>
+            <DialogDescription>
+              Browse and add AI agents to enhance your workspace capabilities.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4 space-y-4">
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="h-40 bg-gray-100 rounded-lg animate-pulse"></div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {availableAgents.map(agent => (
+                  <div key={agent.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-center mb-2">
+                      <div className={`w-8 h-8 rounded-full ${
+                        agent.status === 'active' ? 'bg-green-100' : 'bg-gray-100'
+                      } flex items-center justify-center mr-3`}>
+                        {getAgentIcon(agent.icon)}
+                      </div>
+                      <h3 className="font-medium text-sm">{agent.name}</h3>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-3">{agent.description}</p>
+                    {agent.confidence && (
+                      <div className="mb-3">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span>Confidence</span>
+                          <span className="font-medium">{agent.confidence}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-green-500 rounded-full"
+                            style={{ width: `${agent.confidence}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+                    <Button 
+                      onClick={() => addAgent(agent.id)}
+                      className="w-full bg-purple-600 hover:bg-purple-700"
+                      disabled={!!addingAgent}
+                    >
+                      {addingAgent === agent.id ? (
+                        <>
+                          <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent mr-2"></div>
+                          Adding...
+                        </>
+                      ) : "Add Agent"}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {availableAgents.length === 0 && !loading && (
+              <div className="text-center py-8">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-4">
+                  <Package className="h-6 w-6 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium mb-2">No Available Agents</h3>
+                <p className="text-sm text-gray-500">You have already added all available agents to your workspace.</p>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowMarketplace(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Alert dialog for removing agent */}
+      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Agent</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove {selectedAgentToRemove?.name}? You can add it back later from the marketplace.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmRemoveAgent}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {removingAgent === selectedAgentToRemove?.id ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent mr-2"></div>
+                  Removing...
+                </>
+              ) : "Remove"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </TooltipProvider>
+  );
+};
+
+export default Navigation;
