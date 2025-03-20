@@ -42,6 +42,11 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { toast } = useToast();
   
+  // Ensure the page is at the top when navigating to a module page
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   useEffect(() => {
     // Listen for sidebar state changes
     const handleSidebarStateChange = (e: any) => {

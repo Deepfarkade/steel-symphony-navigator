@@ -20,6 +20,11 @@ const AgentsPage = () => {
   const navigate = useNavigate();
   const { agents, refreshAgents } = useAgents();
 
+  // Ensure the page starts at the top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Fetch available agents that are not deployed by the user
   useEffect(() => {
     fetchMarketplaceAgents();

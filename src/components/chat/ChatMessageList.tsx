@@ -21,8 +21,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLoading }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Only scroll when messages change, not on component mount
   useEffect(() => {
-    scrollToBottom();
+    // Only scroll if we have messages
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   return (
