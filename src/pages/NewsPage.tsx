@@ -1,7 +1,22 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Newspaper, Search, Filter, FileText, ExternalLink, ChevronRight, Bell, Radio, Tag, Calendar, ArrowLeft, Eye } from 'lucide-react';
-import { faker } from '@faker-js/faker';
+import { 
+  Newspaper, 
+  Search, 
+  Filter, 
+  FileText, 
+  ExternalLink, 
+  ChevronRight, 
+  Bell, 
+  Radio, 
+  Tag, 
+  Calendar, 
+  ArrowLeft, 
+  Eye, 
+  ArrowRight,
+  Calendar as CalendarIcon
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,9 +25,18 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from '@/components/ui/dialog';
 import Navigation from '@/components/Navigation';
 import Header from '@/components/Header';
 import { getLatestNews } from '@/services/dataService';
+import { faker } from '@faker-js/faker';
 
 interface NewsItem {
   id: number;
@@ -163,11 +187,11 @@ const NewsPage = () => {
               <Tabs defaultValue="latest">
                 <TabsList className="mb-6">
                   <TabsTrigger value="latest">
-                    <Clock className="h-4 w-4 mr-2" />
+                    <CalendarIcon className="h-4 w-4 mr-2" />
                     Latest
                   </TabsTrigger>
                   <TabsTrigger value="trending">
-                    <BookOpen className="h-4 w-4 mr-2" />
+                    <FileText className="h-4 w-4 mr-2" />
                     Most Read
                   </TabsTrigger>
                   <TabsTrigger value="upcoming">
@@ -229,7 +253,7 @@ const NewsPage = () => {
                 
                 <TabsContent value="trending" className="mt-0">
                   <div className="text-center py-12">
-                    <BookOpen className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                    <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
                     <h3 className="text-lg font-medium text-ey-darkGray mb-2">Most Read Articles</h3>
                     <p className="text-ey-lightGray">Coming soon</p>
                   </div>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -14,7 +15,9 @@ import {
   PieChart,
   ArrowRight,
   Zap,
-  Brain
+  Brain,
+  DollarSign,
+  ChevronDown
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -67,7 +70,7 @@ const InventoryOptimization = () => {
     <ModuleLayout
       title="Inventory Optimization"
       description="Multi-echelon inventory optimization for raw materials and finished steel products"
-      icon={<Package className="h-6 w-6 text-ey-darkGray" />}
+      icon={<PackageX className="h-6 w-6 text-ey-darkGray" />}
       insights={insights}
     >
       <div className="space-y-6">
@@ -75,7 +78,7 @@ const InventoryOptimization = () => {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-semibold flex items-center">
-                <Package className="h-5 w-5 mr-2 text-blue-500" /> 
+                <PackageX className="h-5 w-5 mr-2 text-blue-500" /> 
                 Inventory Health Overview
               </CardTitle>
               <Button 
@@ -84,7 +87,7 @@ const InventoryOptimization = () => {
                 className="text-blue-600 border-blue-200 hover:bg-blue-50"
                 onClick={handleOptimize}
               >
-                <RefreshCcw className="h-3.5 w-3.5 mr-1.5" />
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
                 Refresh Data
               </Button>
             </div>
@@ -99,11 +102,11 @@ const InventoryOptimization = () => {
                     <h3 className="text-2xl font-bold text-gray-800">$28.4M</h3>
                   </div>
                   <div className="bg-green-100 p-2 rounded-full">
-                    <CircleDollarSign className="h-5 w-5 text-green-600" />
+                    <DollarSign className="h-5 w-5 text-green-600" />
                   </div>
                 </div>
                 <div className="flex items-center text-xs text-green-600">
-                  <TrendingDown className="h-3.5 w-3.5 mr-1" />
+                  <ChevronDown className="h-3.5 w-3.5 mr-1" />
                   <span>-12% from last quarter</span>
                 </div>
               </div>
@@ -115,11 +118,11 @@ const InventoryOptimization = () => {
                     <h3 className="text-2xl font-bold text-gray-800">8.7x</h3>
                   </div>
                   <div className="bg-blue-100 p-2 rounded-full">
-                    <RefreshCcw className="h-5 w-5 text-blue-600" />
+                    <RefreshCw className="h-5 w-5 text-blue-600" />
                   </div>
                 </div>
                 <div className="flex items-center text-xs text-blue-600">
-                  <TrendingDown className="h-3.5 w-3.5 mr-1" />
+                  <ChevronDown className="h-3.5 w-3.5 mr-1" />
                   <span>+1.2x vs. industry average</span>
                 </div>
               </div>
@@ -131,11 +134,11 @@ const InventoryOptimization = () => {
                     <h3 className="text-2xl font-bold text-gray-800">97.3%</h3>
                   </div>
                   <div className="bg-purple-100 p-2 rounded-full">
-                    <BarChart3 className="h-5 w-5 text-purple-600" />
+                    <BarChart className="h-5 w-5 text-purple-600" />
                   </div>
                 </div>
                 <div className="flex items-center text-xs text-purple-600">
-                  <TrendingDown className="h-3.5 w-3.5 mr-1" />
+                  <ChevronDown className="h-3.5 w-3.5 mr-1" />
                   <span>+2.1% from previous month</span>
                 </div>
               </div>
@@ -150,7 +153,7 @@ const InventoryOptimization = () => {
               
               <TabsContent value="trends" className="pt-4">
                 <div className="h-64">
-                  <LineChart
+                  <AreaChart
                     data={inventoryData}
                     margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
                   >
@@ -158,7 +161,7 @@ const InventoryOptimization = () => {
                     <div className="mt-8 text-center text-sm text-gray-500">
                       Inventory Trend vs Target - Last 7 Months
                     </div>
-                  </LineChart>
+                  </AreaChart>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mt-4">
                   <div className="border rounded-md p-3 bg-gray-50">
@@ -251,7 +254,7 @@ const InventoryOptimization = () => {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-semibold flex items-center">
-                <Sparkles className="h-5 w-5 mr-2 text-purple-500" /> 
+                <Zap className="h-5 w-5 mr-2 text-purple-500" /> 
                 AI-Powered Inventory Optimization
               </CardTitle>
               <Button 
@@ -259,7 +262,7 @@ const InventoryOptimization = () => {
                 size="sm"
                 onClick={handleOptimize}
               >
-                <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                <Zap className="h-3.5 w-3.5 mr-1.5" />
                 Optimize Now
               </Button>
             </div>
@@ -277,19 +280,19 @@ const InventoryOptimization = () => {
               <ul className="space-y-2 text-sm">
                 <li className="flex items-start">
                   <div className="bg-green-100 p-1 rounded-full mr-2 mt-0.5">
-                    <TrendingDown className="h-3 w-3 text-green-700" />
+                    <ChevronDown className="h-3 w-3 text-green-700" />
                   </div>
                   <span>Reduce safety stock for Cold-Rolled Coil by 15% in Chicago warehouse to free up $1.2M in working capital</span>
                 </li>
                 <li className="flex items-start">
                   <div className="bg-green-100 p-1 rounded-full mr-2 mt-0.5">
-                    <TrendingDown className="h-3 w-3 text-green-700" />
+                    <ChevronDown className="h-3 w-3 text-green-700" />
                   </div>
                   <span>Identify 128 slow-moving SKUs for potential liquidation, estimated savings of $450K</span>
                 </li>
                 <li className="flex items-start">
                   <div className="bg-green-100 p-1 rounded-full mr-2 mt-0.5">
-                    <TrendingDown className="h-3 w-3 text-green-700" />
+                    <ChevronDown className="h-3 w-3 text-green-700" />
                   </div>
                   <span>Rebalance inventory across warehouses to reduce Detroit facility utilization from 91% to 78%</span>
                 </li>
