@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { BrainCircuit, Maximize2, Minimize2, X, Sparkles, ExternalLink, FullscreenIcon } from 'lucide-react';
+import { BrainCircuit, Maximize2, Minimize2, X, Sparkles, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ChatHeaderProps {
@@ -36,10 +36,14 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   // Auto navigate to full view when user has sent messages
   useEffect(() => {
     if (messageCount > 0 && floating && !isFullscreen) {
-      // We don't call navigateToChat directly here because that would create an infinite loop
-      // with the effect in ChatWindow. Instead, we highlight the button to encourage clicking.
+      // Highlight the external link button to encourage clicking
+      console.log("Message count increased, should navigate to chat:", messageCount);
+      // After the first message, automatically navigate to full view
+      if (messageCount === 1) {
+        setTimeout(() => navigateToChat(), 500);
+      }
     }
-  }, [messageCount, floating, isFullscreen]);
+  }, [messageCount, floating, isFullscreen, navigateToChat]);
 
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-100">
@@ -66,15 +70,17 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           AI Assistant
         </motion.span>
         
-        <motion.button 
-          onClick={navigateToChat} 
-          className={`text-gray-500 hover:text-indigo-600 transition-colors ${messageCount > 0 && floating ? 'animate-pulse text-indigo-600' : ''}`}
-          title="Open Full View"
-          animate={messageCount > 0 && floating && !isFullscreen ? { scale: [1, 1.1, 1] } : {}}
-          transition={{ duration: 1.5, repeat: messageCount > 0 && floating && !isFullscreen ? Infinity : 0 }}
-        >
-          <ExternalLink size={18} />
-        </motion.button>
+        {(!isFullscreen || floating) && (
+          <motion.button 
+            onClick={navigateToChat} 
+            className={`text-gray-500 hover:text-indigo-600 transition-colors ${messageCount > 0 && floating ? 'animate-pulse text-indigo-600' : ''}`}
+            title="Open Full View"
+            animate={messageCount > 0 && floating && !isFullscreen ? { scale: [1, 1.1, 1] } : {}}
+            transition={{ duration: 1.5, repeat: messageCount > 0 && floating && !isFullscreen ? Infinity : 0 }}
+          >
+            <ExternalLink size={18} />
+          </motion.button>
+        )}
         
         <button 
           onClick={handleFullscreenClick} 

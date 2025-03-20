@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatMessageList, { ChatMessageData } from './ChatMessageList';
@@ -29,6 +30,7 @@ interface ChatWindowProps {
   navigateToChat: () => void;
   isExpanded: boolean;
   floating?: boolean;
+  messageCount?: number;
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({
@@ -41,7 +43,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   handleClose,
   navigateToChat,
   isExpanded,
-  floating = false
+  floating = false,
+  messageCount = 0
 }) => {
   // Create mock sessions for demonstration
   const [sessions, setSessions] = useState<ChatSession[]>([
@@ -76,12 +79,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [messages, activeSessionId]);
 
-  // Auto-navigate to full view when user sends messages
+  // Track user messages for navigation
   useEffect(() => {
-    if (messagesSent > 0 && !isFullscreen && floating) {
-      navigateToChat();
-    }
-  }, [messagesSent, isFullscreen, navigateToChat, floating]);
+    // Count user messages in the current session
+    const userMessageCount = messages.filter(msg => msg.isUser).length;
+    setMessagesSent(userMessageCount);
+  }, [messages]);
 
   const handleNewSession = () => {
     const newSession: ChatSession = {
@@ -142,7 +145,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         floating={floating}
         toggleSidebar={toggleSidebar}
         showSidebar={showSidebar}
-        messageCount={messagesSent}
+        messageCount={messageCount || messagesSent}
       />
       
       <div className="flex flex-1 overflow-hidden relative">

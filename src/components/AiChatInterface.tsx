@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { BrainCircuit } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
@@ -45,6 +46,8 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   };
 
   const navigateToChat = () => {
+    console.log("Navigating to chat, current fullscreen:", localFullscreen);
+    
     // Close drawer before navigating
     if (isDrawerOpen) {
       handleOpenChange(false);
@@ -56,6 +59,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       setLocalFullscreen(false);
     }
     
+    // Navigate to the appropriate chat page
     if (agentId) {
       navigate(`/agent/${agentId}`);
     } else if (moduleContext) {
@@ -81,23 +85,27 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       handleSendMessage,
       fullscreen,
       setFullscreen,
-      toggleFullscreen
+      toggleFullscreen,
+      messageCount
     } = useChatSession(moduleContext, agentId);
 
     // Sync hook state with local state
     useEffect(() => {
-      setLocalFullscreen(fullscreen);
+      if (fullscreen !== localFullscreen) {
+        setLocalFullscreen(fullscreen);
+      }
     }, [fullscreen]);
 
     // Sync local state with hook state
     useEffect(() => {
-      setFullscreen(localFullscreen);
+      if (localFullscreen !== fullscreen) {
+        setFullscreen(localFullscreen);
+      }
     }, [localFullscreen, setFullscreen]);
 
     const handleFullscreenToggle = () => {
       console.log("Toggling fullscreen in AiChatInterface");
-      const newState = !localFullscreen;
-      setLocalFullscreen(newState);
+      const newState = toggleFullscreen();
       
       // If we're in floating mode and going fullscreen
       if (floating) {
@@ -120,6 +128,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
         navigateToChat={navigateToChat}
         isExpanded={isExpanded}
         floating={floating}
+        messageCount={messageCount}
       />
     );
   };
