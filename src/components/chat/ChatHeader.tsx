@@ -61,6 +61,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           onClick={toggleFullscreen} 
           className="text-gray-500 hover:text-indigo-600 transition-colors"
           title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+          aria-label={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
         >
           {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
         </button>

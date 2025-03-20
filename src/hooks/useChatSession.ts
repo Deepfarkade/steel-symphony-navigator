@@ -30,7 +30,8 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
         console.warn("Chat context not available, message not sent:", message);
       },
       fullscreen,
-      setFullscreen
+      setFullscreen,
+      toggleFullscreen: () => setFullscreen(prev => !prev)
     };
   }
   
@@ -52,11 +53,16 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
     }
   };
 
+  const toggleFullscreen = () => {
+    setFullscreen(prev => !prev);
+  };
+
   return {
     currentMessages,
     isLoading,
     handleSendMessage,
     fullscreen,
-    setFullscreen
+    setFullscreen,
+    toggleFullscreen
   };
 };

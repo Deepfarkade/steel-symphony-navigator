@@ -37,8 +37,8 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     }
   }, [propIsOpen]);
 
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
+  const handleFullscreenToggle = () => {
+    setIsFullscreen(prev => !prev);
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -82,13 +82,16 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       isLoading,
       handleSendMessage,
       fullscreen,
-      setFullscreen
+      setFullscreen,
+      toggleFullscreen
     } = useChatSession(moduleContext, agentId);
 
+    // Sync local state with hook state
     useEffect(() => {
       setIsFullscreen(fullscreen);
     }, [fullscreen]);
 
+    // Sync hook state with local state
     useEffect(() => {
       setFullscreen(isFullscreen);
     }, [isFullscreen, setFullscreen]);
@@ -100,7 +103,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
         onSendMessage={handleSendMessage}
         agentId={agentId}
         isFullscreen={isFullscreen}
-        toggleFullscreen={toggleFullscreen}
+        toggleFullscreen={handleFullscreenToggle}
         handleClose={handleClose}
         navigateToChat={navigateToChat}
         isExpanded={isExpanded}

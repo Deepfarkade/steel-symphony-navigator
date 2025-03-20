@@ -18,6 +18,7 @@ const ModuleChatPage = () => {
   const { module } = useParams<ModuleChatParams>();
   const [moduleName, setModuleName] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   useEffect(() => {
     const handleSidebarChange = (event: CustomEvent) => {

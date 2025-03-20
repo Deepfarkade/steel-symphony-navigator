@@ -11,6 +11,7 @@ import { ChatProvider } from '@/context/ChatContext';
 
 const GlobalChatPage = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const location = useLocation();
   
   useEffect(() => {
