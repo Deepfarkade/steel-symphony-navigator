@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Bell, Eye, Key, BrainCircuit, Moon, Sun, Monitor } from 'lucide-react';
+import { ArrowLeft, User, Bell, Eye, Key, BrainCircuit, Moon, Sun } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import Header from '@/components/Header';
@@ -142,14 +141,6 @@ const UserPreferences = () => {
                           >
                             <Moon className="h-4 w-4 mr-2" />
                             Dark
-                          </Button>
-                          <Button
-                            variant={theme === 'system' ? 'default' : 'outline'}
-                            className="flex-1 bg-ey-yellow text-ey-black"
-                            onClick={() => setTheme('system')}
-                          >
-                            <Monitor className="h-4 w-4 mr-2" />
-                            System
                           </Button>
                         </div>
                       </div>

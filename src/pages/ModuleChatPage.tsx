@@ -60,7 +60,7 @@ const ModuleChatPage = () => {
             </Link>
           </div>
           
-          <div className="h-[calc(100vh-250px)] bg-white rounded-lg overflow-hidden">
+          <div className="h-[calc(100vh-250px)] bg-white dark:bg-white rounded-lg overflow-hidden">
             <AiChatInterface moduleContext={module} />
           </div>
         </Card>
