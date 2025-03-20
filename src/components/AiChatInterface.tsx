@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BrainCircuit } from 'lucide-react';
 import websocketService from '../services/websocketService';
@@ -162,10 +161,8 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     }
   };
 
-  // Get current session messages
   const currentMessages = chatSessions[currentSessionId] || [];
 
-  // Render chat window directly if not floating
   if (!floating) {
     return isFullscreen ? (
       <div className="fixed inset-0 z-50 bg-white">
@@ -198,7 +195,6 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     );
   }
 
-  // Render chat window in a drawer if floating
   return (
     <Drawer open={isDrawerOpen || isFullscreen} onOpenChange={handleOpenChange}>
       {!disableFloatingButton && (
