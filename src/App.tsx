@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, RequireAuth } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import DemandPlanning from "./pages/DemandPlanning";
@@ -78,7 +79,7 @@ const queryClient = new QueryClient({
     queries: {
       retry: 3, // Retry failed queries
       staleTime: 60 * 1000, // Consider data stale after 1 minute
-      cacheTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes
+      gcTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes (formerly cacheTime)
       refetchOnWindowFocus: false, // Don't refetch when window regains focus
     },
     mutations: {
@@ -141,15 +142,17 @@ const AppRoutes = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <UserInactivityHandler />
-          <AppRoutes />
-          <AiChatInterface floating />
-        </AuthProvider>
-      </BrowserRouter>
+      <ThemeProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <UserInactivityHandler />
+            <AppRoutes />
+            <AiChatInterface floating />
+          </AuthProvider>
+        </BrowserRouter>
+      </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
