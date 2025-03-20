@@ -72,6 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log("Auth check - User:", !!currentUser, "Valid session:", validSession);
       
       if (currentUser && validSession) {
+        // Type-safe assignment of the currentUser
         setUser(currentUser);
       } else {
         // Clear any invalid session data

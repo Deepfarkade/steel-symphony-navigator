@@ -1,9 +1,11 @@
 
 export interface User {
   id: string;
-  name: string;
   email: string;
-  role: string;
+  firstName?: string;
+  lastName?: string;
+  role?: string;
+  companyId?: string;
 }
 
 export type AuthMethod = 'password' | 'sso';
