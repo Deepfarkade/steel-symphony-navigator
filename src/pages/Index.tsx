@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navigation from '../components/Navigation';
 import Header from '../components/Header';
-import AiChatInterface from '@/components/AiChatInterface';
 import AiPulse from '@/components/AiPulse';
 import FuturisticWelcome from '@/components/FuturisticWelcome';
 import AiIntroduction from '@/components/AiIntroduction';
@@ -31,7 +30,6 @@ const Index = () => {
   const [kpiData, setKpiData] = useState<any>({});
   const [insights, setInsights] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [chatOpen, setChatOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user } = useAuth();
 
@@ -134,7 +132,7 @@ const Index = () => {
         <AiModules />
       </div>
       
-      <AiChatInterface floating isOpen={chatOpen} onOpenChange={setChatOpen} />
+      {/* Completely removed the floating AiChatInterface */}
     </div>
   );
 };

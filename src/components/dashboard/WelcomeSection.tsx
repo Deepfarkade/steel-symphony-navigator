@@ -27,6 +27,7 @@ const WelcomeSection: React.FC<WelcomeSectionProps> = ({ aiStats }) => {
   const { toast } = useToast();
 
   const handleAskCoPilot = () => {
+    // Navigate directly to the chat page
     navigate('/chat');
     
     toast({
