@@ -191,7 +191,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
         </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4 bg-gray-50/50">
+      <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4 bg-white">
         {messages.map((message, index) => (
           <div 
             key={index} 

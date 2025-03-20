@@ -5,10 +5,11 @@ import Header from '@/components/Header';
 import AiChatInterface from '@/components/AiChatInterface';
 import { Brain, BrainCircuit, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Card } from '@/components/ui/card';
 
 const GlobalChatPage = () => {
   return (
-    <div className="w-full min-h-screen bg-gray-50">
+    <div className="w-full min-h-screen bg-gray-50 dark:bg-ey-black/90">
       <Navigation />
       <div data-main-content className="ml-64 p-8">
         <Header pageTitle="EY Steel Co-Pilot Chat" />
@@ -54,9 +55,11 @@ const GlobalChatPage = () => {
           </div>
         </motion.div>
         
-        <div className="max-w-6xl mx-auto">
-          <AiChatInterface />
-        </div>
+        <Card className="max-w-6xl mx-auto p-0 overflow-hidden">
+          <div className="bg-white h-[calc(100vh-300px)]">
+            <AiChatInterface />
+          </div>
+        </Card>
       </div>
     </div>
   );

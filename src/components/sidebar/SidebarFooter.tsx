@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Settings, LogOut, Moon, Sun, Monitor } from 'lucide-react';
+import { Settings, LogOut, Moon, Sun } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { 
   Tooltip,
@@ -62,13 +62,6 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ isCollapsed }) => {
                 <Moon className="h-4 w-4 mr-2" />
                 <span>Dark</span>
               </DropdownMenuItem>
-              <DropdownMenuItem 
-                className={`flex items-center cursor-pointer ${theme === 'system' ? 'bg-ey-yellow/20' : ''}`}
-                onClick={() => setTheme('system')}
-              >
-                <Monitor className="h-4 w-4 mr-2" />
-                <span>System</span>
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link to="/user/preferences" className="flex items-center cursor-pointer">
@@ -114,13 +107,6 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ isCollapsed }) => {
                       >
                         <Moon className="h-4 w-4 mr-2" />
                         <span>Dark</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        className={`flex items-center cursor-pointer ${theme === 'system' ? 'bg-ey-yellow/20' : ''}`}
-                        onClick={() => setTheme('system')}
-                      >
-                        <Monitor className="h-4 w-4 mr-2" />
-                        <span>System</span>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>

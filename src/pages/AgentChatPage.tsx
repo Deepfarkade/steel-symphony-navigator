@@ -10,6 +10,7 @@ import { getAgentById, getAgentAnalytics, getAgentRecommendations } from '@/serv
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useTheme } from '@/context/ThemeContext';
 
 interface AgentParams {
   [key: string]: string;
@@ -30,6 +31,7 @@ const AgentChatPage = () => {
   const [analytics, setAnalytics] = useState<any>(null);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
+  const { theme } = useTheme();
   
   useEffect(() => {
     const fetchAgentData = async () => {
@@ -111,7 +113,7 @@ const AgentChatPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-ey-black/90">
       <Navigation />
       
       <div data-main-content className="ml-[256px] p-8 transition-all duration-300">
@@ -126,7 +128,7 @@ const AgentChatPage = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="col-span-2">
-            <Card className="h-full">
+            <Card className="h-full overflow-hidden">
               <CardHeader className="pb-4 bg-gradient-to-r from-[#161B2E] to-[#2E2E38] text-white rounded-t-lg">
                 <div className="flex items-center">
                   <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
@@ -141,7 +143,7 @@ const AgentChatPage = () => {
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent className="p-0 bg-white">
                 <div className="p-6 h-[calc(100vh-350px)]">
                   <AiChatInterface agentId={Number(agentId)} />
                 </div>

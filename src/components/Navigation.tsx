@@ -19,12 +19,14 @@ import SidebarItem from './sidebar/SidebarItem';
 import AgentItem from './sidebar/AgentItem';
 import { useAgents } from '@/hooks/useAgents';
 import { getIconComponent } from '@/utils/iconUtils';
+import { useTheme } from '@/context/ThemeContext';
 
 const Navigation: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { agents, loading, deleteAgent } = useAgents();
   const location = useLocation();
-
+  const { theme } = useTheme();
+  
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
@@ -41,7 +43,11 @@ const Navigation: React.FC = () => {
       animate={isCollapsed ? 'collapsed' : 'expanded'}
       variants={sidebarVariants}
       transition={{ duration: 0.3 }}
-      className="fixed left-0 top-0 z-20 h-screen bg-gradient-to-b from-[#161B2E] to-[#2E2E38] text-white flex flex-col border-r border-gray-700/50 shadow-xl"
+      className={`fixed left-0 top-0 z-20 h-screen ${
+        theme === 'light' 
+          ? 'bg-white border-r border-gray-200 text-ey-darkGray' 
+          : 'bg-gradient-to-b from-[#161B2E] to-[#2E2E38] text-white border-r border-gray-700/50'
+      } flex flex-col shadow-xl`}
     >
       <SidebarHeader isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
       
@@ -49,7 +55,7 @@ const Navigation: React.FC = () => {
         {/* Home */}
         <SidebarItem
           title="Home"
-          icon={<Home className="h-5 w-5 text-white" />}
+          icon={<Home className={`h-5 w-5 ${theme === 'light' ? 'text-ey-darkGray' : 'text-white'}`} />}
           to="/"
           isCollapsed={isCollapsed}
         />

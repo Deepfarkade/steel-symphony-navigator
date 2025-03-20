@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Header from '../components/Header';
 import AiChatInterface from '../components/AiChatInterface';
+import { Card } from "@/components/ui/card";
 
 interface ModuleChatParams {
   [key: string]: string;
@@ -29,7 +30,7 @@ const ModuleChatPage = () => {
   }, [module]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-ey-black/90">
       <Navigation />
       
       <div data-main-content className="ml-64 p-8 transition-all duration-300">
@@ -41,13 +42,13 @@ const ModuleChatPage = () => {
           ]}
         />
         
-        <div className="mt-6 bg-white rounded-lg shadow-sm p-6">
+        <Card className="mt-6 p-6 overflow-hidden">
           <div className="flex items-center mb-6">
             <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center mr-4">
               <BrainCircuit className="h-6 w-6 text-purple-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-ey-darkGray">{moduleName} AI Assistant</h2>
+              <h2 className="text-xl font-bold text-ey-darkGray dark:text-white">{moduleName} AI Assistant</h2>
               <p className="text-ey-lightGray">Specialized AI support for your {moduleName.toLowerCase()} operations</p>
             </div>
             
@@ -59,10 +60,10 @@ const ModuleChatPage = () => {
             </Link>
           </div>
           
-          <div className="h-[calc(100vh-250px)]">
+          <div className="h-[calc(100vh-250px)] bg-white rounded-lg overflow-hidden">
             <AiChatInterface moduleContext={module} />
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
