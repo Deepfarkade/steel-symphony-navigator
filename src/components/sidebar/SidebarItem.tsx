@@ -14,6 +14,7 @@ interface SidebarItemProps {
   to: string;
   isCollapsed: boolean;
   badge?: React.ReactNode;
+  activeCheck?: (path: string) => boolean;
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ 
@@ -21,10 +22,12 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   icon, 
   to, 
   isCollapsed,
-  badge 
+  badge,
+  activeCheck 
 }) => {
   const location = useLocation();
-  const isActive = location.pathname === to;
+  // Use the custom activeCheck function if provided, otherwise use the default check
+  const isActive = activeCheck ? activeCheck(location.pathname) : location.pathname === to;
 
   const content = (
     <Link

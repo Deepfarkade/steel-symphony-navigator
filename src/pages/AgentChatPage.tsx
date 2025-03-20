@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { ArrowLeft, BrainCircuit, Zap, Activity } from 'lucide-react';
@@ -46,18 +45,13 @@ const AgentChatPage = () => {
         setAgent(agentData);
         setAnalytics(analyticsData);
         
-        // Process recommendations properly
         if (Array.isArray(recommendationsData)) {
           if (recommendationsData.length > 0) {
             if (typeof recommendationsData[0] === 'object' && recommendationsData[0] !== null && 'title' in recommendationsData[0]) {
-              // It's already in the right format
               setRecommendations(recommendationsData as Recommendation[]);
             } 
             else {
-              // Convert string array to Recommendation objects
-              // First filter to get only string items
               const stringItems: unknown[] = recommendationsData.filter(item => typeof item === 'string');
-              // Then map the string items to recommendation objects
               const formatted: Recommendation[] = stringItems.map((rec, index) => ({
                 id: index + 1,
                 title: `Recommendation ${index + 1}`,
@@ -86,7 +80,7 @@ const AgentChatPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navigation agentId={Number(agentId)} />
+        <Navigation />
         <div data-main-content className="ml-64 p-8 transition-all duration-300">
           <div className="flex justify-center items-center h-[60vh]">
             <div className="animate-spin h-12 w-12 rounded-full border-4 border-purple-500 border-t-transparent"></div>
@@ -117,7 +111,7 @@ const AgentChatPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation agentId={Number(agentId)} />
+      <Navigation />
       
       <div data-main-content className="ml-64 p-8 transition-all duration-300">
         <Header 
