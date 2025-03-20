@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import { faker } from '@faker-js/faker';
 import { DATA_ENDPOINTS, API_CONFIG } from './apiConfig';
@@ -119,7 +118,7 @@ export const processChatMessage = async (
     const responses = [
       `I've analyzed your question about "${message.substring(0, 30)}...". Based on current data, we're seeing positive trends in this area.`,
       `Regarding your inquiry on "${message.substring(0, 30)}...", our systems indicate several optimization opportunities.`,
-      `Thanks for asking about "${message.substring(0, 30)}...". I've processed the relevant data and can provide specific recommendations.`,
+      `Thanks for asking about "${message.substring(0, 30)}..." I've processed the relevant data and can provide specific recommendations.`,
       `Your question on "${message.substring(0, 30)}..." touches on a key area. Our analytics show important patterns you should be aware of.`,
       `I've looked into "${message.substring(0, 30)}..." and found several insights that might help your decision-making process.`
     ];
@@ -169,6 +168,48 @@ export const getAiPerformanceMetrics = async () => {
     };
   } catch (error) {
     console.error('Error getting AI performance metrics:', error);
+    throw error;
+  }
+};
+
+/**
+ * Generate AI response for a prompt
+ * Used in ModuleContent.tsx and other components for AI report generation
+ * 
+ * @param prompt The prompt for the AI
+ * @param context Additional context (e.g. module name)
+ * @returns Generated AI response
+ */
+export const generateAIResponse = async (prompt: string, context?: string): Promise<{ text: string }> => {
+  try {
+    // BACKEND INTEGRATION:
+    // Uncomment and use this when connecting to your backend API
+    // return axios.post(DATA_ENDPOINTS.aiResponse, { prompt, context }, {
+    //   headers: {
+    //     ...API_CONFIG.headers,
+    //     ...API_CONFIG.headers.getAuthHeader()
+    //   }
+    // }).then(response => response.data);
+    
+    // Simulate AI processing time
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Generate a mock response
+    const moduleSpecific = context ? `Based on our analysis of the ${context} module, ` : '';
+    
+    const responses = [
+      `${moduleSpecific}Our AI analysis indicates several opportunities for optimization. The current processes can be improved by implementing data-driven decision making and predictive analytics. We recommend focusing on streamlining your supply chain operations and utilizing real-time data to make proactive adjustments. Historical data patterns show potential for a 15% efficiency increase through these methods.`,
+      
+      `${moduleSpecific}We've analyzed your current operations and identified key areas for improvement. Your current approach has strengths in data collection, but opportunities exist in predictive modeling and preventive maintenance. By implementing machine learning algorithms to predict failures and optimize scheduling, you could reduce downtime by approximately 23% and increase overall productivity.`,
+      
+      `${moduleSpecific}The analysis reveals patterns in your operational data that suggest optimization potential. By restructuring your resource allocation based on peak demand periods, you could achieve better efficiency and cost reduction. Our models predict a potential 18% reduction in operational costs through these targeted adjustments.`
+    ];
+    
+    return { 
+      text: responses[Math.floor(Math.random() * responses.length)]
+    };
+  } catch (error) {
+    console.error('Error generating AI response:', error);
     throw error;
   }
 };

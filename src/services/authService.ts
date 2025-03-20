@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import { AUTH_ENDPOINTS, API_CONFIG } from './apiConfig';
 
@@ -218,4 +217,53 @@ export const logoutUser = async (): Promise<void> => {
     
     throw error;
   }
+};
+
+/**
+ * Check authentication status
+ * Used in AuthContext to verify if user is logged in
+ * 
+ * @returns User object if authenticated, null otherwise
+ */
+export const checkAuthStatus = (): User | null => {
+  try {
+    const token = localStorage.getItem('auth-token');
+    if (!token) return null;
+    
+    // Check if session is expired
+    const sessionExpiry = localStorage.getItem('ey-session-expiry');
+    if (sessionExpiry) {
+      const expiryDate = new Date(sessionExpiry);
+      if (new Date() > expiryDate) {
+        // Session expired, clear auth data
+        localStorage.removeItem('auth-token');
+        localStorage.removeItem('current-user');
+        localStorage.removeItem('ey-session-expiry');
+        return null;
+      }
+    }
+    
+    // Get user from localStorage
+    const userJson = localStorage.getItem('current-user');
+    if (userJson) {
+      return JSON.parse(userJson) as User;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error checking auth status:', error);
+    return null;
+  }
+};
+
+/**
+ * Authenticate user with email and password
+ * Used in Login.tsx for user authentication
+ * 
+ * @param email User email
+ * @param password User password
+ * @returns User object with authentication token
+ */
+export const authenticateUser = async (email: string, password: string): Promise<{ user: User, token: string }> => {
+  return loginUser(email, password);
 };

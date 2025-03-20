@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, ReactNode } from 'react';
 import { LineChart, BarChart, Loader2, BrainCircuit, Zap, Sparkles, Bot } from 'lucide-react';
 import { generateAIResponse } from '../services/aiService';
 import { toast } from "sonner";
@@ -7,9 +7,10 @@ import { toast } from "sonner";
 interface ModuleContentProps {
   isLoading?: boolean;
   moduleType: string;
+  children?: ReactNode;
 }
 
-const ModuleContent: React.FC<ModuleContentProps> = ({ isLoading = false, moduleType }) => {
+const ModuleContent: React.FC<ModuleContentProps> = ({ isLoading = false, moduleType, children }) => {
   const [generatingReport, setGeneratingReport] = useState(false);
   const [reportResult, setReportResult] = useState<string | null>(null);
   
@@ -48,6 +49,8 @@ const ModuleContent: React.FC<ModuleContentProps> = ({ isLoading = false, module
 
   return (
     <div className="space-y-6">
+      {children}
+      
       <div className="ey-card p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
