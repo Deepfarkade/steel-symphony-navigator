@@ -67,8 +67,11 @@ const config = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        card: "0 4px 12px rgba(0, 0, 0, 0.05)",
-        glass: "0 8px 32px rgba(0, 0, 0, 0.1)",
+        card: "var(--shadow-card)",
+        glass: "var(--shadow-glass)",
+        dropdown: "var(--shadow-dropdown)",
+        button: "var(--shadow-button)",
+        "card-hover": "var(--shadow-card-hover)",
       },
       keyframes: {
         "accordion-down": {
@@ -125,6 +128,13 @@ const config = {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+      },
+      fontSize: {
+        '2xs': '0.625rem',
+      },
+      transitionProperty: {
+        'height': 'height',
+        'spacing': 'margin, padding',
       },
     },
   },

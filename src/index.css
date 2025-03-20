@@ -1,91 +1,119 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* 
+ * Base Variables
+ * These define the color scheme for both light and dark modes
+ */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 216 12% 18%;
+    /* Light Mode Colors - based on EY brand */
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 216 12% 8%; /* #161D23 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 216 12% 18%;
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 216 12% 8%; /* #161D23 */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 216 12% 18%;
+    --popover: 0 0% 100%; /* #FFFFFF */
+    --popover-foreground: 216 12% 8%; /* #161D23 */
 
-    --primary: 53 100% 50%;
-    --primary-foreground: 216 12% 18%;
+    --primary: 53 100% 50%; /* #FFE600 - EY Yellow */
+    --primary-foreground: 216 12% 8%; /* #161D23 - EY Black */
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 216 12% 18%;
+    --secondary: 0 0% 96%; /* Light Gray - close to #F5F5F5 */
+    --secondary-foreground: 216 12% 8%; /* #161D23 - EY Black */
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 96%; /* Light Gray */
+    --muted-foreground: 0 0% 45%; /* #737373 */
 
-    --accent: 0 0% 96%;
-    --accent-foreground: 216 12% 18%;
+    --accent: 0 0% 96%; /* Light Gray */
+    --accent-foreground: 216 12% 8%; /* #161D23 */
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%; /* Red */
+    --destructive-foreground: 0 0% 100%; /* White */
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 53 100% 50%;
+    --border: 0 0% 89.8%; /* #E5E5E5 */
+    --input: 0 0% 89.8%; /* #E5E5E5 */
+    --ring: 53 100% 50%; /* #FFE600 - EY Yellow */
 
     --radius: 0.5rem;
+    
+    /* Shadows */
+    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --shadow-dropdown: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow-button: 0 2px 5px rgba(0, 0, 0, 0.08);
+    --shadow-card-hover: 0 10px 25px rgba(0, 0, 0, 0.1);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 216 12% 18%;
-    --sidebar-primary: 216 12% 18%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 216 12% 18%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 53 100% 50%;
+    /* Sidebar Custom Colors - Light Mode */
+    --sidebar-background: 0 0% 98%; /* #fafafa */
+    --sidebar-foreground: 216 12% 8%; /* #161D23 */
+    --sidebar-primary: 216 12% 8%; /* #161D23 */
+    --sidebar-primary-foreground: 0 0% 98%; /* #fafafa */
+    --sidebar-accent: 0 0% 94%; /* #f0f0f0 */
+    --sidebar-accent-foreground: 216 12% 8%; /* #161D23 */
+    --sidebar-border: 0 0% 89%; /* #e3e3e3 */
+    --sidebar-ring: 53 100% 50%; /* #FFE600 */
+    --sidebar-muted: 0 0% 86%; /* #dbdbdb */
+    --sidebar-muted-foreground: 0 0% 45%; /* #737373 */
   }
 
   .dark {
-    --background: 216 12% 18%;
-    --foreground: 0 0% 100%;
+    /* Dark Mode Colors - based on EY brand */
+    --background: 216 12% 8%; /* #161D23 - EY Black */
+    --foreground: 0 0% 98%; /* Off-white */
 
-    --card: 216 12% 18%;
-    --card-foreground: 0 0% 100%;
+    --card: 215 14% 10%; /* Slightly lighter than background */
+    --card-foreground: 0 0% 98%; /* Off-white */
 
-    --popover: 216 12% 18%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 215 14% 10%; /* Same as card */
+    --popover-foreground: 0 0% 98%; /* Off-white */
 
-    --primary: 53 100% 50%;
-    --primary-foreground: 216 12% 18%;
+    --primary: 53 100% 50%; /* #FFE600 - EY Yellow */
+    --primary-foreground: 216 12% 8%; /* #161D23 - EY Black */
 
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 216 13% 15%; /* #1e252d - Dark gray with a hint of blue */
+    --secondary-foreground: 0 0% 98%; /* Off-white */
 
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 216 13% 17%; /* Slightly lighter than secondary */
+    --muted-foreground: 0 0% 63%; /* #a1a1a1 */
 
-    --accent: 0 0% 20%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 216 13% 15%; /* Same as secondary */
+    --accent-foreground: 0 0% 98%; /* Off-white */
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62% 35%; /* Darker red for dark mode */
+    --destructive-foreground: 0 0% 98%; /* Off-white */
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 53 100% 50%;
+    --border: 216 13% 17%; /* Dark gray border */
+    --input: 216 13% 17%; /* Dark gray input */
+    --ring: 53 100% 50%; /* #FFE600 - EY Yellow */
     
-    --sidebar-background: 216 12% 18%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 53 100% 50%;
-    --sidebar-primary-foreground: 216 12% 18%;
-    --sidebar-accent: 0 0% 20%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 53 100% 50%;
+    /* Shadows for Dark Mode */
+    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-dropdown: 0 2px 10px rgba(0, 0, 0, 0.25);
+    --shadow-button: 0 2px 5px rgba(0, 0, 0, 0.15);
+    --shadow-card-hover: 0 10px 25px rgba(0, 0, 0, 0.25);
+
+    /* Sidebar Custom Colors - Dark Mode */
+    --sidebar-background: 216 12% 8%; /* #161D23 - Same as background */
+    --sidebar-foreground: 0 0% 98%; /* Off-white */
+    --sidebar-primary: 53 100% 50%; /* #FFE600 - EY Yellow */
+    --sidebar-primary-foreground: 216 12% 8%; /* #161D23 */
+    --sidebar-accent: 216 13% 15%; /* Same as secondary */
+    --sidebar-accent-foreground: 0 0% 98%; /* Off-white */
+    --sidebar-border: 216 13% 15%; /* Dark gray border */
+    --sidebar-ring: 53 100% 50%; /* #FFE600 - EY Yellow */
+    --sidebar-muted: 216 13% 12%; /* #1a2027 - Darker than accent */
+    --sidebar-muted-foreground: 0 0% 63%; /* #a1a1a1 */
   }
 }
 
+/* Base Element Styling */
 @layer base {
   * {
     @apply border-border;
@@ -93,52 +121,88 @@
   body {
     @apply bg-background text-foreground font-sans;
   }
+  
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/50 rounded-md;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-md hover:bg-muted-foreground/30 transition-colors;
+  }
 }
 
+/* Component Classes */
 @layer components {
+  /* Card Styles */
   .glass-card {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-glass rounded-xl;
+    @apply bg-white/80 dark:bg-ey-black/40 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-glass rounded-xl;
   }
   
   .ey-card {
-    @apply bg-white border border-ey-lightGray/20 shadow-card rounded-xl transition-all duration-300 hover:shadow-lg;
+    @apply bg-white dark:bg-card border border-ey-midGray/20 dark:border-white/5 shadow-card rounded-xl transition-all duration-300 hover:shadow-card-hover;
   }
   
+  /* Button Styles */
   .ey-button {
-    @apply bg-ey-yellow text-ey-black font-medium py-2 px-4 rounded-md hover:bg-ey-yellow/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ey-yellow/50;
+    @apply bg-ey-yellow text-ey-black font-medium py-2 px-4 rounded-md hover:bg-ey-yellow/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ey-yellow/50 shadow-button;
   }
 
   .ey-button-secondary {
-    @apply bg-ey-darkGray text-white font-medium py-2 px-4 rounded-md hover:bg-ey-darkGray/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ey-darkGray/50;
+    @apply bg-ey-darkGray text-white font-medium py-2 px-4 rounded-md hover:bg-ey-darkGray/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ey-darkGray/50 shadow-button;
   }
   
   .ey-button-ghost {
-    @apply bg-transparent text-ey-darkGray font-medium py-2 px-4 rounded-md hover:bg-ey-lightGray/10 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ey-lightGray/30;
+    @apply bg-transparent text-ey-darkGray dark:text-white font-medium py-2 px-4 rounded-md hover:bg-ey-lightGray/10 dark:hover:bg-white/5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ey-lightGray/30;
   }
   
+  /* Text Styles */
   .text-gradient {
-    @apply bg-gradient-to-r from-ey-darkGray to-black bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-ey-darkGray to-black dark:from-ey-midGray dark:to-white bg-clip-text text-transparent;
   }
-}
-
-/* Custom scroll bar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  
+  /* Data Display */
+  .data-table {
+    @apply w-full border-collapse;
+  }
+  
+  .data-table th {
+    @apply px-4 py-2 text-left text-sm font-medium text-ey-darkGray dark:text-ey-midGray bg-gray-50 dark:bg-secondary border-b border-ey-midGray/20 dark:border-white/10;
+  }
+  
+  .data-table td {
+    @apply px-4 py-3 text-sm border-b border-ey-midGray/10 dark:border-white/5;
+  }
+  
+  .data-table tr:hover {
+    @apply bg-gray-50/50 dark:bg-white/5;
+  }
+  
+  /* Form Elements */
+  .form-input {
+    @apply w-full px-4 py-2 rounded-md border border-ey-midGray/30 dark:border-white/10 bg-white dark:bg-secondary focus:outline-none focus:ring-2 focus:ring-ey-yellow/50 dark:focus:ring-ey-yellow/30;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-ey-darkGray dark:text-ey-midGray mb-1;
+  }
+  
+  /* Sidebar Styling */
+  .sidebar {
+    @apply fixed left-0 top-0 h-full w-64 bg-[hsl(var(--sidebar-background))] text-[hsl(var(--sidebar-foreground))] border-r border-[hsl(var(--sidebar-border))] transition-all duration-300 ease-in-out z-40;
+  }
+  
+  .sidebar-item {
+    @apply flex items-center px-4 py-2.5 my-1 rounded-md text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))] transition-colors;
+  }
+  
+  .sidebar-item.active {
+    @apply bg-[hsl(var(--sidebar-accent))] text-[hsl(var(--sidebar-accent-foreground))] font-medium;
+  }
 }
 
 /* Animations */
@@ -248,128 +312,53 @@
   animation: gradient-shift 3s ease infinite;
 }
 
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Dark mode adaptations for specific components */
+.dark .neural-path {
+  stroke: rgba(255, 230, 0, 0.5);
 }
 
-.animate-spin-slow {
-  animation: spin-slow 15s linear infinite;
-}
-
-@keyframes ellipsis {
-  0% {
-    content: "";
-  }
-  25% {
-    content: ".";
-  }
-  50% {
-    content: "..";
-  }
-  75% {
-    content: "...";
-  }
-  100% {
-    content: "";
-  }
-}
-
-.animate-ellipsis::after {
-  content: "";
-  animation: ellipsis 2s infinite steps(4);
-}
-
-/* Neural network animation */
-.neural-path {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: draw 3s linear forwards;
-  animation-iteration-count: infinite;
-}
-
-@keyframes draw {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-/* 3D hover effect */
-.card-3d {
-  transition: transform 0.5s ease;
-  transform-style: preserve-3d;
-}
-
-.card-3d:hover {
-  transform: translateY(-5px) rotateX(5deg) rotateY(5deg);
-}
-
-/* Animated border */
-.animated-border {
-  position: relative;
-  overflow: hidden;
-}
-
-.animated-border::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 230, 0, 0.8), transparent);
-  animation: border-animation 3s linear infinite;
-}
-
-@keyframes border-animation {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-/* Shimmer effect for loading states */
-.shimmer {
-  position: relative;
-  overflow: hidden;
-}
-
-.shimmer::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  transform: translateX(-100%);
+.dark .shimmer::after {
   background-image: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0) 0,
-    rgba(255, 255, 255, 0.2) 20%,
-    rgba(255, 255, 255, 0.5) 60%,
-    rgba(255, 255, 255, 0)
+    rgba(0, 0, 0, 0) 0,
+    rgba(255, 255, 255, 0.1) 20%,
+    rgba(255, 255, 255, 0.2) 60%,
+    rgba(0, 0, 0, 0)
   );
-  animation: shimmer 2s infinite;
 }
 
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
+.dark .futuristic-glow {
+  box-shadow: 0 0 15px rgba(255, 230, 0, 0.3);
+}
+
+.dark .futuristic-glow:hover {
+  box-shadow: 0 0 25px rgba(255, 230, 0, 0.5);
+}
+
+/* Additional dark mode specific animations */
+.dark .animated-border::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 230, 0, 0.5), transparent);
+}
+
+/* Make sonner toasts use EY colors */
+.dark .sonner-toast {
+  --normal-bg: var(--ey-darkGray);
+  --normal-border: var(--border-subtle-dark);
+  --normal-text: var(--text-normal-dark);
+  --success-bg: #29422d;
+  --success-border: #367d4a;
+  --success-text: #a6f0c0;
+  --error-bg: #4a242a;
+  --error-border: #7d3640;
+  --error-text: #f0a6b2;
+}
+
+/* Adjust for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-}
-
-/* Futuristic glow */
-.futuristic-glow {
-  box-shadow: 0 0 15px rgba(255, 230, 0, 0.5);
-  transition: box-shadow 0.3s ease;
-}
-
-.futuristic-glow:hover {
-  box-shadow: 0 0 25px rgba(255, 230, 0, 0.8);
 }

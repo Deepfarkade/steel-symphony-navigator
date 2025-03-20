@@ -6,11 +6,13 @@ type Theme = 'light' | 'dark' | 'system';
 interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
+  isDarkMode: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: 'system',
   setTheme: () => {},
+  isDarkMode: false,
 });
 
 export const useTheme = () => useContext(ThemeContext);
@@ -25,6 +27,15 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     const savedTheme = localStorage.getItem('ey-theme') as Theme | null;
     return savedTheme || 'system';
   });
+  
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
+  // Function to determine if we should use dark mode based on theme and system preference
+  const resolveTheme = (): boolean => {
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  };
 
   useEffect(() => {
     // Save theme preference to localStorage
@@ -32,14 +43,11 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
     // Apply theme class to document
     const root = window.document.documentElement;
+    const isDark = resolveTheme();
+    
     root.classList.remove('light', 'dark');
-
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      root.classList.add(systemTheme);
-    } else {
-      root.classList.add(theme);
-    }
+    root.classList.add(isDark ? 'dark' : 'light');
+    setIsDarkMode(isDark);
   }, [theme]);
 
   // Listen to system theme changes
@@ -47,10 +55,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     if (theme !== 'system') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
     const handleChange = () => {
       const root = window.document.documentElement;
+      const isDark = mediaQuery.matches;
+      
       root.classList.remove('light', 'dark');
-      root.classList.add(mediaQuery.matches ? 'dark' : 'light');
+      root.classList.add(isDark ? 'dark' : 'light');
+      setIsDarkMode(isDark);
     };
 
     mediaQuery.addEventListener('change', handleChange);
@@ -58,7 +70,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, isDarkMode }}>
       {children}
     </ThemeContext.Provider>
   );
