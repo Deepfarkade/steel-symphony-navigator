@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Truck, BarChart3, Zap, CheckCircle, Shield, BrainCircuit, Loader2, Trash, TrendingUp, Leaf, Map, Package, BarChart2, Users, Settings, Tool } from 'lucide-react';
+import { Truck, BarChart3, Zap, CheckCircle, Shield, BrainCircuit, Loader2, Trash, TrendingUp, Leaf, Map, Package, BarChart2, Users, Settings, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -65,7 +65,7 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
       case 'settings':
         return <Settings className="h-6 w-6 text-white" />;
       case 'tool':
-        return <Tool className="h-6 w-6 text-white" />;
+        return <Wrench className="h-6 w-6 text-white" />;
       default:
         return <BrainCircuit className="h-6 w-6 text-white" />;
     }
