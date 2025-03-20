@@ -11,10 +11,19 @@ import AiAgentCard from './AiAgentCard';
 import { getAiAgents, getAvailableAgents, addAgentToUser } from '@/services/dataService';
 import { Badge } from '@/components/ui/badge';
 
+interface Agent {
+  id: number;
+  name: string;
+  description: string;
+  status: string;
+  confidence: number;
+  icon: string;
+}
+
 const AiAgentsDeployment = () => {
   const [open, setOpen] = useState(false);
-  const [agents, setAgents] = useState<any[]>([]);
-  const [availableAgents, setAvailableAgents] = useState<any[]>([]);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [availableAgents, setAvailableAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [deployingAgent, setDeployingAgent] = useState<number | null>(null);
   const { toast } = useToast();
@@ -34,11 +43,11 @@ const AiAgentsDeployment = () => {
         getAvailableAgents()
       ]);
       
-      setAgents(userAgents);
+      setAgents(userAgents as Agent[]);
       
-      const userAgentIds = userAgents.map((agent: any) => agent.id);
-      const filteredAvailableAgents = marketplaceAgents.filter(
-        (agent: any) => !userAgentIds.includes(agent.id)
+      const userAgentIds = (userAgents as Agent[]).map((agent: Agent) => agent.id);
+      const filteredAvailableAgents = (marketplaceAgents as Agent[]).filter(
+        (agent: Agent) => !userAgentIds.includes(agent.id)
       );
       
       setAvailableAgents(filteredAvailableAgents);

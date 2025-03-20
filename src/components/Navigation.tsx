@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
@@ -166,7 +165,7 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
     try {
       setLoading(true);
       const data = await getAiAgents();
-      setAgents(data);
+      setAgents(data as Agent[]);
     } catch (error) {
       console.error('Error fetching AI agents:', error);
     } finally {
@@ -180,8 +179,7 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
       const data = await getAvailableAgents();
       // Filter out agents that are already added
       const agentIds = agents.map(agent => agent.id);
-      const filteredAgents = data.filter(agent => !agentIds.includes(agent.id));
-      setAvailableAgents(filteredAgents);
+      setAvailableAgents((data as Agent[]).filter(agent => !agentIds.includes(agent.id)));
     } catch (error) {
       console.error('Error fetching available agents:', error);
       toast({

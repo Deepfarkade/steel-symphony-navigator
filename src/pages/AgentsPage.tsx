@@ -22,9 +22,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useNavigate } from 'react-router-dom';
 
+interface Agent {
+  id: number;
+  name: string;
+  description: string;
+  status: string;
+  confidence: number;
+  icon: string;
+}
+
 const AgentsPage = () => {
-  const [agents, setAgents] = useState<any[]>([]);
-  const [availableAgents, setAvailableAgents] = useState<any[]>([]);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [availableAgents, setAvailableAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showMarketplace, setShowMarketplace] = useState(false);
@@ -40,7 +49,7 @@ const AgentsPage = () => {
     setLoading(true);
     try {
       const data = await getAiAgents();
-      setAgents(data);
+      setAgents(data as Agent[]);
     } catch (error) {
       console.error('Error fetching AI agents:', error);
       toast({
@@ -56,7 +65,7 @@ const AgentsPage = () => {
   const fetchMarketplaceAgents = async () => {
     try {
       const data = await getAvailableAgents();
-      setAvailableAgents(data);
+      setAvailableAgents(data as Agent[]);
     } catch (error) {
       console.error('Error fetching marketplace agents:', error);
       toast({
@@ -269,7 +278,7 @@ const AgentsPage = () => {
                       id={agent.id}
                       name={agent.name}
                       description={agent.description}
-                      status="available"
+                      status="active"
                       confidence={agent.confidence}
                       icon={agent.icon}
                       onActivate={handleDeployAgent}

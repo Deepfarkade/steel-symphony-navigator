@@ -1,4 +1,8 @@
+
 import { faker } from '@faker-js/faker';
+
+// Helper function for simulating API delay
+const apiDelay = () => new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 300));
 
 // Mock user agents
 let userAgents = [
@@ -173,156 +177,147 @@ let customAgents = [];
 
 // Function to get agents the user has added
 export const getAiAgents = async () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([...userAgents]);
-    }, 500);
-  });
+  await apiDelay();
+  return [...userAgents];
 };
 
 // Function to get available agents from the marketplace
 export const getAvailableAgents = async () => {
+  await apiDelay();
   // Return all agents that aren't already in userAgents
   const userAgentIds = userAgents.map(agent => agent.id);
-  const filteredAgents = availableAgents.filter(agent => !userAgentIds.includes(agent.id));
-  
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(filteredAgents);
-    }, 800);
-  });
+  return availableAgents.filter(agent => !userAgentIds.includes(agent.id));
 };
 
 // Function to add an agent to the user's agents
-export const addAgentToUser = async (agentId) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Find the agent in the available agents
-      const agent = availableAgents.find(a => a.id === agentId);
-      
-      if (!agent) {
-        reject(new Error('Agent not found'));
-        return;
-      }
-      
-      // Check if agent is already added
-      const isAlreadyAdded = userAgents.some(a => a.id === agentId);
-      if (isAlreadyAdded) {
-        resolve({ success: true, message: 'Agent already added' });
-        return;
-      }
-      
-      // Add the agent to the user's agents
-      userAgents.push(agent);
-      resolve({ success: true });
-    }, 1000);
-  });
+export const addAgentToUser = async (agentId: number) => {
+  await apiDelay();
+  // Find the agent in the available agents
+  const agent = availableAgents.find(a => a.id === agentId);
+  
+  if (!agent) {
+    throw new Error('Agent not found');
+  }
+  
+  // Check if agent is already added
+  const isAlreadyAdded = userAgents.some(a => a.id === agentId);
+  if (isAlreadyAdded) {
+    return { success: true, message: 'Agent already added' };
+  }
+  
+  // Add the agent to the user's agents
+  userAgents.push(agent);
+  return { success: true, message: 'Agent added successfully' };
 };
 
 // Function to remove an agent from the user's agents
-export const removeAgentFromUser = async (agentId) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const initialLength = userAgents.length;
-      userAgents = userAgents.filter(agent => agent.id !== agentId);
-      
-      if (userAgents.length === initialLength) {
-        reject(new Error('Agent not found'));
-        return;
-      }
-      
-      resolve({ success: true });
-    }, 800);
-  });
+export const removeAgentFromUser = async (agentId: number) => {
+  await apiDelay();
+  const initialLength = userAgents.length;
+  userAgents = userAgents.filter(agent => agent.id !== agentId);
+  
+  if (userAgents.length === initialLength) {
+    throw new Error('Agent not found');
+  }
+  
+  return { success: true, message: 'Agent removed successfully' };
 };
 
 // Function to get a specific agent by ID
-export const getAgentById = async (agentId) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const agent = userAgents.find(a => a.id === agentId);
-      
-      if (!agent) {
-        const availableAgent = availableAgents.find(a => a.id === agentId);
-        if (availableAgent) {
-          resolve(availableAgent);
-        } else {
-          reject(new Error('Agent not found'));
-        }
-        return;
-      }
-      
-      resolve(agent);
-    }, 500);
-  });
+export const getAgentById = async (agentId: number) => {
+  await apiDelay();
+  const agent = userAgents.find(a => a.id === agentId);
+  
+  if (!agent) {
+    const availableAgent = availableAgents.find(a => a.id === agentId);
+    if (availableAgent) {
+      return availableAgent;
+    } else {
+      throw new Error('Agent not found');
+    }
+  }
+  
+  return agent;
 };
 
 // Function to get analytics for an agent
-export const getAgentAnalytics = async (agentId) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        issuesResolved: faker.number.int({ min: 32, max: 124 }),
-        avgResponseTime: faker.number.float({ min: 1.2, max: 4.8, precision: 0.1 }),
-        userSatisfaction: faker.number.int({ min: 78, max: 97 }),
-        conversationsCompleted: faker.number.int({ min: 45, max: 210 }),
-        trendsIdentified: faker.number.int({ min: 8, max: 35 }),
-        optimizationSuggestions: faker.number.int({ min: 12, max: 48 })
-      });
-    }, 600);
-  });
+export const getAgentAnalytics = async (agentId: number) => {
+  await apiDelay();
+  return {
+    issuesResolved: faker.number.int({ min: 32, max: 124 }),
+    avgResponseTime: faker.number.float({ min: 1.2, max: 4.8, precision: 0.1 }),
+    userSatisfaction: faker.number.int({ min: 78, max: 97 }),
+    conversationsCompleted: faker.number.int({ min: 45, max: 210 }),
+    trendsIdentified: faker.number.int({ min: 8, max: 35 }),
+    optimizationSuggestions: faker.number.int({ min: 12, max: 48 }),
+    insightsGenerated: 127 + agentId * 10,
+    accuracyRate: 92.5 + (agentId % 5),
+    tasksCompleted: 348 + agentId * 20,
+    activeHours: 720 + agentId * 5
+  };
 };
 
 // Function to get recommendations from an agent
-export const getAgentRecommendations = async (agentId) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const recommendations = [
-        {
-          id: 1,
-          title: "Optimize Inventory Levels",
-          description: "Reduce warehouse costs by optimizing inventory levels based on demand forecasts.",
-          impact: "High",
-          category: "Supply Chain"
-        },
-        {
-          id: 2,
-          title: "Energy Consumption Reduction",
-          description: "Implement scheduled equipment shutdowns during peak energy cost hours.",
-          impact: "Medium",
-          category: "Operations"
-        },
-        {
-          id: 3,
-          title: "Quality Control Improvement",
-          description: "Increase testing frequency for high-variance steel grades to reduce defect rates.",
-          impact: "High",
-          category: "Quality"
-        }
-      ];
-      
-      resolve(recommendations);
-    }, 700);
-  });
+export const getAgentRecommendations = async (agentId: number) => {
+  await apiDelay();
+  return [
+    {
+      id: 1,
+      title: "Optimize Inventory Levels",
+      description: "Reduce warehouse costs by optimizing inventory levels based on demand forecasts.",
+      impact: "High",
+      category: "Supply Chain"
+    },
+    {
+      id: 2,
+      title: "Energy Consumption Reduction",
+      description: "Implement scheduled equipment shutdowns during peak energy cost hours.",
+      impact: "Medium",
+      category: "Operations"
+    },
+    {
+      id: 3,
+      title: "Quality Control Improvement",
+      description: "Increase testing frequency for high-variance steel grades to reduce defect rates.",
+      impact: "High",
+      category: "Quality"
+    },
+    {
+      id: 4,
+      title: "Production Optimization",
+      description: "Adjust furnace temperature by 3.5% to improve yield and reduce energy consumption",
+      impact: "High",
+      category: "Efficiency"
+    },
+    {
+      id: 5,
+      title: "Inventory Reduction",
+      description: "Reduce safety stock levels for Grade 304 steel by 15% based on improved demand forecasting",
+      impact: "Medium",
+      category: "Cost Saving"
+    }
+  ];
 };
 
 // Function to create a custom agent
-export const createCustomAgent = async (agentData) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newAgent = {
-        id: 100 + userAgents.length,
-        name: agentData.name,
-        description: agentData.description,
-        status: "learning",
-        confidence: agentData.confidence || 80,
-        icon: agentData.icon || "brain-circuit"
-      };
-      
-      userAgents.push(newAgent);
-      resolve({ success: true, agent: newAgent });
-    }, 1500);
-  });
+export const createCustomAgent = async (agentData: any) => {
+  await apiDelay();
+  const newAgent = {
+    id: 100 + userAgents.length,
+    name: agentData.name,
+    description: agentData.description,
+    status: "learning",
+    confidence: agentData.confidence || 80,
+    icon: agentData.icon || "brain-circuit"
+  };
+  
+  userAgents.push(newAgent);
+  return { 
+    success: true, 
+    message: 'Custom agent created successfully',
+    agent: newAgent,
+    agentId: newAgent.id
+  };
 };
 
 // Mock AI Insights data
@@ -403,285 +398,6 @@ export const getKpiData = async () => {
     qualityRating: { value: 'A+', change: 1.2 },
     onTimeDelivery: { value: '92.3%', change: -0.8 }
   };
-};
-
-// Mock Co-Pilot Analytics
-export const getCoPilotAnalytics = async () => {
-  await apiDelay();
-  return {
-    modelsAnalyzed: 247,
-    dataPointsProcessed: 1354892,
-    predictionsGenerated: 893
-  };
-};
-
-// Mock AI Agents
-export const getAiAgents = async () => {
-  await apiDelay();
-  return [
-    {
-      id: 1,
-      name: 'Agentic RCA',
-      description: 'Performs root cause analysis on production anomalies',
-      status: 'active',
-      confidence: 92,
-      icon: 'brain-circuit'
-    },
-    {
-      id: 2,
-      name: 'Smart RCA Generator',
-      description: 'Generates automated recommendations based on historical data',
-      status: 'active',
-      confidence: 89,
-      icon: 'bar-chart'
-    },
-    {
-      id: 3,
-      name: 'PlanXpert',
-      description: 'Optimizes production schedules for maximum efficiency',
-      status: 'active',
-      confidence: 87,
-      icon: 'zap'
-    },
-    {
-      id: 4,
-      name: 'QualityGuard',
-      description: 'Monitors quality metrics and predicts potential issues',
-      status: 'active',
-      confidence: 85,
-      icon: 'check-circle'
-    },
-    {
-      id: 5,
-      name: 'RiskRadar',
-      description: 'Identifies and quantifies supply chain risks',
-      status: 'active',
-      confidence: 78,
-      icon: 'shield'
-    }
-  ];
-};
-
-// Mock available agents for marketplace
-export const getAvailableAgents = async () => {
-  await apiDelay();
-  return [
-    {
-      id: 6,
-      name: 'PriceOptimizer',
-      description: 'AI-powered steel pricing optimization based on market conditions',
-      status: 'available',
-      confidence: 91,
-      icon: 'trending-up'
-    },
-    {
-      id: 7,
-      name: 'DemandForecaster',
-      description: 'Predicts future steel demand with high accuracy',
-      status: 'available',
-      confidence: 94,
-      icon: 'bar-chart-2'
-    },
-    {
-      id: 8,
-      name: 'MaintenanceGuard',
-      description: 'Predictive maintenance for steel production equipment',
-      status: 'available',
-      confidence: 88,
-      icon: 'tool'
-    },
-    {
-      id: 9,
-      name: 'InventoryOptimizer',
-      description: 'Optimizes inventory levels to reduce costs',
-      status: 'available',
-      confidence: 90,
-      icon: 'package'
-    },
-    {
-      id: 10,
-      name: 'SupplierAnalyzer',
-      description: 'Analyzes supplier performance and recommends improvements',
-      status: 'available',
-      confidence: 86,
-      icon: 'users'
-    },
-    {
-      id: 11,
-      name: 'TransportationOptimizer',
-      description: 'Optimizes steel transportation routes and logistics',
-      status: 'available',
-      confidence: 89,
-      icon: 'truck'
-    },
-    {
-      id: 12,
-      name: 'SustainabilityMonitor',
-      description: 'Monitors and improves environmental sustainability in supply chain',
-      status: 'available',
-      confidence: 87,
-      icon: 'leaf'
-    },
-    {
-      id: 13,
-      name: 'CapacityPlanner',
-      description: 'Plans production capacity and resource allocation',
-      status: 'available',
-      confidence: 92,
-      icon: 'calendar'
-    },
-    {
-      id: 14,
-      name: 'ShipmentTracker',
-      description: 'Tracks shipments and provides real-time delivery updates',
-      status: 'available',
-      confidence: 85,
-      icon: 'map-pin'
-    },
-    {
-      id: 15,
-      name: 'QualityPredictor',
-      description: 'Predicts potential quality issues before they occur',
-      status: 'available',
-      confidence: 93,
-      icon: 'shield-check'
-    },
-    {
-      id: 16,
-      name: 'InventoryForecaster',
-      description: 'Forecasts inventory needs and prevents stockouts',
-      status: 'available',
-      confidence: 91,
-      icon: 'box'
-    },
-    {
-      id: 17,
-      name: 'SourcingOptimizer',
-      description: 'Optimizes raw material sourcing and supplier selection',
-      status: 'available',
-      confidence: 88,
-      icon: 'search'
-    },
-    {
-      id: 18,
-      name: 'SchedulingAssistant',
-      description: 'Creates optimal production schedules to meet demand',
-      status: 'available',
-      confidence: 90,
-      icon: 'clock'
-    },
-    {
-      id: 19,
-      name: 'LeanManufacturingAdvisor',
-      description: 'Provides recommendations for implementing lean manufacturing',
-      status: 'available',
-      confidence: 86,
-      icon: 'scissors'
-    },
-    {
-      id: 20,
-      name: 'WarehouseOptimizer',
-      description: 'Optimizes warehouse layouts and operations',
-      status: 'available',
-      confidence: 89,
-      icon: 'grid'
-    },
-    {
-      id: 21,
-      name: 'BottleneckDetector',
-      description: 'Identifies and resolves production bottlenecks',
-      status: 'available',
-      confidence: 92,
-      icon: 'filter'
-    },
-    {
-      id: 22,
-      name: 'MaterialUtilizationAnalyzer',
-      description: 'Analyzes and improves material utilization in production',
-      status: 'available',
-      confidence: 88,
-      icon: 'pie-chart'
-    },
-    {
-      id: 23,
-      name: 'LeadTimeReducer',
-      description: 'Identifies opportunities to reduce lead times',
-      status: 'available',
-      confidence: 87,
-      icon: 'fast-forward'
-    },
-    {
-      id: 24,
-      name: 'SteelGradeOptimizer',
-      description: 'Recommends optimal steel grades for specific applications',
-      status: 'available',
-      confidence: 93,
-      icon: 'layers'
-    },
-    {
-      id: 25,
-      name: 'CostReducer',
-      description: 'Identifies opportunities to reduce costs across the supply chain',
-      status: 'available',
-      confidence: 91,
-      icon: 'trending-down'
-    }
-  ];
-};
-
-// Add more agent to user's agents list
-export const addAgentToUser = async (agentId: number) => {
-  await apiDelay();
-  // This function now actually adds the agent to the user's list
-  // In a real app, this would update a database
-  return { success: true, message: 'Agent added successfully' };
-};
-
-// Get agent by ID
-export const getAgentById = async (id: number) => {
-  await apiDelay();
-  const agents = await getAiAgents();
-  const agent = agents.find(a => a.id === id);
-  return agent || null;
-};
-
-// Get agent analytics
-export const getAgentAnalytics = async (id: number) => {
-  await apiDelay();
-  return {
-    insightsGenerated: 127 + id * 10,
-    accuracyRate: 92.5 + (id % 5),
-    tasksCompleted: 348 + id * 20,
-    activeHours: 720 + id * 5
-  };
-};
-
-// Get agent recommendations
-export const getAgentRecommendations = async (id: number) => {
-  await apiDelay();
-  return [
-    {
-      id: 1,
-      title: 'Production Optimization',
-      description: 'Adjust furnace temperature by 3.5% to improve yield and reduce energy consumption',
-      impact: 'High',
-      category: 'Efficiency'
-    },
-    {
-      id: 2,
-      title: 'Inventory Reduction',
-      description: 'Reduce safety stock levels for Grade 304 steel by 15% based on improved demand forecasting',
-      impact: 'Medium',
-      category: 'Cost Saving'
-    },
-    {
-      id: 3,
-      title: 'Quality Improvement',
-      description: 'Implement additional cooling step in process for higher tensile strength in automotive-grade steel',
-      impact: 'High',
-      category: 'Quality'
-    }
-  ];
 };
 
 // Module insights
@@ -942,33 +658,4 @@ export const subscribeToRealTimeData = (callback: (data: any) => void) => {
   }, 5000);
   
   return () => clearInterval(interval);
-};
-
-/**
- * Remove an agent from the user's workspace
- * @param agentId The ID of the agent to remove
- */
-export const removeAgentFromUser = async (agentId: number): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    // Simulate API delay
-    setTimeout(() => {
-      try {
-        // This would normally be an API call to remove the agent
-        console.log(`Removing agent ${agentId} from user's workspace`);
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    }, 1000);
-  });
-};
-
-// Custom route for building your own agent (placeholder)
-export const createCustomAgent = async (agentData: any) => {
-  await apiDelay();
-  return { 
-    success: true, 
-    message: 'Custom agent created successfully',
-    agentId: Math.floor(Math.random() * 1000) + 100 // Generate a random ID for the new agent
-  };
 };
