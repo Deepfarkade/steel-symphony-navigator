@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BrainCircuit, Plus, Search, Filter, BrainCog, Download, ArrowUpDown, Sparkles } from 'lucide-react';
@@ -119,6 +118,31 @@ const AgentsPage = () => {
     agent.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const renderAgentCard = (agent: any, status: 'active' | 'learning' | 'inactive') => {
+    return (
+      <Link key={agent.id} to={`/agent/${agent.id}`}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg overflow-hidden h-full cursor-pointer hover:shadow-lg transition-all"
+        >
+          <AiAgentCard
+            id={agent.id}
+            name={agent.name}
+            description={agent.description}
+            status={agent.status}
+            confidence={agent.confidence}
+            icon={agent.icon}
+            isExpanded={true}
+            deploying={false}
+            isUserAgent={true}
+          />
+        </motion.div>
+      </Link>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -201,26 +225,7 @@ const AgentsPage = () => {
               ) : filteredAgents.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredAgents.map((agent) => (
-                    <Link key={agent.id} to={`/agent/${agent.id}`}>
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg overflow-hidden h-full cursor-pointer hover:shadow-lg transition-all"
-                      >
-                        <AiAgentCard
-                          id={agent.id}
-                          name={agent.name}
-                          description={agent.description}
-                          status={agent.status}
-                          confidence={agent.confidence}
-                          icon={agent.icon}
-                          isExpanded={true}
-                          deploying={false}
-                          isUserAgent={true}
-                        />
-                      </motion.div>
-                    </Link>
+                    renderAgentCard(agent, agent.status)
                   ))}
                 </div>
               ) : (

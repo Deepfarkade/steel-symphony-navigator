@@ -30,7 +30,8 @@ import {
   Globe,
   Lightbulb,
   CheckSquare,
-  Eye
+  Eye,
+  Zap
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -283,9 +284,9 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
 
   return (
     <aside className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 ${isExpanded ? 'w-64' : 'w-20'} bg-white border-r border-ey-lightGray/20 shadow-sm`}>
-      <div className="h-full px-3 py-8 flex flex-col justify-between">
+      <div className="h-full px-3 flex flex-col justify-between">
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center justify-center py-8">
             {isExpanded ? (
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-ey-yellow rounded-md flex items-center justify-center font-bold text-black">EY</div>
@@ -310,123 +311,126 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
             </div>
           )}
           
-          <ScrollArea className="flex-grow pr-3">
-            <div className="space-y-2">
-              {modules.map((module) => (
-                <Link 
-                  key={module.name}
-                  to={module.path}
-                  className={`flex items-center p-3 rounded-lg transition-all duration-300 ${
-                    location.pathname === module.path 
-                      ? 'bg-ey-yellow/20 text-ey-darkGray' 
-                      : 'text-ey-darkGray/70 hover:bg-ey-yellow/10'
-                  }`}
-                >
-                  <div className="flex-shrink-0">
-                    {module.icon}
-                  </div>
-                  {isExpanded && (
-                    <span className="ml-3 whitespace-nowrap">{module.name}</span>
-                  )}
-                  {!isExpanded && location.pathname === module.path && (
-                    <div className="absolute left-0 w-1 h-8 bg-ey-yellow rounded-r-full"></div>
-                  )}
-                </Link>
-              ))}
-              
-              <Collapsible
-                open={isAgentsOpen}
-                onOpenChange={(open) => {
-                  setIsAgentsOpen(open);
-                  if (open) fetchAgents();
-                }}
-                className="w-full"
-              >
-                <CollapsibleTrigger asChild>
-                  <button className={`w-full flex items-center justify-between p-3 rounded-lg transition-all duration-300 ${
-                    isAgentsOpen ? 'bg-purple-100 text-purple-700' : 'text-ey-darkGray/70 hover:bg-ey-yellow/10'
-                  }`}>
-                    <div className="flex items-center">
-                      <BrainCog className="h-5 w-5" />
-                      {isExpanded && <span className="ml-3 whitespace-nowrap">Your Agents</span>}
+          <div className="flex-grow overflow-hidden flex flex-col">
+            <ScrollArea className="flex-grow pr-3">
+              <div className="space-y-2">
+                {modules.map((module) => (
+                  <Link 
+                    key={module.name}
+                    to={module.path}
+                    className={`flex items-center p-3 rounded-lg transition-all duration-300 ${
+                      location.pathname === module.path 
+                        ? 'bg-ey-yellow/20 text-ey-darkGray' 
+                        : 'text-ey-darkGray/70 hover:bg-ey-yellow/10'
+                    }`}
+                  >
+                    <div className="flex-shrink-0">
+                      {module.icon}
                     </div>
                     {isExpanded && (
-                      isAgentsOpen ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )
+                      <span className="ml-3 whitespace-nowrap">{module.name}</span>
                     )}
-                  </button>
-                </CollapsibleTrigger>
+                    {!isExpanded && location.pathname === module.path && (
+                      <div className="absolute left-0 w-1 h-8 bg-ey-yellow rounded-r-full"></div>
+                    )}
+                  </Link>
+                ))}
                 
-                {isExpanded && (
-                  <CollapsibleContent className="ml-2 space-y-1">
-                    <ScrollArea className="max-h-60">
-                      {loading ? (
-                        <div className="animate-pulse p-2">
-                          {[1, 2, 3].map(i => (
-                            <div key={i} className="h-9 bg-gray-100 rounded-md mb-2"></div>
-                          ))}
-                        </div>
-                      ) : (
-                        <>
-                          {agents.length > 0 ? (
-                            agents.map(agent => (
-                              <div key={agent.id} className="relative group">
-                                <Link
-                                  to={`/agent/${agent.id}`}
-                                  className={`flex items-center p-2 rounded-md text-sm ${
-                                    agentId === agent.id
-                                      ? 'bg-purple-100 text-purple-700'
-                                      : 'text-ey-darkGray/70 hover:bg-gray-100'
-                                  }`}
-                                >
-                                  <div className={`w-6 h-6 rounded-full ${
-                                    agent.status === 'active' ? 'bg-green-100' : 'bg-gray-100'
-                                  } flex items-center justify-center mr-2`}>
-                                    {getAgentIcon(agent.icon)}
-                                  </div>
-                                  <span className="truncate">{agent.name}</span>
-                                  {agent.status === 'active' && (
-                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 ml-2 animate-pulse"></div>
-                                  )}
-                                  <button
-                                    onClick={(e) => handleRemoveAgent(agent, e)}
-                                    className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded"
-                                    title="Remove agent"
-                                  >
-                                    <Trash className="h-3.5 w-3.5 text-red-500" />
-                                  </button>
-                                </Link>
-                              </div>
-                            ))
-                          ) : (
-                            <div className="py-3 px-2 text-sm text-ey-lightGray">
-                              No agents added yet
-                            </div>
-                          )}
-                          
-                          <button
-                            onClick={handleMarketplaceOpen}
-                            className="flex items-center w-full p-2 rounded-md text-sm text-purple-600 hover:bg-purple-50"
-                          >
-                            <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
-                              <Plus className="h-3.5 w-3.5" />
-                            </div>
-                            <span>Add More Agents</span>
-                          </button>
-                        </>
+                <Collapsible
+                  open={isAgentsOpen}
+                  onOpenChange={(open) => {
+                    setIsAgentsOpen(open);
+                    if (open) fetchAgents();
+                  }}
+                  className="w-full"
+                >
+                  <CollapsibleTrigger asChild>
+                    <button className={`w-full flex items-center justify-between p-3 rounded-lg transition-all duration-300 ${
+                      isAgentsOpen ? 'bg-purple-100 text-purple-700' : 'text-ey-darkGray/70 hover:bg-ey-yellow/10'
+                    }`}>
+                      <div className="flex items-center">
+                        <BrainCog className="h-5 w-5" />
+                        {isExpanded && <span className="ml-3 whitespace-nowrap">Your Agents</span>}
+                      </div>
+                      {isExpanded && (
+                        isAgentsOpen ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )
                       )}
-                    </ScrollArea>
-                  </CollapsibleContent>
-                )}
-              </Collapsible>
-            </div>
-          </ScrollArea>
+                    </button>
+                  </CollapsibleTrigger>
+                  
+                  {isExpanded && (
+                    <CollapsibleContent className="ml-2 space-y-1">
+                      <ScrollArea className="max-h-60">
+                        {loading ? (
+                          <div className="animate-pulse p-2">
+                            {[1, 2, 3].map(i => (
+                              <div key={i} className="h-9 bg-gray-100 rounded-md mb-2"></div>
+                            ))}
+                          </div>
+                        ) : (
+                          <>
+                            {agents.length > 0 ? (
+                              agents.map(agent => (
+                                <div key={agent.id} className="relative group">
+                                  <Link
+                                    to={`/agent/${agent.id}`}
+                                    className={`flex items-center p-2 rounded-md text-sm ${
+                                      agentId === agent.id
+                                        ? 'bg-purple-100 text-purple-700'
+                                        : 'text-ey-darkGray/70 hover:bg-gray-100'
+                                    }`}
+                                  >
+                                    <div className={`w-6 h-6 rounded-full ${
+                                      agent.status === 'active' ? 'bg-green-100' : 'bg-gray-100'
+                                    } flex items-center justify-center mr-2`}>
+                                      {getAgentIcon(agent.icon)}
+                                    </div>
+                                    <span className="truncate flex-1">{agent.name}</span>
+                                    {agent.status === 'active' && (
+                                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 mr-2 animate-pulse"></div>
+                                    )}
+                                    <button
+                                      onClick={(e) => handleRemoveAgent(agent, e)}
+                                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded"
+                                      title="Remove agent"
+                                    >
+                                      <Trash className="h-3.5 w-3.5 text-red-500" />
+                                    </button>
+                                  </Link>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="py-3 px-2 text-sm text-ey-lightGray">
+                                No agents added yet
+                              </div>
+                            )}
+                            
+                            <button
+                              onClick={handleMarketplaceOpen}
+                              className="flex items-center w-full p-2 rounded-md text-sm text-purple-600 hover:bg-purple-50"
+                            >
+                              <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                                <Plus className="h-3.5 w-3.5" />
+                              </div>
+                              <span>Add More Agents</span>
+                            </button>
+                          </>
+                        )}
+                      </ScrollArea>
+                    </CollapsibleContent>
+                  )}
+                </Collapsible>
+              </div>
+            </ScrollArea>
+          </div>
         </div>
         
-        <div>
+        {/* Fixed footer section with settings and collapse button */}
+        <div className="py-4 mt-auto border-t border-gray-100">
           {isExpanded ? (
             <>
               <div className="flex items-center justify-between mb-4">

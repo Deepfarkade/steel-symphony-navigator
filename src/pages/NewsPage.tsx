@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Newspaper, Search, Filter, Clock, Calendar, BookOpen } from 'lucide-react';
+import { Newspaper, Search, Filter, Clock, Calendar, BookOpen, ArrowRight } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import Header from '../components/Header';
 import { getLatestNews } from '@/services/dataService';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 interface NewsItem {
   id: number;
@@ -18,6 +19,7 @@ interface NewsItem {
   source: string;
   date: string;
   category: string;
+  content?: string;
 }
 
 const categoryColors: Record<string, string> = {
@@ -35,6 +37,7 @@ const NewsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedArticle, setSelectedArticle] = useState<NewsItem | null>(null);
   
   useEffect(() => {
     const fetchNews = async () => {
@@ -85,6 +88,17 @@ const NewsPage = () => {
     return [...new Set(categories)];
   };
   
+  const handleReadMore = (article: NewsItem) => {
+    setSelectedArticle(article);
+  };
+  
+  const generateFullContent = (article: NewsItem) => {
+    if (article.content) return article.content;
+    
+    // Generate a fake full content based on the summary
+    return `${article.summary}\n\n${faker.lorem.paragraphs(3)}\n\n${faker.lorem.paragraphs(2)}`;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -190,8 +204,14 @@ const NewsPage = () => {
                           <p className="text-sm text-gray-600 mb-4">{item.summary}</p>
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-gray-500">{item.source}</span>
-                            <Button variant="link" size="sm" className="text-purple-600">
+                            <Button 
+                              variant="link" 
+                              size="sm" 
+                              className="text-purple-600 flex items-center"
+                              onClick={() => handleReadMore(item)}
+                            >
                               Read More
+                              <ArrowRight className="ml-1 h-3.5 w-3.5" />
                             </Button>
                           </div>
                         </motion.div>
@@ -228,6 +248,59 @@ const NewsPage = () => {
           </Card>
         </div>
       </div>
+      
+      {/* Dialog for Read More */}
+      <Dialog open={!!selectedArticle} onOpenChange={(open) => !open && setSelectedArticle(null)}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">
+              {selectedArticle?.title}
+            </DialogTitle>
+            <DialogDescription className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Badge className={`${categoryColors[selectedArticle?.category || 'default'] || categoryColors.default}`}>
+                  {selectedArticle?.category}
+                </Badge>
+                <span className="text-xs text-gray-500">{selectedArticle?.source}</span>
+              </div>
+              <span className="text-xs text-gray-400">
+                {selectedArticle && new Date(selectedArticle.date).toLocaleDateString()}
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="overflow-y-auto py-4">
+            {selectedArticle && (
+              <div className="space-y-4 text-gray-700">
+                <p className="font-medium">{selectedArticle.summary}</p>
+                <div className="prose max-w-none">
+                  {selectedArticle.content || (
+                    <>
+                      <p>{faker.lorem.paragraph(5)}</p>
+                      <p>{faker.lorem.paragraph(4)}</p>
+                      <h3 className="text-lg font-medium mt-6 mb-2">Key Implications for Steel Industry</h3>
+                      <p>{faker.lorem.paragraph(3)}</p>
+                      <ul className="list-disc pl-5 my-4">
+                        <li>{faker.lorem.sentence()}</li>
+                        <li>{faker.lorem.sentence()}</li>
+                        <li>{faker.lorem.sentence()}</li>
+                      </ul>
+                      <p>{faker.lorem.paragraph(3)}</p>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedArticle(null)}>
+              Close
+            </Button>
+            <Button>Share Article</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

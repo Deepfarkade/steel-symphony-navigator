@@ -155,9 +155,9 @@ const AiAgentsDeployment = () => {
                           key={agent.id}
                           id={agent.id}
                           name={agent.name}
-                          description={agent.description}
-                          status={agent.status}
-                          confidence={agent.confidence}
+                          description={agent.description || ''}
+                          status={agent.status as 'active' | 'inactive' | 'learning'}
+                          confidence={agent.confidence || 0}
                           icon={agent.icon}
                           onActivate={deployAgent}
                           isExpanded={true}
@@ -194,9 +194,9 @@ const AiAgentsDeployment = () => {
                         key={agent.id}
                         id={agent.id}
                         name={agent.name}
-                        description={agent.description}
-                        status="active"
-                        confidence={agent.confidence}
+                        description={agent.description || ''}
+                        status={'active'}
+                        confidence={agent.confidence || 0}
                         icon={agent.icon}
                         onActivate={deployAgent}
                         isExpanded={true}
