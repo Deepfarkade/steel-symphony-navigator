@@ -1,13 +1,30 @@
-
-import React from 'react';
-import { Package, Sparkles, Box, TrendingDown, BarChart3, CircleDollarSign, RefreshCcw } from 'lucide-react';
-import ModuleLayout from '../components/ModuleLayout';
-import { useModuleInsights } from '../hooks/useModuleInsights';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Box, 
+  ArrowUpDown, 
+  PackageCheck, 
+  PackageX, 
+  AlertCircle, 
+  TrendingUp, 
+  BarChart,
+  FileText,
+  RefreshCw,
+  Truck,
+  PieChart,
+  ArrowRight,
+  Zap,
+  Brain
+} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AreaChart, LineChart } from 'recharts';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Progress } from '@/components/ui/progress';
+import ModuleLayout from '@/components/ModuleLayout';
+import AreaChart from '@/components/AreaChart';
+import { useModuleInsights } from '../hooks/useModuleInsights';
 import { toast } from '@/hooks/use-toast';
 
 const inventoryData = [

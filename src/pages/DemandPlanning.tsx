@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { BarChart3, Calendar, TrendingUp, ChevronDown, FileText, Download, RefreshCw, LineChart, PieChart } from 'lucide-react';
 import ModuleLayout from '@/components/ModuleLayout';
@@ -73,9 +72,17 @@ const DemandPlanning = () => {
       toast({
         title: "AI Forecast Complete",
         description: "Demand forecast has been updated with latest projections.",
-        variant: "success"
+        variant: "default"
       });
     }, 3500);
+  };
+  
+  const handleSaveClick = () => {
+    toast({
+      variant: "default",
+      title: "Demand Plan Saved",
+      description: "Your demand plan has been successfully saved."
+    });
   };
   
   return (

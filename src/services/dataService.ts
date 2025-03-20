@@ -1,3 +1,4 @@
+
 import { faker } from '@faker-js/faker';
 
 // Helper function for simulating API delay
@@ -12,7 +13,7 @@ export const getKpis = async () => {
       id: 1,
       title: 'Production Volume',
       value: faker.number.int({ min: 1000, max: 5000 }),
-      trend: faker.number.float({ min: -5, max: 10, precision: 0.1 }),
+      trend: faker.number.float({ min: -5, max: 10, fractionDigits: 1 }),
       target: faker.number.int({ min: 5000, max: 6000 }),
       status: 'good',
       description: 'Total steel produced this month',
@@ -23,7 +24,7 @@ export const getKpis = async () => {
       id: 2,
       title: 'Energy Consumption',
       value: faker.number.int({ min: 500, max: 2000 }),
-      trend: faker.number.float({ min: -5, max: 10, precision: 0.1 }),
+      trend: faker.number.float({ min: -5, max: 10, fractionDigits: 1 }),
       target: faker.number.int({ min: 400, max: 1500 }),
       status: 'warning',
       description: 'Energy used per ton of steel',
@@ -34,7 +35,7 @@ export const getKpis = async () => {
       id: 3,
       title: 'Downtime Incidents',
       value: faker.number.int({ min: 0, max: 10 }),
-      trend: faker.number.float({ min: -5, max: 10, precision: 0.1 }),
+      trend: faker.number.float({ min: -5, max: 10, fractionDigits: 1 }),
       target: 2,
       status: 'bad',
       description: 'Number of unplanned downtime events',
@@ -45,7 +46,7 @@ export const getKpis = async () => {
       id: 4,
       title: 'Material Waste',
       value: faker.number.int({ min: 100, max: 500 }),
-      trend: faker.number.float({ min: -5, max: 10, precision: 0.1 }),
+      trend: faker.number.float({ min: -5, max: 10, fractionDigits: 1 }),
       target: faker.number.int({ min: 50, max: 200 }),
       status: 'good',
       description: 'Tons of material wasted in production',
@@ -55,24 +56,24 @@ export const getKpis = async () => {
     {
       id: 5,
       title: 'Order Fulfillment Rate',
-      value: faker.number.float({ min: 80, max: 100, precision: 0.1 }),
-      trend: faker.number.float({ min: -5, max: 10, precision: 0.1 }),
+      value: faker.number.float({ min: 80, max: 100, fractionDigits: 1 }),
+      trend: faker.number.float({ min: -5, max: 10, fractionDigits: 1 }),
       target: 95,
       status: 'good',
       description: 'Percentage of orders fulfilled on time',
       lastUpdated: faker.date.recent().toLocaleDateString(),
-      chartData: Array.from({ length: 7 }, () => faker.number.float({ min: 80, max: 100, precision: 0.1 }))
+      chartData: Array.from({ length: 7 }, () => faker.number.float({ min: 80, max: 100, fractionDigits: 1 }))
     },
     {
       id: 6,
       title: 'Customer Satisfaction',
-      value: faker.number.float({ min: 1, max: 5, precision: 0.1 }),
-      trend: faker.number.float({ min: -5, max: 10, precision: 0.1 }),
+      value: faker.number.float({ min: 1, max: 5, fractionDigits: 1 }),
+      trend: faker.number.float({ min: -5, max: 10, fractionDigits: 1 }),
       target: 4.5,
       status: 'warning',
       description: 'Average customer satisfaction rating',
       lastUpdated: faker.date.recent().toLocaleDateString(),
-      chartData: Array.from({ length: 7 }, () => faker.number.float({ min: 1, max: 5, precision: 0.1 }))
+      chartData: Array.from({ length: 7 }, () => faker.number.float({ min: 1, max: 5, fractionDigits: 1 }))
     }
   ];
 };
@@ -87,28 +88,36 @@ export const getNotifications = async () => {
       type: 'alert',
       message: 'High energy consumption detected in furnace #3',
       timestamp: faker.date.recent().toLocaleTimeString(),
-      status: 'unread'
+      status: 'unread',
+      title: 'High Energy Alert',
+      read: false
     },
     {
       id: 2,
       type: 'info',
       message: 'New maintenance schedule available for rolling mill',
       timestamp: faker.date.recent().toLocaleTimeString(),
-      status: 'read'
+      status: 'read',
+      title: 'Maintenance Update',
+      read: true
     },
     {
       id: 3,
       type: 'warning',
       message: 'Downtime incident reported in casting line',
       timestamp: faker.date.recent().toLocaleTimeString(),
-      status: 'unread'
+      status: 'unread',
+      title: 'Downtime Incident',
+      read: false
     },
     {
       id: 4,
       type: 'success',
       message: 'Production target met for hot-rolled coil',
       timestamp: faker.date.recent().toLocaleTimeString(),
-      status: 'read'
+      status: 'read',
+      title: 'Target Achieved',
+      read: true
     }
   ];
 };
@@ -194,7 +203,7 @@ let userAgents = [
     id: 101,
     name: 'Supply Chain Optimizer',
     description: 'Continuously analyzes your supply chain for efficiency improvements',
-    status: 'active',
+    status: 'active' as 'active' | 'learning' | 'inactive',
     icon: 'truck',
     confidence: 94,
     compatibility: 'high',
@@ -205,7 +214,7 @@ let userAgents = [
     id: 102,
     name: 'Production Intelligence',
     description: 'Monitors production data to identify patterns and optimization opportunities',
-    status: 'active',
+    status: 'active' as 'active' | 'learning' | 'inactive',
     icon: 'bar-chart',
     confidence: 92,
     compatibility: 'high',
@@ -216,7 +225,7 @@ let userAgents = [
     id: 103,
     name: 'Energy Consumption Analyzer',
     description: 'Analyzes energy usage and recommends efficiency improvements',
-    status: 'learning',
+    status: 'learning' as 'active' | 'learning' | 'inactive',
     icon: 'zap',
     confidence: 86,
     compatibility: 'medium',
@@ -227,7 +236,7 @@ let userAgents = [
     id: 104,
     name: 'Sustainability Monitor',
     description: 'Tracks sustainability metrics and suggests green initiatives',
-    status: 'active',
+    status: 'active' as 'active' | 'learning' | 'inactive',
     icon: 'globe',
     confidence: 90,
     compatibility: 'high',
@@ -238,7 +247,7 @@ let userAgents = [
     id: 105,
     name: 'Crisis Management AI',
     description: 'Predicts potential supply chain disruptions and provides mitigation strategies',
-    status: 'active',
+    status: 'active' as 'active' | 'learning' | 'inactive',
     icon: 'alert-triangle',
     confidence: 89,
     compatibility: 'medium',
@@ -249,7 +258,7 @@ let userAgents = [
     id: 401,
     name: 'What-If Scenarios Analyzer',
     description: 'Runs simulations on different business scenarios to provide insights on potential outcomes',
-    status: 'active',
+    status: 'active' as 'active' | 'learning' | 'inactive',
     icon: 'lightbulb',
     confidence: 92,
     compatibility: 'high',
@@ -267,7 +276,7 @@ export const getAvailableAgents = async () => {
       id: 401,
       name: 'What-If Scenarios Analyzer',
       description: 'Runs simulations on different business scenarios to provide insights on potential outcomes',
-      status: 'active',
+      status: 'active' as 'active' | 'learning' | 'inactive',
       icon: 'lightbulb',
       confidence: 92,
       compatibility: 'high',
@@ -278,7 +287,7 @@ export const getAvailableAgents = async () => {
       id: 402,
       name: 'Predictive Maintenance AI',
       description: 'Predicts equipment failures and optimizes maintenance schedules',
-      status: 'active',
+      status: 'active' as 'active' | 'learning' | 'inactive',
       icon: 'tool',
       confidence: 88,
       compatibility: 'high',
@@ -289,7 +298,7 @@ export const getAvailableAgents = async () => {
       id: 403,
       name: 'Logistics Optimization AI',
       description: 'Optimizes logistics and transportation routes for cost savings',
-      status: 'active',
+      status: 'active' as 'active' | 'learning' | 'inactive',
       icon: 'truck',
       confidence: 91,
       compatibility: 'high',
@@ -300,7 +309,7 @@ export const getAvailableAgents = async () => {
       id: 404,
       name: 'Demand Forecasting AI',
       description: 'Predicts future demand for steel products',
-      status: 'active',
+      status: 'active' as 'active' | 'learning' | 'inactive',
       icon: 'bar-chart-2',
       confidence: 93,
       compatibility: 'high',
@@ -311,7 +320,7 @@ export const getAvailableAgents = async () => {
       id: 405,
       name: 'Risk Management AI',
       description: 'Identifies and assesses potential risks in the steel manufacturing process',
-      status: 'active',
+      status: 'active' as 'active' | 'learning' | 'inactive',
       icon: 'alert-triangle',
       confidence: 89,
       compatibility: 'high',
@@ -331,10 +340,11 @@ export const getAiAgents = async () => {
 export const addAgentToUser = async (agentId: number) => {
   await apiDelay();
   
-  const agentToAdd = getAvailableAgents().then(agents => agents.find(agent => agent.id === agentId));
+  const availableAgents = await getAvailableAgents();
+  const agentToAdd = availableAgents.find(agent => agent.id === agentId);
   
   if (agentToAdd) {
-    userAgents.push(await agentToAdd);
+    userAgents.push(agentToAdd);
     return true;
   }
   
@@ -401,7 +411,7 @@ export const getModuleInsights = async (moduleName: string) => {
     ]
   };
   
-  return insights[moduleName] || ['No insights available for this module.'];
+  return insights[moduleName as keyof typeof insights] || ['No insights available for this module.'];
 };
 
 // Mock latest news
@@ -415,7 +425,8 @@ export const getLatestNews = async () => {
       summary: 'Global steel prices have surged in recent weeks due to increased demand from infrastructure projects and automotive manufacturing.',
       source: 'Steel Industry News',
       date: faker.date.recent().toLocaleDateString(),
-      category: 'Market Analysis'
+      category: 'Market Analysis',
+      content: 'Global steel prices have surged in recent weeks due to increased demand from infrastructure projects and automotive manufacturing. This unexpected rise has led to supply chain challenges for many manufacturers. Industry experts predict this trend may continue into the next quarter as global construction projects increase.'
     },
     {
       id: 2,
@@ -423,7 +434,8 @@ export const getLatestNews = async () => {
       summary: 'A new technology developed by a leading steel manufacturer promises to reduce energy consumption in steel production by up to 20%.',
       source: 'Tech News Daily',
       date: faker.date.recent().toLocaleDateString(),
-      category: 'Technology'
+      category: 'Technology',
+      content: 'A new technology developed by a leading steel manufacturer promises to reduce energy consumption in steel production by up to 20%. This breakthrough utilizes advanced heat recovery systems and optimized furnace designs. Early adopters have reported significant cost savings alongside reduced carbon emissions, marking a major step forward in sustainable steel manufacturing.'
     },
     {
       id: 3,
@@ -431,7 +443,8 @@ export const getLatestNews = async () => {
       summary: 'More steel companies are adopting sustainability initiatives to reduce their environmental impact and meet growing customer demand for green steel.',
       source: 'Green Business Journal',
       date: faker.date.recent().toLocaleDateString(),
-      category: 'Sustainability'
+      category: 'Sustainability',
+      content: 'More steel companies are adopting sustainability initiatives to reduce their environmental impact and meet growing customer demand for green steel. From carbon capture technologies to renewable energy investments, the industry is transforming rapidly. Companies leading this green revolution are seeing increased market share as environmentally conscious customers prioritize sustainable materials.'
     },
     {
       id: 4,
@@ -439,7 +452,8 @@ export const getLatestNews = async () => {
       summary: 'Ongoing logistics disruptions are impacting steel supply chains, leading to delays and increased costs for manufacturers.',
       source: 'Supply Chain News',
       date: faker.date.recent().toLocaleDateString(),
-      category: 'Logistics'
+      category: 'Logistics',
+      content: 'Ongoing logistics disruptions are impacting steel supply chains, leading to delays and increased costs for manufacturers. Port congestion, container shortages, and rising fuel prices continue to create bottlenecks worldwide. Industry leaders are implementing advanced logistics planning tools and diversifying transportation methods to mitigate these challenges.'
     },
     {
       id: 5,
@@ -447,15 +461,275 @@ export const getLatestNews = async () => {
       summary: 'New approaches to steel manufacturing are paving the way for stronger and more sustainable materials.',
       source: 'Manufacturing Today',
       date: faker.date.recent().toLocaleDateString(),
-      category: 'Innovation'
+      category: 'Innovation',
+      content: 'New approaches to steel manufacturing are paving the way for stronger and more sustainable materials. Recent innovations include ultra-high-strength steel alloys and advanced coating technologies that significantly extend product lifespans. These developments are opening new markets in aerospace, automotive, and construction industries where weight reduction and durability are critical factors.'
     }
   ];
 };
 
+// Added missing functions
+
+// Function to get AI insights
+export const getAiInsights = async () => {
+  await apiDelay();
+  
+  return [
+    {
+      id: 1,
+      type: 'alert',
+      message: 'Energy consumption in Plant B exceeds target by 15%',
+      timestamp: faker.date.recent().toLocaleTimeString()
+    },
+    {
+      id: 2,
+      type: 'success',
+      message: 'Production efficiency improved by 7% this week',
+      timestamp: faker.date.recent().toLocaleTimeString()
+    },
+    {
+      id: 3,
+      type: 'opportunity',
+      message: 'Potential 5% cost reduction through supplier consolidation',
+      timestamp: faker.date.recent().toLocaleTimeString()
+    },
+    {
+      id: 4,
+      type: 'suggestion',
+      message: 'Consider increasing inventory of raw material X due to predicted shortage',
+      timestamp: faker.date.recent().toLocaleTimeString()
+    }
+  ];
+};
+
+// Function to get production data
+export const getProductionData = async () => {
+  await apiDelay();
+  
+  return Array.from({ length: 30 }, (_, i) => ({
+    name: `Day ${i+1}`,
+    value: faker.number.int({ min: 2000, max: 5000 })
+  }));
+};
+
+// Function to get energy consumption data
+export const getEnergyConsumptionData = async () => {
+  await apiDelay();
+  
+  return Array.from({ length: 30 }, (_, i) => ({
+    name: `Day ${i+1}`,
+    value: faker.number.int({ min: 500, max: 1500 })
+  }));
+};
+
+// Function to get KPI data
+export const getKpiData = async () => {
+  await apiDelay();
+  
+  return {
+    productionYield: {
+      value: '94.8%',
+      change: 2.3
+    },
+    energyConsumption: {
+      value: '1,235 MWh',
+      change: -5.7
+    },
+    qualityRating: {
+      value: 'A+',
+      change: 1.2
+    },
+    onTimeDelivery: {
+      value: '92.3%',
+      change: -0.8
+    }
+  };
+};
+
+// Function to get Agent by ID
+export const getAgentById = async (agentId: number) => {
+  await apiDelay();
+  
+  const agents = await getAiAgents();
+  const agent = agents.find(a => a.id === agentId);
+  
+  if (!agent) {
+    // Check available agents too
+    const availableAgents = await getAvailableAgents();
+    return availableAgents.find(a => a.id === agentId);
+  }
+  
+  return agent;
+};
+
+// Function to get agent analytics
+export const getAgentAnalytics = async (agentId: number) => {
+  await apiDelay();
+  
+  return {
+    issuesResolved: faker.number.int({ min: 20, max: 150 }),
+    avgResponseTime: faker.number.float({ min: 0.5, max: 5, fractionDigits: 1 }),
+    userSatisfaction: faker.number.int({ min: 70, max: 99 }),
+    conversationsCompleted: faker.number.int({ min: 50, max: 500 })
+  };
+};
+
+// Function to get agent recommendations
+export const getAgentRecommendations = async (agentId: number) => {
+  await apiDelay();
+  
+  return [
+    {
+      id: 1,
+      title: 'Optimize Production Schedule',
+      description: 'Adjust production schedule to reduce downtime during shift changes',
+      impact: 'High',
+      category: 'Efficiency'
+    },
+    {
+      id: 2,
+      title: 'Energy Efficiency',
+      description: 'Replace outdated equipment in Zone 3 to reduce energy consumption',
+      impact: 'Medium',
+      category: 'Sustainability'
+    },
+    {
+      id: 3,
+      title: 'Supply Chain Risk',
+      description: 'Diversify suppliers for critical raw materials to mitigate supply chain disruptions',
+      impact: 'High',
+      category: 'Risk Management'
+    }
+  ];
+};
+
+// Function to create custom agent
+export const createCustomAgent = async (agentData: any) => {
+  await apiDelay();
+  
+  const newAgent = {
+    id: 500 + userAgents.length,
+    name: agentData.name,
+    description: agentData.description,
+    status: 'learning' as 'active' | 'learning' | 'inactive',
+    icon: agentData.icon || 'bot',
+    confidence: agentData.confidence || 75,
+    compatibility: 'medium',
+    type: agentData.type || 'custom',
+    lastUpdated: new Date().toISOString().split('T')[0]
+  };
+  
+  userAgents.push(newAgent);
+  
+  return newAgent;
+};
+
+// Function to get KPI detail data
+export const getKpiDetailData = async (kpiId: string) => {
+  await apiDelay();
+  
+  // Mock data based on the KPI ID
+  return {
+    id: kpiId,
+    title: kpiId === 'production-yield' 
+      ? 'Production Yield' 
+      : kpiId === 'energy-consumption' 
+        ? 'Energy Consumption' 
+        : kpiId === 'quality-rating' 
+          ? 'Quality Rating' 
+          : 'On-Time Delivery',
+    currentValue: kpiId === 'production-yield' 
+      ? '94.8%' 
+      : kpiId === 'energy-consumption' 
+        ? '1,235 MWh' 
+        : kpiId === 'quality-rating' 
+          ? 'A+' 
+          : '92.3%',
+    change: kpiId === 'production-yield' 
+      ? 2.3 
+      : kpiId === 'energy-consumption' 
+        ? -5.7 
+        : kpiId === 'quality-rating' 
+          ? 1.2 
+          : -0.8,
+    trendData: Array(12).fill(0).map((_, i) => ({
+      name: `Week ${i+1}`,
+      value: 75 + Math.random() * 20,
+    })),
+    breakdownData: Array(5).fill(0).map((_, i) => ({
+      name: `Category ${i+1}`,
+      value: 10 + Math.random() * 30,
+    })),
+    forecastData: Array(6).fill(0).map((_, i) => ({
+      name: `Month ${i+1}`,
+      value: 80 + (Math.random() * 15),
+      forecast: true,
+    })),
+    description: `Detailed analysis and insights for ${kpiId?.replace('-', ' ')} across all steel manufacturing operations.`
+  };
+};
+
+// Function to get production detail data
+export const getProductionDetailData = async () => {
+  await apiDelay();
+  
+  return {
+    daily: Array(30).fill(0).map((_, i) => ({
+      name: `Day ${i+1}`,
+      value: 800 + Math.random() * 200,
+    })),
+    weekly: Array(12).fill(0).map((_, i) => ({
+      name: `Week ${i+1}`,
+      value: 5000 + Math.random() * 1000,
+    })),
+    monthly: Array(12).fill(0).map((_, i) => ({
+      name: `Month ${i+1}`,
+      value: 22000 + Math.random() * 5000,
+    })),
+    byProduct: [
+      { name: 'Hot Rolled Coil', value: 35 },
+      { name: 'Cold Rolled Coil', value: 25 },
+      { name: 'Galvanized Steel', value: 20 },
+      { name: 'Steel Plate', value: 15 },
+      { name: 'Steel Pipe', value: 5 },
+    ]
+  };
+};
+
+// Function to get energy detail data
+export const getEnergyDetailData = async () => {
+  await apiDelay();
+  
+  return {
+    daily: Array(30).fill(0).map((_, i) => ({
+      name: `Day ${i+1}`,
+      value: 30 + Math.random() * 15,
+    })),
+    weekly: Array(12).fill(0).map((_, i) => ({
+      name: `Week ${i+1}`,
+      value: 200 + Math.random() * 50,
+    })),
+    monthly: Array(12).fill(0).map((_, i) => ({
+      name: `Month ${i+1}`,
+      value: 900 + Math.random() * 200,
+    })),
+    byProcess: [
+      { name: 'Blast Furnace', value: 40 },
+      { name: 'Rolling Mill', value: 25 },
+      { name: 'Heat Treatment', value: 20 },
+      { name: 'Coating Lines', value: 10 },
+      { name: 'Auxiliary Processes', value: 5 },
+    ]
+  };
+};
+
+// Function to get co-pilot analytics
 export const getCoPilotAnalytics = async () => {
   await apiDelay();
   
   return {
+    modelsAnalyzed: faker.number.int({ min: 12, max: 50 }),
+    dataPointsProcessed: faker.number.int({ min: 10000, max: 100000 }),
+    predictionsGenerated: faker.number.int({ min: 150, max: 1200 }),
     aiInteractions: faker.number.int({ min: 350, max: 1200 }),
     insightsGenerated: faker.number.int({ min: 120, max: 450 }),
     decisionsAided: faker.number.int({ min: 40, max: 150 }),
@@ -483,67 +757,4 @@ export const getCoPilotAnalytics = async () => {
       { name: 'Analytics', usage: faker.number.int({ min: 30, max: 100 }) }
     ]
   };
-};
-
-// Ensure we have a What-If Scenarios agent in the available agents
-export const getAvailableAgents = async () => {
-  await apiDelay();
-  
-  return [
-    {
-      id: 401,
-      name: 'What-If Scenarios Analyzer',
-      description: 'Runs simulations on different business scenarios to provide insights on potential outcomes',
-      status: 'active',
-      icon: 'lightbulb',
-      confidence: 92,
-      compatibility: 'high',
-      type: 'strategic',
-      lastUpdated: '2023-11-10'
-    },
-    {
-      id: 402,
-      name: 'Predictive Maintenance AI',
-      description: 'Predicts equipment failures and optimizes maintenance schedules',
-      status: 'active',
-      icon: 'tool',
-      confidence: 88,
-      compatibility: 'high',
-      type: 'operational',
-      lastUpdated: '2023-11-15'
-    },
-    {
-      id: 403,
-      name: 'Logistics Optimization AI',
-      description: 'Optimizes logistics and transportation routes for cost savings',
-      status: 'active',
-      icon: 'truck',
-      confidence: 91,
-      compatibility: 'high',
-      type: 'operational',
-      lastUpdated: '2023-11-20'
-    },
-    {
-      id: 404,
-      name: 'Demand Forecasting AI',
-      description: 'Predicts future demand for steel products',
-      status: 'active',
-      icon: 'bar-chart-2',
-      confidence: 93,
-      compatibility: 'high',
-      type: 'analytical',
-      lastUpdated: '2023-11-25'
-    },
-    {
-      id: 405,
-      name: 'Risk Management AI',
-      description: 'Identifies and assesses potential risks in the steel manufacturing process',
-      status: 'active',
-      icon: 'alert-triangle',
-      confidence: 89,
-      compatibility: 'high',
-      type: 'strategic',
-      lastUpdated: '2023-11-30'
-    }
-  ];
 };

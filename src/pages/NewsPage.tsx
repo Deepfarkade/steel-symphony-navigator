@@ -1,16 +1,18 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Newspaper, Search, Filter, Clock, Calendar, BookOpen, ArrowRight } from 'lucide-react';
-import Navigation from '../components/Navigation';
-import Header from '../components/Header';
-import { getLatestNews } from '@/services/dataService';
-import { Badge } from '@/components/ui/badge';
+import { Newspaper, Search, Filter, FileText, ExternalLink, ChevronRight, Bell, Radio, Tag, Calendar, ArrowLeft, Eye } from 'lucide-react';
+import { faker } from '@faker-js/faker';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Navigation from '@/components/Navigation';
+import Header from '@/components/Header';
+import { getLatestNews } from '@/services/dataService';
 
 interface NewsItem {
   id: number;
@@ -59,7 +61,6 @@ const NewsPage = () => {
   useEffect(() => {
     let result = [...news];
     
-    // Apply search filter
     if (searchQuery) {
       result = result.filter(item => 
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -67,7 +68,6 @@ const NewsPage = () => {
       );
     }
     
-    // Apply category filter
     if (selectedCategory) {
       result = result.filter(item => item.category === selectedCategory);
     }
@@ -95,7 +95,6 @@ const NewsPage = () => {
   const generateFullContent = (article: NewsItem) => {
     if (article.content) return article.content;
     
-    // Generate a fake full content based on the summary
     return `${article.summary}\n\n${faker.lorem.paragraphs(3)}\n\n${faker.lorem.paragraphs(2)}`;
   };
 
@@ -249,7 +248,6 @@ const NewsPage = () => {
         </div>
       </div>
       
-      {/* Dialog for Read More */}
       <Dialog open={!!selectedArticle} onOpenChange={(open) => !open && setSelectedArticle(null)}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
