@@ -5,7 +5,7 @@ import { checkAuthStatus, logoutUser } from '../services/authService';
 import { useToast } from '@/hooks/use-toast';
 import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
 import { User } from '@/types/auth';
-import { SSOProvider } from '@/services/ssoService';
+import { SSOProvider, initiateSSOLogin } from '@/services/ssoService';
 
 interface AuthContextType {
   user: User | null;
@@ -64,62 +64,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       checkAuth();
     }
   }, [location.pathname, navigate, isSSOCallback]);
-
-  // Handle SSO callback
-  useEffect(() => {
-    if (isSSOCallback) {
-      const handleCallback = async () => {
-        setIsLoading(true);
-        try {
-          // Parse the URL parameters
-          const params = new URLSearchParams(location.search);
-          const code = params.get('code');
-          const state = params.get('state');
-          const error = params.get('error');
-          
-          if (error) {
-            throw new Error(error);
-          }
-          
-          if (!code || !state) {
-            throw new Error('Missing required parameters');
-          }
-          
-          // In a real app, you would call a function to handle the SSO callback
-          // For now, we'll simulate a successful login
-          const user = {
-            id: '1',
-            name: 'SSO User',
-            email: 'user@example.com',
-            role: 'user'
-          };
-          
-          localStorage.setItem('ey-user', JSON.stringify(user));
-          setUser(user);
-          
-          toast({
-            title: "SSO Login Successful",
-            description: "You have been successfully logged in.",
-          });
-          
-          // Redirect to home page
-          navigate('/');
-        } catch (error) {
-          console.error('SSO login error:', error);
-          toast({
-            variant: "destructive",
-            title: "SSO Login Failed",
-            description: error instanceof Error ? error.message : "An unknown error occurred",
-          });
-          navigate('/login');
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      
-      handleCallback();
-    }
-  }, [isSSOCallback, location.search, navigate, toast]);
   
   const logout = () => {
     logoutUser();
@@ -132,11 +76,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
   
   const initiateSSO = (provider: SSOProvider) => {
-    // In a real app, this would redirect to the SSO provider
-    // For simulation, we'll navigate to the callback URL with mock parameters
-    const mockState = Math.random().toString(36).substring(2, 15);
-    const mockCode = Math.random().toString(36).substring(2, 15);
-    navigate(`/auth/callback?code=${mockCode}&state=${mockState}`);
+    // Use the actual SSO service function
+    initiateSSOLogin(provider);
   };
   
   const value = {

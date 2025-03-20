@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { BrainCircuit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { handleSSOCallback } from '@/services/ssoService';
 
 const SSOCallback: React.FC = () => {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -12,7 +13,7 @@ const SSOCallback: React.FC = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const handleCallback = async () => {
+    const processCallback = async () => {
       try {
         // Parse the URL parameters
         const params = new URLSearchParams(location.search);
@@ -21,31 +22,32 @@ const SSOCallback: React.FC = () => {
         const error = params.get('error');
         
         if (error) {
-          throw new Error(error);
+          throw new Error(`SSO Error: ${error}`);
         }
         
         if (!code || !state) {
-          throw new Error('Missing required parameters');
+          throw new Error('Missing required parameters (code or state)');
         }
         
-        // In a real app, you would exchange the code for tokens and authenticate the user
-        // For simulation, we'll wait briefly then navigate to home
+        // Call the actual SSO callback handler from ssoService
+        const user = await handleSSOCallback(code, state);
         
-        // Simulate successful authentication
+        if (!user) {
+          throw new Error('Authentication failed');
+        }
+        
+        setStatus('success');
+        
+        // Notify the user
+        toast({
+          title: "SSO Login Successful",
+          description: "You have been successfully logged in.",
+        });
+        
+        // Redirect to home page after a brief delay to show success message
         setTimeout(() => {
-          setStatus('success');
-          
-          // Notify the user
-          toast({
-            title: "SSO Login Successful",
-            description: "You have been successfully logged in.",
-          });
-          
-          // Redirect to home page after a brief delay to show success message
-          setTimeout(() => {
-            navigate('/');
-          }, 1500);
-        }, 2000);
+          navigate('/');
+        }, 1500);
         
       } catch (error) {
         console.error('SSO callback error:', error);
@@ -66,7 +68,7 @@ const SSOCallback: React.FC = () => {
       }
     };
     
-    handleCallback();
+    processCallback();
   }, [location.search, navigate, toast]);
 
   return (
