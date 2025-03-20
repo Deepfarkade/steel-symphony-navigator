@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navigation from '../components/Navigation';
@@ -38,6 +37,17 @@ const Index = () => {
     dataPointsProcessed: 0,
     predictionsGenerated: 0
   });
+
+  useEffect(() => {
+    if (!showWelcome) {
+      setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'instant'
+        });
+      }, 0);
+    }
+  }, [showWelcome]);
 
   const getUserDisplayName = () => {
     if (!user) return 'User';
@@ -131,8 +141,6 @@ const Index = () => {
         
         <AiModules />
       </div>
-      
-      {/* Completely removed the floating AiChatInterface */}
     </div>
   );
 };

@@ -20,6 +20,17 @@ const ModuleChatPage = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   
+  // Ensure the page starts at the top when navigated to
+  useEffect(() => {
+    // Use setTimeout to ensure this runs after the component has mounted
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant'
+      });
+    }, 0);
+  }, [module]); // Re-run when module changes
+  
   useEffect(() => {
     const handleSidebarChange = (event: CustomEvent) => {
       const { isCollapsed } = event.detail;

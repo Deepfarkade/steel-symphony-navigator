@@ -44,7 +44,14 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
   
   // Ensure the page is at the top when navigating to a module page
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Use setTimeout to ensure this runs after the component has mounted
+    // This helps ensure the scroll action happens after any layout shifts
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant' // Use 'instant' instead of smooth for more reliable behavior
+      });
+    }, 0);
   }, []);
   
   useEffect(() => {

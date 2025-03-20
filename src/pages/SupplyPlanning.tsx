@@ -8,9 +8,15 @@ import { useModuleInsights } from '../hooks/useModuleInsights';
 const SupplyPlanning = () => {
   const { insights, isLoading } = useModuleInsights('supply-planning');
   
-  // Ensure page starts at the top
+  // Enhanced page scroll control to ensure it starts at the top
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Use setTimeout to ensure this runs after component mounting
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant' // Use instant instead of smooth for more reliable behavior
+      });
+    }, 0);
   }, []);
   
   return (

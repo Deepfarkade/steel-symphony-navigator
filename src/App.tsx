@@ -3,9 +3,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, RequireAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import DemandPlanning from "./pages/DemandPlanning";
@@ -88,55 +89,75 @@ const queryClient = new QueryClient({
   },
 });
 
-const AppRoutes = () => (
-  <Routes>
-    {/* Public routes */}
-    <Route path="/login" element={<Login />} />
-    <Route path="/signup" element={<Signup />} />
-    <Route path="/auth/callback" element={<SSOCallback />} />
+// ScrollToTop component to handle scrolling on route changes
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
 
-    {/* Protected routes */}
-    <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
-    
-    {/* Module routes */}
-    <Route path="/demand-planning" element={<RequireAuth><DemandPlanning /></RequireAuth>} />
-    <Route path="/supply-planning" element={<RequireAuth><SupplyPlanning /></RequireAuth>} />
-    <Route path="/order-promising" element={<RequireAuth><OrderPromising /></RequireAuth>} />
-    <Route path="/factory-planning" element={<RequireAuth><FactoryPlanning /></RequireAuth>} />
-    <Route path="/inventory-optimization" element={<RequireAuth><InventoryOptimization /></RequireAuth>} />
-    <Route path="/inventory-liquidation" element={<RequireAuth><InventoryLiquidation /></RequireAuth>} />
-    <Route path="/logistics" element={<RequireAuth><LogisticsManagement /></RequireAuth>} />
-    <Route path="/risk-management" element={<RequireAuth><RiskManagement /></RequireAuth>} />
-    <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
-    
-    {/* KPI detail routes */}
-    <Route path="/kpi/:id" element={<RequireAuth><KpiDetails /></RequireAuth>} />
-    
-    {/* Notification routes */}
-    <Route path="/notifications" element={<RequireAuth><NotificationsCenter /></RequireAuth>} />
-    
-    {/* Chart detail routes */}
-    <Route path="/charts/production" element={<RequireAuth><ProductionChartDetails /></RequireAuth>} />
-    <Route path="/charts/energy" element={<RequireAuth><EnergyChartDetails /></RequireAuth>} />
-    
-    {/* User routes */}
-    <Route path="/user/preferences" element={<RequireAuth><UserPreferences /></RequireAuth>} />
-    
-    {/* Chat routes */}
-    <Route path="/chat" element={<RequireAuth><GlobalChatPage /></RequireAuth>} />
-    <Route path="/chat/:module" element={<RequireAuth><ModuleChatPage /></RequireAuth>} />
-    
-    {/* News route */}
-    <Route path="/news" element={<RequireAuth><NewsPage /></RequireAuth>} />
-    
-    {/* Agents routes */}
-    <Route path="/agents" element={<RequireAuth><AgentsPage /></RequireAuth>} />
-    <Route path="/agent/:agentId" element={<RequireAuth><AgentChatPage /></RequireAuth>} />
-    <Route path="/create-agent" element={<RequireAuth><CreateAgentPage /></RequireAuth>} />
-    
-    {/* Catch-all route */}
-    <Route path="*" element={<NotFound />} />
-  </Routes>
+  useEffect(() => {
+    // Use a short timeout to ensure the component has fully rendered
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant'
+      });
+    }, 0);
+  }, [pathname]);
+
+  return null;
+};
+
+const AppRoutes = () => (
+  <>
+    <ScrollToTop />
+    <Routes>
+      {/* Public routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/auth/callback" element={<SSOCallback />} />
+
+      {/* Protected routes */}
+      <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
+      
+      {/* Module routes */}
+      <Route path="/demand-planning" element={<RequireAuth><DemandPlanning /></RequireAuth>} />
+      <Route path="/supply-planning" element={<RequireAuth><SupplyPlanning /></RequireAuth>} />
+      <Route path="/order-promising" element={<RequireAuth><OrderPromising /></RequireAuth>} />
+      <Route path="/factory-planning" element={<RequireAuth><FactoryPlanning /></RequireAuth>} />
+      <Route path="/inventory-optimization" element={<RequireAuth><InventoryOptimization /></RequireAuth>} />
+      <Route path="/inventory-liquidation" element={<RequireAuth><InventoryLiquidation /></RequireAuth>} />
+      <Route path="/logistics" element={<RequireAuth><LogisticsManagement /></RequireAuth>} />
+      <Route path="/risk-management" element={<RequireAuth><RiskManagement /></RequireAuth>} />
+      <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
+      
+      {/* KPI detail routes */}
+      <Route path="/kpi/:id" element={<RequireAuth><KpiDetails /></RequireAuth>} />
+      
+      {/* Notification routes */}
+      <Route path="/notifications" element={<RequireAuth><NotificationsCenter /></RequireAuth>} />
+      
+      {/* Chart detail routes */}
+      <Route path="/charts/production" element={<RequireAuth><ProductionChartDetails /></RequireAuth>} />
+      <Route path="/charts/energy" element={<RequireAuth><EnergyChartDetails /></RequireAuth>} />
+      
+      {/* User routes */}
+      <Route path="/user/preferences" element={<RequireAuth><UserPreferences /></RequireAuth>} />
+      
+      {/* Chat routes */}
+      <Route path="/chat" element={<RequireAuth><GlobalChatPage /></RequireAuth>} />
+      <Route path="/chat/:module" element={<RequireAuth><ModuleChatPage /></RequireAuth>} />
+      
+      {/* News route */}
+      <Route path="/news" element={<RequireAuth><NewsPage /></RequireAuth>} />
+      
+      {/* Agents routes */}
+      <Route path="/agents" element={<RequireAuth><AgentsPage /></RequireAuth>} />
+      <Route path="/agent/:agentId" element={<RequireAuth><AgentChatPage /></RequireAuth>} />
+      <Route path="/create-agent" element={<RequireAuth><CreateAgentPage /></RequireAuth>} />
+      
+      {/* Catch-all route */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </>
 );
 
 const App = () => (

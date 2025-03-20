@@ -17,6 +17,17 @@ const KpiDetails = () => {
   const [kpiData, setKpiData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('trends');
 
+  // Ensure the page starts at the top when navigated to
+  useEffect(() => {
+    // Use setTimeout to ensure this runs after the component has mounted
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant'
+      });
+    }, 0);
+  }, [id]); // Re-run when id changes
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
