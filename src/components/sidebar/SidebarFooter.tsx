@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Settings, LogOut, BrainCircuit, Plus } from 'lucide-react';
+import { Settings, LogOut, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { 
   Tooltip,
@@ -16,13 +16,13 @@ interface SidebarFooterProps {
 
 const SidebarFooter: React.FC<SidebarFooterProps> = ({ isCollapsed }) => {
   return (
-    <div className="mt-auto p-4 border-t border-gray-200/20">
+    <div className="mt-auto p-4 border-t border-gray-600/20">
       {!isCollapsed ? (
         <div className="space-y-3">
           <Link to="/create-agent">
             <Button 
               variant="outline" 
-              className="w-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border-purple-500/30"
+              className="w-full bg-ey-yellow/20 hover:bg-ey-yellow/30 text-ey-yellow border-ey-yellow/30"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add New Agent
@@ -52,7 +52,7 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ isCollapsed }) => {
               <TooltipTrigger asChild>
                 <Link 
                   to="/create-agent"
-                  className="p-2 rounded-full bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors"
+                  className="p-2 rounded-full bg-ey-yellow/20 text-ey-yellow hover:bg-ey-yellow/30 transition-colors"
                 >
                   <Plus className="h-5 w-5" />
                 </Link>

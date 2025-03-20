@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { 
   Tooltip,
   TooltipContent,
@@ -32,7 +31,7 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
   };
 
   return (
-    <div className="mb-1">
+    <div className="mb-2">
       {isCollapsed ? (
         <TooltipProvider>
           <Tooltip>
@@ -40,7 +39,7 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
               <button 
                 onClick={toggleDropdown}
                 className={`w-full p-3 rounded-md flex items-center justify-center transition-colors ${
-                  isActive ? 'bg-purple-500/20 text-purple-500' : 'text-gray-500 hover:bg-gray-500/10'
+                  isActive ? 'bg-ey-yellow/20 text-ey-yellow' : 'text-gray-400 hover:bg-gray-700/30 hover:text-gray-200'
                 }`}
               >
                 {icon}
@@ -55,7 +54,7 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
         <button
           onClick={toggleDropdown}
           className={`w-full p-3 rounded-md flex items-center justify-between transition-colors ${
-            isActive ? 'bg-purple-500/20 text-purple-500' : 'text-gray-500 hover:bg-gray-500/10'
+            isActive ? 'bg-ey-yellow/20 text-ey-yellow' : 'text-gray-400 hover:bg-gray-700/30 hover:text-gray-200'
           }`}
         >
           <div className="flex items-center">
@@ -78,7 +77,7 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
             opacity: isOpen ? 1 : 0,
           }}
           transition={{ duration: 0.3 }}
-          className="overflow-hidden ml-2 pl-5 border-l border-gray-200/20"
+          className="overflow-hidden ml-2 pl-5 border-l border-gray-600/20"
         >
           {isOpen && children}
         </motion.div>

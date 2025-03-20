@@ -63,8 +63,8 @@ const AgentItem: React.FC<AgentItemProps> = ({
       to={to}
       className={`group w-full p-3 rounded-md flex items-center justify-between transition-colors ${
         isActive 
-          ? 'bg-purple-500/20 text-purple-500' 
-          : 'text-gray-500 hover:bg-gray-500/10 hover:text-gray-700'
+          ? 'bg-ey-yellow/20 text-ey-yellow' 
+          : 'text-gray-400 hover:bg-gray-700/30 hover:text-gray-200'
       }`}
     >
       <div className="flex items-center">
@@ -75,7 +75,7 @@ const AgentItem: React.FC<AgentItemProps> = ({
       {!isCollapsed && (
         <button
           onClick={handleDelete}
-          className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-100 hover:text-red-500"
+          className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 rounded-full hover:bg-red-500/20 hover:text-red-500"
           aria-label={`Delete ${name}`}
         >
           <Trash className="h-4 w-4" />

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChevronLeft, ChevronRight, BrainCircuit, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BrainCircuit } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -20,14 +20,14 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({ isCollapsed, toggleSideba
     <div className="p-4 flex items-center justify-between border-b border-gray-200/20">
       {!isCollapsed && (
         <Link to="/" className="flex items-center">
-          <BrainCircuit className="h-6 w-6 text-purple-500" />
-          <span className="ml-2 font-bold text-white/90">EY Steel AI</span>
+          <BrainCircuit className="h-6 w-6 text-ey-yellow" />
+          <span className="ml-2 font-bold text-white/90">EY SECP</span>
         </Link>
       )}
       
       {isCollapsed && (
         <div className="w-full flex justify-center">
-          <BrainCircuit className="h-6 w-6 text-purple-500" />
+          <BrainCircuit className="h-6 w-6 text-ey-yellow" />
         </div>
       )}
       

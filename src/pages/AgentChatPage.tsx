@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { ArrowLeft, BrainCircuit, Zap, Activity } from 'lucide-react';
@@ -81,7 +82,7 @@ const AgentChatPage = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
-        <div data-main-content className="ml-64 p-8 transition-all duration-300">
+        <div data-main-content className="ml-[256px] p-8 transition-all duration-300">
           <div className="flex justify-center items-center h-[60vh]">
             <div className="animate-spin h-12 w-12 rounded-full border-4 border-purple-500 border-t-transparent"></div>
           </div>
@@ -94,12 +95,12 @@ const AgentChatPage = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
-        <div data-main-content className="ml-64 p-8 transition-all duration-300">
+        <div data-main-content className="ml-[256px] p-8 transition-all duration-300">
           <div className="flex flex-col justify-center items-center h-[60vh]">
             <h2 className="text-2xl font-bold text-ey-darkGray mb-4">Agent Not Found</h2>
             <p className="text-ey-lightGray mb-6">The requested AI agent could not be found or has been deactivated.</p>
             <Link to="/agents">
-              <button className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">
+              <button className="bg-ey-yellow text-ey-black px-4 py-2 rounded-md hover:bg-ey-yellow/90">
                 View All Agents
               </button>
             </Link>
@@ -113,7 +114,7 @@ const AgentChatPage = () => {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       
-      <div data-main-content className="ml-64 p-8 transition-all duration-300">
+      <div data-main-content className="ml-[256px] p-8 transition-all duration-300">
         <Header 
           pageTitle={`AI Agent: ${agent?.name}`}
           breadcrumbs={[
@@ -126,10 +127,10 @@ const AgentChatPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="col-span-2">
             <Card className="h-full">
-              <CardHeader className="pb-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-lg">
+              <CardHeader className="pb-4 bg-gradient-to-r from-[#161B2E] to-[#2E2E38] text-white rounded-t-lg">
                 <div className="flex items-center">
                   <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
-                    <BrainCircuit className="h-6 w-6 text-white" />
+                    <BrainCircuit className="h-6 w-6 text-ey-yellow" />
                   </div>
                   <div>
                     <CardTitle className="text-xl font-bold">{agent?.name}</CardTitle>
@@ -153,7 +154,7 @@ const AgentChatPage = () => {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg font-bold flex items-center">
-                    <Activity className="h-5 w-5 text-purple-500 mr-2" />
+                    <Activity className="h-5 w-5 text-ey-yellow mr-2" />
                     Agent Analytics
                   </CardTitle>
                 </CardHeader>
@@ -184,7 +185,7 @@ const AgentChatPage = () => {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg font-bold flex items-center">
-                    <Zap className="h-5 w-5 text-yellow-500 mr-2" />
+                    <Zap className="h-5 w-5 text-ey-yellow mr-2" />
                     Agent Recommendations
                   </CardTitle>
                 </CardHeader>
@@ -197,7 +198,7 @@ const AgentChatPage = () => {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.1 }}
-                          className="bg-yellow-50 p-3 rounded-lg border-l-4 border-yellow-400"
+                          className="bg-yellow-50 p-3 rounded-lg border-l-4 border-ey-yellow"
                         >
                           <p className="text-sm text-ey-darkGray">{rec.description}</p>
                           <div className="flex items-center mt-1">

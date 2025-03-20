@@ -34,8 +34,8 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       to={to}
       className={`w-full p-3 rounded-md flex items-center justify-between transition-colors ${
         isActive 
-          ? 'bg-purple-500/20 text-purple-500' 
-          : 'text-gray-500 hover:bg-gray-500/10 hover:text-gray-700'
+          ? 'bg-ey-yellow/20 text-ey-yellow' 
+          : 'text-gray-400 hover:bg-gray-700/30 hover:text-gray-200'
       }`}
     >
       <div className="flex items-center">

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { 
   ChartBar, 
   BarChart3,
@@ -30,7 +30,7 @@ const Navigation: React.FC = () => {
 
   // Animation variants
   const sidebarVariants = {
-    expanded: { width: '240px' },
+    expanded: { width: '256px' },
     collapsed: { width: '70px' }
   };
 
@@ -40,7 +40,7 @@ const Navigation: React.FC = () => {
       animate={isCollapsed ? 'collapsed' : 'expanded'}
       variants={sidebarVariants}
       transition={{ duration: 0.3 }}
-      className="h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white flex flex-col border-r border-gray-700/50 shadow-xl"
+      className="fixed left-0 top-0 z-20 h-screen bg-gradient-to-b from-[#161B2E] to-[#2E2E38] text-white flex flex-col border-r border-gray-700/50 shadow-xl"
     >
       <SidebarHeader isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
       
@@ -48,7 +48,7 @@ const Navigation: React.FC = () => {
         {/* Agents Section */}
         <SidebarDropdown 
           title="Your Agents" 
-          icon={<BrainCircuit className="h-5 w-5 text-purple-400" />} 
+          icon={<BrainCircuit className="h-5 w-5 text-ey-yellow" />} 
           isCollapsed={isCollapsed}
           isActive={location.pathname.includes('/agent/')}
         >
