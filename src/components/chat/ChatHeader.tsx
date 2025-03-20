@@ -24,6 +24,13 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   toggleSidebar,
   showSidebar
 }) => {
+  const handleFullscreenClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log("Fullscreen button clicked, current state:", isFullscreen);
+    toggleFullscreen();
+  };
+
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-100">
       <div className="flex items-center">
@@ -58,7 +65,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         </button>
         
         <button 
-          onClick={toggleFullscreen} 
+          onClick={handleFullscreenClick} 
           className="text-gray-500 hover:text-indigo-600 transition-colors"
           title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
           aria-label={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}

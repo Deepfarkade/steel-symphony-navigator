@@ -28,7 +28,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(propIsOpen || false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [localFullscreen, setLocalFullscreen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,10 +36,6 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       setIsDrawerOpen(propIsOpen);
     }
   }, [propIsOpen]);
-
-  const handleFullscreenToggle = () => {
-    setIsFullscreen(prev => !prev);
-  };
 
   const handleOpenChange = (open: boolean) => {
     setIsDrawerOpen(open);
@@ -54,8 +50,8 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       handleOpenChange(false);
     }
     
-    if (isFullscreen) {
-      setIsFullscreen(false);
+    if (localFullscreen) {
+      setLocalFullscreen(false);
     }
     
     if (agentId) {
@@ -68,8 +64,8 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   };
 
   const handleClose = () => {
-    if (isFullscreen) {
-      setIsFullscreen(false);
+    if (localFullscreen) {
+      setLocalFullscreen(false);
     } else {
       handleOpenChange(false);
     }
@@ -86,15 +82,28 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       toggleFullscreen
     } = useChatSession(moduleContext, agentId);
 
-    // Sync local state with hook state
-    useEffect(() => {
-      setIsFullscreen(fullscreen);
-    }, [fullscreen]);
-
     // Sync hook state with local state
     useEffect(() => {
-      setFullscreen(isFullscreen);
-    }, [isFullscreen, setFullscreen]);
+      setLocalFullscreen(fullscreen);
+    }, [fullscreen]);
+
+    // Sync local state with hook state
+    useEffect(() => {
+      setFullscreen(localFullscreen);
+    }, [localFullscreen, setFullscreen]);
+
+    const handleFullscreenToggle = () => {
+      console.log("Toggling fullscreen in AiChatInterface");
+      const newState = !localFullscreen;
+      setLocalFullscreen(newState);
+      // Only update the hook state if using the drawer
+      if (floating) {
+        // If we're going fullscreen, close the drawer
+        if (newState) {
+          handleOpenChange(false);
+        }
+      }
+    };
 
     return (
       <ChatWindow
@@ -102,7 +111,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
         isLoading={isLoading}
         onSendMessage={handleSendMessage}
         agentId={agentId}
-        isFullscreen={isFullscreen}
+        isFullscreen={localFullscreen}
         toggleFullscreen={handleFullscreenToggle}
         handleClose={handleClose}
         navigateToChat={navigateToChat}
@@ -116,7 +125,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   if (!floating) {
     return (
       <ChatProvider moduleContext={moduleContext} agentId={agentId}>
-        <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-white' : 'w-full h-full'}`}>
+        <div className={`${localFullscreen ? 'fixed inset-0 z-50 bg-white' : 'w-full h-full'}`}>
           <ChatInterface />
         </div>
       </ChatProvider>
@@ -137,7 +146,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
         </Button>
       )}
 
-      {isFullscreen ? (
+      {localFullscreen ? (
         <div className="fixed inset-0 z-50 bg-white">
           <ChatProvider moduleContext={moduleContext} agentId={agentId}>
             <ChatInterface />

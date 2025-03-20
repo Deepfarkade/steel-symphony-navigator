@@ -31,7 +31,10 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
       },
       fullscreen,
       setFullscreen,
-      toggleFullscreen: () => setFullscreen(prev => !prev)
+      toggleFullscreen: () => {
+        console.log("Toggling fullscreen:", !fullscreen);
+        setFullscreen(!fullscreen);
+      }
     };
   }
   
@@ -54,6 +57,7 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
   };
 
   const toggleFullscreen = () => {
+    console.log("Toggling fullscreen from", fullscreen, "to", !fullscreen);
     setFullscreen(prev => !prev);
   };
 
