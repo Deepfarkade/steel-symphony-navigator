@@ -2,7 +2,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BrainCog } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import AiAgentCard from '../AiAgentCard';
 
 interface MarketplaceAgentsListProps {
@@ -18,8 +17,6 @@ const MarketplaceAgentsList: React.FC<MarketplaceAgentsListProps> = ({
   onDeployAgent,
   deployingAgent
 }) => {
-  const navigate = useNavigate();
-  
   // Immediate filter rendering for better performance
   const filteredAgents = agents.filter(agent => 
     agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -38,7 +35,7 @@ const MarketplaceAgentsList: React.FC<MarketplaceAgentsListProps> = ({
     );
   }
   
-  // Enhanced rendering with staggered animations for better perceived performance
+  // Enhanced rendering with performance optimizations
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {filteredAgents.map((agent, index) => (

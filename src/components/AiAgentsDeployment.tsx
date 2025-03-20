@@ -1,149 +1,17 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BrainCircuit, Sparkles, Loader, Trash } from 'lucide-react';
+import { BrainCircuit, Sparkles, Loader2, Trash } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from 'react-router-dom';
 import AiAgentCard from './AiAgentCard';
-import { addAgentToUser } from '@/services/dataService';
+import { getAvailableAgents, addAgentToUser } from '@/services/dataService';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useAgents } from '@/hooks/useAgents';
-
-// Use the same mock agents as the marketplace for consistency
-const mockAvailableAgents = [
-  {
-    id: 1,
-    name: "Production Intelligence",
-    description: "Monitors production lines and predicts maintenance needs",
-    status: "active" as const,
-    confidence: 98,
-    icon: "bar-chart"
-  },
-  {
-    id: 2,
-    name: "Supply Chain Optimizer",
-    description: "Analyzes supply chain for bottlenecks and efficiency improvements",
-    status: "active" as const,
-    confidence: 92,
-    icon: "truck"
-  },
-  {
-    id: 3,
-    name: "Energy Consumption Analyzer",
-    description: "Tracks energy usage and recommends optimization strategies",
-    status: "active" as const,
-    confidence: 94,
-    icon: "zap"
-  },
-  {
-    id: 4,
-    name: "Sustainability Monitor",
-    description: "Monitors environmental impact and suggests improvements",
-    status: "active" as const,
-    confidence: 89,
-    icon: "globe"
-  },
-  {
-    id: 5,
-    name: "Crisis Management AI",
-    description: "Detects potential crises and suggests mitigation strategies",
-    status: "active" as const,
-    confidence: 91,
-    icon: "alert-triangle"
-  },
-  {
-    id: 6,
-    name: "What-If Scenarios Analyzer",
-    description: "Simulates various business scenarios and predicts outcomes",
-    status: "active" as const,
-    confidence: 87,
-    icon: "lightbulb"
-  },
-  {
-    id: 7,
-    name: "Predictive Maintenance AI",
-    description: "Predicts equipment failures before they occur",
-    status: "active" as const,
-    confidence: 95,
-    icon: "tool"
-  },
-  {
-    id: 8,
-    name: "Quality Control Monitor",
-    description: "Analyzes product quality and identifies improvement areas",
-    status: "active" as const,
-    confidence: 93,
-    icon: "check-circle"
-  },
-  {
-    id: 9,
-    name: "Market Trend Analyzer",
-    description: "Identifies steel market trends and predicts price movements",
-    status: "active" as const,
-    confidence: 88,
-    icon: "trending-up"
-  },
-  {
-    id: 10,
-    name: "Carbon Footprint Tracker",
-    description: "Monitors carbon emissions and suggests reduction strategies",
-    status: "active" as const,
-    confidence: 90,
-    icon: "leaf"
-  },
-  {
-    id: 11,
-    name: "Logistics Optimization AI",
-    description: "Optimizes logistics routes and reduces transportation costs",
-    status: "active" as const,
-    confidence: 92,
-    icon: "map"
-  },
-  {
-    id: 12,
-    name: "Inventory Management AI",
-    description: "Optimizes inventory levels to reduce costs",
-    status: "active" as const,
-    confidence: 94,
-    icon: "package"
-  },
-  {
-    id: 13,
-    name: "Demand Forecasting AI",
-    description: "Forecasts customer demand for better production planning",
-    status: "active" as const,
-    confidence: 91,
-    icon: "bar-chart-2"
-  },
-  {
-    id: 14,
-    name: "Safety Compliance Monitor",
-    description: "Ensures compliance with safety regulations and standards",
-    status: "active" as const,
-    confidence: 96,
-    icon: "shield"
-  },
-  {
-    id: 15,
-    name: "Employee Performance Optimizer",
-    description: "Analyzes worker productivity and suggests improvements",
-    status: "active" as const,
-    confidence: 88,
-    icon: "users"
-  },
-  {
-    id: 16,
-    name: "Equipment Efficiency Analyzer",
-    description: "Monitors equipment performance and suggests optimizations",
-    status: "active" as const,
-    confidence: 93,
-    icon: "settings"
-  }
-];
 
 const AiAgentsDeployment = () => {
   const [open, setOpen] = useState(false);
@@ -151,30 +19,39 @@ const AiAgentsDeployment = () => {
   const [deployingAgent, setDeployingAgent] = useState<number | null>(null);
   const [selectedAgentToRemove, setSelectedAgentToRemove] = useState<any | null>(null);
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { agents, refreshAgents, deleteAgent } = useAgents();
 
-  // Pre-filter the available agents for immediate display
-  const filteredAvailableAgents = useMemo(() => {
-    const userAgentIds = agents.map(agent => agent.id);
-    return mockAvailableAgents.filter(agent => !userAgentIds.includes(agent.id));
-  }, [agents]);
-
-  // Set filtered agents immediately when dialog opens
+  // Fetch available agents when the dialog opens or user agents change
   useEffect(() => {
     if (open) {
-      setAvailableAgents(filteredAvailableAgents);
+      fetchAvailableAgents();
     }
-  }, [open, filteredAvailableAgents]);
+  }, [open, agents]);
 
-  // Simpler deployment function that uses the same route as the marketplace page
+  const fetchAvailableAgents = async () => {
+    if (!open) return;
+    
+    setLoading(true);
+    try {
+      const data = await getAvailableAgents();
+      setAvailableAgents(data);
+    } catch (error) {
+      console.error('Error fetching available agents:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const goToMarketplace = () => {
     setOpen(false);
     navigate('/agents');
   };
 
   const deployAgent = async (id: number) => {
+    // Check if the agent is already deployed
     const isAlreadyDeployed = agents.some(agent => agent.id === id);
     
     if (isAlreadyDeployed) {
@@ -188,41 +65,25 @@ const AiAgentsDeployment = () => {
     try {
       await addAgentToUser(id);
       
+      // Refresh user's agents and available agents
+      await refreshAgents();
+      await fetchAvailableAgents();
+      
       toast({
         title: "Agent deployed successfully",
         description: `The AI agent is now active and analyzing your steel operations data.`,
       });
-      
-      // Add the agent to the user's list immediately for better UX
-      refreshAgents();
-      setAvailableAgents(prev => prev.filter(agent => agent.id !== id));
       
       // Navigate to the newly added agent
       navigate(`/agent/${id}`);
       setOpen(false);
     } catch (error) {
       console.error('Error deploying agent:', error);
-      
-      // Add the agent to the user's list anyway for demo purposes
-      const agentToAdd = availableAgents.find(agent => agent.id === id);
-      if (agentToAdd) {
-        refreshAgents();
-        setAvailableAgents(prev => prev.filter(agent => agent.id !== id));
-        
-        toast({
-          title: "Agent deployed successfully",
-          description: `The AI agent is now active and analyzing your steel operations data.`,
-        });
-        
-        navigate(`/agent/${id}`);
-        setOpen(false);
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Deployment failed",
-          description: "Failed to deploy the agent. Please try again."
-        });
-      }
+      toast({
+        variant: "destructive",
+        title: "Deployment failed",
+        description: "Failed to deploy the agent. Please try again."
+      });
     } finally {
       setDeployingAgent(null);
     }
@@ -236,15 +97,28 @@ const AiAgentsDeployment = () => {
   const confirmRemoveAgent = async () => {
     if (!selectedAgentToRemove) return;
     
-    await deleteAgent(selectedAgentToRemove.id);
-    
-    // If on the agent page, redirect to agents page
-    if (window.location.pathname === `/agent/${selectedAgentToRemove.id}`) {
-      navigate('/agents');
+    try {
+      await deleteAgent(selectedAgentToRemove.id);
+      
+      // Refresh both lists after deletion
+      await refreshAgents();
+      await fetchAvailableAgents();
+      
+      // If on the agent page, redirect to agents page
+      if (window.location.pathname === `/agent/${selectedAgentToRemove.id}`) {
+        navigate('/agents');
+      }
+      
+      setShowRemoveDialog(false);
+      setSelectedAgentToRemove(null);
+    } catch (error) {
+      console.error('Error removing agent:', error);
+      toast({
+        variant: "destructive",
+        title: "Removal failed",
+        description: "Failed to remove the agent. Please try again."
+      });
     }
-    
-    setShowRemoveDialog(false);
-    setSelectedAgentToRemove(null);
   };
 
   return (
@@ -317,7 +191,15 @@ const AiAgentsDeployment = () => {
                 <Badge className="bg-purple-500 text-white">Marketplace</Badge>
               </div>
               
-              {availableAgents.length > 0 ? (
+              {loading ? (
+                <div className="bg-white/10 rounded-lg p-6 text-center">
+                  <Loader2 className="h-10 w-10 mx-auto mb-4 text-white/50 animate-spin" />
+                  <h4 className="text-lg font-medium mb-2">Loading Agents</h4>
+                  <p className="text-white/70">
+                    Please wait while we fetch available AI agents...
+                  </p>
+                </div>
+              ) : availableAgents.length > 0 ? (
                 <motion.div 
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
                   initial="hidden"

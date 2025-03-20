@@ -71,8 +71,11 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
     }
   };
 
-  // Handle click without preventing navigation
-  const handleActivateClick = () => {
+  // Handle click with proper event isolation
+  const handleActivateClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (onActivate) {
       onActivate(id);
     }
@@ -93,6 +96,7 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
             <TooltipTrigger asChild>
               <button 
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   onRemove(id);
                 }}

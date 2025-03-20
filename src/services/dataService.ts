@@ -1,4 +1,3 @@
-
 import { faker } from '@faker-js/faker';
 
 // Helper function for simulating API delay
@@ -197,8 +196,8 @@ export const getChatMessages = async (module?: string) => {
   return messages;
 };
 
-// Mock AI agent data
-let userAgents = [
+// All available agents (full marketplace)
+const allAvailableAgents = [
   {
     id: 101,
     name: 'Supply Chain Optimizer',
@@ -255,7 +254,7 @@ let userAgents = [
     lastUpdated: '2023-10-15'
   },
   {
-    id: 401,
+    id: 106,
     name: 'What-If Scenarios Analyzer',
     description: 'Runs simulations on different business scenarios to provide insights on potential outcomes',
     status: 'active' as 'active' | 'learning' | 'inactive',
@@ -264,76 +263,135 @@ let userAgents = [
     compatibility: 'high',
     type: 'strategic',
     lastUpdated: '2023-11-10'
+  },
+  {
+    id: 107,
+    name: 'Predictive Maintenance AI',
+    description: 'Predicts equipment failures and optimizes maintenance schedules',
+    status: 'active' as 'active' | 'learning' | 'inactive',
+    icon: 'tool',
+    confidence: 88,
+    compatibility: 'high',
+    type: 'operational',
+    lastUpdated: '2023-11-15'
+  },
+  {
+    id: 108,
+    name: 'Logistics Optimization AI',
+    description: 'Optimizes logistics and transportation routes for cost savings',
+    status: 'active' as 'active' | 'learning' | 'inactive',
+    icon: 'truck',
+    confidence: 91,
+    compatibility: 'high',
+    type: 'operational',
+    lastUpdated: '2023-11-20'
+  },
+  {
+    id: 109,
+    name: 'Demand Forecasting AI',
+    description: 'Predicts future demand for steel products',
+    status: 'active' as 'active' | 'learning' | 'inactive',
+    icon: 'bar-chart-2',
+    confidence: 93,
+    compatibility: 'high',
+    type: 'analytical',
+    lastUpdated: '2023-11-25'
+  },
+  {
+    id: 110,
+    name: 'Risk Management AI',
+    description: 'Identifies and assesses potential risks in the steel manufacturing process',
+    status: 'active' as 'active' | 'learning' | 'inactive',
+    icon: 'alert-triangle',
+    confidence: 89,
+    compatibility: 'high',
+    type: 'strategic',
+    lastUpdated: '2023-11-30'
+  },
+  {
+    id: 111,
+    name: 'Quality Control Monitor',
+    description: 'Analyzes product quality and identifies improvement areas',
+    status: 'active' as 'active' | 'learning' | 'inactive',
+    icon: 'check-circle',
+    confidence: 93,
+    compatibility: 'high',
+    type: 'operational',
+    lastUpdated: '2023-12-05'
+  },
+  {
+    id: 112,
+    name: 'Market Trend Analyzer',
+    description: 'Identifies steel market trends and predicts price movements',
+    status: 'active' as 'active' | 'learning' | 'inactive',
+    icon: 'trending-up',
+    confidence: 88,
+    compatibility: 'medium',
+    type: 'analytical',
+    lastUpdated: '2023-12-10'
+  },
+  {
+    id: 113,
+    name: 'Carbon Footprint Tracker',
+    description: 'Monitors carbon emissions and suggests reduction strategies',
+    status: 'active' as 'active' | 'learning' | 'inactive',
+    icon: 'leaf',
+    confidence: 90,
+    compatibility: 'high',
+    type: 'sustainability',
+    lastUpdated: '2023-12-15'
+  },
+  {
+    id: 114,
+    name: 'Inventory Management AI',
+    description: 'Optimizes inventory levels to reduce costs',
+    status: 'active' as 'active' | 'learning' | 'inactive',
+    icon: 'package',
+    confidence: 94,
+    compatibility: 'high',
+    type: 'operational',
+    lastUpdated: '2023-12-20'
+  },
+  {
+    id: 115,
+    name: 'Employee Performance Optimizer',
+    description: 'Analyzes worker productivity and suggests improvements',
+    status: 'active' as 'active' | 'learning' | 'inactive',
+    icon: 'users',
+    confidence: 88,
+    compatibility: 'medium',
+    type: 'hr',
+    lastUpdated: '2023-12-25'
+  },
+  {
+    id: 116,
+    name: 'Equipment Efficiency Analyzer',
+    description: 'Monitors equipment performance and suggests optimizations',
+    status: 'active' as 'active' | 'learning' | 'inactive',
+    icon: 'settings',
+    confidence: 93,
+    compatibility: 'high',
+    type: 'operational',
+    lastUpdated: '2023-12-30'
   }
 ];
 
-// Mock available agents
+// User's currently deployed agents (tracked in memory for demo)
+let userAgents: any[] = [];
+
+// Function to get available agents (all agents not currently deployed by the user)
 export const getAvailableAgents = async () => {
   await apiDelay();
   
-  return [
-    {
-      id: 401,
-      name: 'What-If Scenarios Analyzer',
-      description: 'Runs simulations on different business scenarios to provide insights on potential outcomes',
-      status: 'active' as 'active' | 'learning' | 'inactive',
-      icon: 'lightbulb',
-      confidence: 92,
-      compatibility: 'high',
-      type: 'strategic',
-      lastUpdated: '2023-11-10'
-    },
-    {
-      id: 402,
-      name: 'Predictive Maintenance AI',
-      description: 'Predicts equipment failures and optimizes maintenance schedules',
-      status: 'active' as 'active' | 'learning' | 'inactive',
-      icon: 'tool',
-      confidence: 88,
-      compatibility: 'high',
-      type: 'operational',
-      lastUpdated: '2023-11-15'
-    },
-    {
-      id: 403,
-      name: 'Logistics Optimization AI',
-      description: 'Optimizes logistics and transportation routes for cost savings',
-      status: 'active' as 'active' | 'learning' | 'inactive',
-      icon: 'truck',
-      confidence: 91,
-      compatibility: 'high',
-      type: 'operational',
-      lastUpdated: '2023-11-20'
-    },
-    {
-      id: 404,
-      name: 'Demand Forecasting AI',
-      description: 'Predicts future demand for steel products',
-      status: 'active' as 'active' | 'learning' | 'inactive',
-      icon: 'bar-chart-2',
-      confidence: 93,
-      compatibility: 'high',
-      type: 'analytical',
-      lastUpdated: '2023-11-25'
-    },
-    {
-      id: 405,
-      name: 'Risk Management AI',
-      description: 'Identifies and assesses potential risks in the steel manufacturing process',
-      status: 'active' as 'active' | 'learning' | 'inactive',
-      icon: 'alert-triangle',
-      confidence: 89,
-      compatibility: 'high',
-      type: 'strategic',
-      lastUpdated: '2023-11-30'
-    }
-  ];
+  // Get all agents that are not currently deployed by the user
+  const userAgentIds = userAgents.map(agent => agent.id);
+  return allAvailableAgents.filter(agent => !userAgentIds.includes(agent.id));
 };
 
 // Function to get AI agents for the current user
 export const getAiAgents = async () => {
   await apiDelay();
-  return userAgents;
+  return [...userAgents]; // Return a copy to prevent unintended mutations
 };
 
 // Function to add an AI agent to the current user
@@ -344,7 +402,10 @@ export const addAgentToUser = async (agentId: number) => {
   const agentToAdd = availableAgents.find(agent => agent.id === agentId);
   
   if (agentToAdd) {
-    userAgents.push(agentToAdd);
+    // Add to user's agents only if not already there
+    if (!userAgents.some(a => a.id === agentId)) {
+      userAgents.push({...agentToAdd});
+    }
     return true;
   }
   
@@ -355,6 +416,7 @@ export const addAgentToUser = async (agentId: number) => {
 export const removeAgentFromUser = async (agentId: number) => {
   await apiDelay();
   
+  // Remove from user's agents
   userAgents = userAgents.filter(agent => agent.id !== agentId);
   return true;
 };
@@ -467,8 +529,6 @@ export const getLatestNews = async () => {
   ];
 };
 
-// Added missing functions
-
 // Function to get AI insights
 export const getAiInsights = async () => {
   await apiDelay();
@@ -549,16 +609,15 @@ export const getKpiData = async () => {
 export const getAgentById = async (agentId: number) => {
   await apiDelay();
   
-  const agents = await getAiAgents();
-  const agent = agents.find(a => a.id === agentId);
-  
-  if (!agent) {
-    // Check available agents too
-    const availableAgents = await getAvailableAgents();
-    return availableAgents.find(a => a.id === agentId);
+  // First check user's deployed agents
+  const userAgent = userAgents.find(a => a.id === agentId);
+  if (userAgent) {
+    return {...userAgent};
   }
   
-  return agent;
+  // If not found, check available agents
+  const availableAgent = allAvailableAgents.find(a => a.id === agentId);
+  return availableAgent ? {...availableAgent} : null;
 };
 
 // Function to get agent analytics
