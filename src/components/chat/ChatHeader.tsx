@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrainCircuit, Maximize2, Minimize2, X, Sparkles } from 'lucide-react';
+import { BrainCircuit, Maximize2, Minimize2, X, Sparkles, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ChatHeaderProps {
@@ -10,6 +10,8 @@ interface ChatHeaderProps {
   handleClose: () => void;
   navigateToChat: () => void;
   floating?: boolean;
+  toggleSidebar?: () => void;
+  showSidebar?: boolean;
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ 
@@ -18,11 +20,21 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   toggleFullscreen,
   handleClose,
   navigateToChat,
-  floating = false
+  floating = false,
+  toggleSidebar,
+  showSidebar
 }) => {
   return (
     <div className="flex items-center justify-between mb-4 p-4 border-b border-gray-100">
       <div className="flex items-center">
+        {toggleSidebar && (
+          <button 
+            onClick={toggleSidebar} 
+            className="mr-2 text-ey-lightGray hover:text-ey-darkGray"
+          >
+            <Menu size={18} />
+          </button>
+        )}
         <BrainCircuit className="h-5 w-5 text-indigo-600 mr-2" />
         <h2 className="text-xl font-bold text-ey-darkGray">
           {agentId ? `Agent #${agentId}` : 'EY SECP'}

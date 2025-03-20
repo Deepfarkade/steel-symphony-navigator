@@ -23,6 +23,11 @@ interface ChatMessage {
   timestamp: Date;
 }
 
+interface ChatSession {
+  id: string;
+  messages: ChatMessage[];
+}
+
 const AiChatInterface: React.FC<AiChatInterfaceProps> = ({ 
   moduleContext, 
   floating = false, 
@@ -31,15 +36,17 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   onOpenChange,
   disableFloatingButton = false
 }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
+  const [chatSessions, setChatSessions] = useState<Record<string, ChatMessage[]>>({
+    'default': [{
       text: agentId 
         ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
         : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${moduleContext || 'operations'} today?`,
       isUser: false,
       timestamp: new Date()
-    }
-  ]);
+    }]
+  });
+  
+  const [currentSessionId, setCurrentSessionId] = useState<string>('default');
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(propIsOpen || false);
@@ -58,11 +65,20 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
 
     const unsubscribeChatMessages = websocketService.onMessage(`chat${moduleContext ? `-${moduleContext}` : agentId ? `-agent-${agentId}` : ''}`, (payload: any) => {
       if (!payload.isUser) {
-        setMessages(prev => [...prev, {
-          text: payload.text,
-          isUser: false,
-          timestamp: new Date(payload.timestamp)
-        }]);
+        setChatSessions(prev => {
+          const sessionId = payload.sessionId || currentSessionId;
+          const sessionMessages = prev[sessionId] || [];
+          
+          return {
+            ...prev,
+            [sessionId]: [...sessionMessages, {
+              text: payload.text,
+              isUser: false,
+              timestamp: new Date(payload.timestamp)
+            }]
+          };
+        });
+        
         setIsLoading(false);
       }
     });
@@ -78,19 +94,28 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       unsubscribeChatMessages();
       unsubscribeConnect();
     };
-  }, [toast, moduleContext, agentId]);
+  }, [toast, moduleContext, agentId, currentSessionId]);
 
-  const handleSendMessage = (inputText: string) => {
+  const handleSendMessage = (inputText: string, sessionId?: string) => {
+    const targetSessionId = sessionId || currentSessionId;
+    
     const userMessage = {
       text: inputText,
       isUser: true,
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setChatSessions(prev => {
+      const sessionMessages = prev[targetSessionId] || [];
+      return {
+        ...prev,
+        [targetSessionId]: [...sessionMessages, userMessage]
+      };
+    });
+    
     setIsLoading(true);
 
-    if (messages.length <= 1 && !isFullscreen) {
+    if (Object.keys(chatSessions).length <= 1 && !isFullscreen) {
       setIsFullscreen(true);
     }
 
@@ -98,6 +123,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       text: inputText,
       moduleContext,
       agentId,
+      sessionId: targetSessionId,
       timestamp: new Date().toISOString(),
       isUser: true
     });
@@ -136,12 +162,15 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     }
   };
 
+  // Get current session messages
+  const currentMessages = chatSessions[currentSessionId] || [];
+
   // Render chat window directly if not floating
   if (!floating) {
     return isFullscreen ? (
       <div className="fixed inset-0 z-50 bg-white">
         <ChatWindow
-          messages={messages}
+          messages={currentMessages}
           isLoading={isLoading}
           onSendMessage={handleSendMessage}
           agentId={agentId}
@@ -155,7 +184,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       </div>
     ) : (
       <ChatWindow
-        messages={messages}
+        messages={currentMessages}
         isLoading={isLoading}
         onSendMessage={handleSendMessage}
         agentId={agentId}
@@ -187,7 +216,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       )}
       <DrawerContent className={`p-0 max-h-[90vh] ${isFullscreen ? 'h-screen w-screen max-w-full' : ''}`}>
         <ChatWindow
-          messages={messages}
+          messages={currentMessages}
           isLoading={isLoading}
           onSendMessage={handleSendMessage}
           agentId={agentId}
