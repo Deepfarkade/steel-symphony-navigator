@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Header from '@/components/Header';
 import AiChatInterface from '@/components/AiChatInterface';
@@ -8,10 +8,35 @@ import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 
 const GlobalChatPage = () => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
+  useEffect(() => {
+    const handleSidebarChange = (event: CustomEvent) => {
+      const { isCollapsed } = event.detail;
+      setSidebarCollapsed(isCollapsed);
+    };
+
+    // Add event listener for sidebar state change
+    document.addEventListener('sidebar-state-changed', handleSidebarChange as EventListener);
+    
+    // Check if sidebar is already collapsed on mount
+    const currentState = document.body.getAttribute('data-sidebar-collapsed');
+    if (currentState === 'true') {
+      setSidebarCollapsed(true);
+    }
+    
+    return () => {
+      document.removeEventListener('sidebar-state-changed', handleSidebarChange as EventListener);
+    };
+  }, []);
+  
   return (
     <div className="w-full min-h-screen bg-gray-50 dark:bg-ey-black/90">
       <Navigation />
-      <div data-main-content className="ml-64 p-8">
+      <div 
+        data-main-content 
+        className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-[70px]' : 'ml-64'} p-8`}
+      >
         <Header pageTitle="EY Steel Co-Pilot Chat" />
         
         <motion.div

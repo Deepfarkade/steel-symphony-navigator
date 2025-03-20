@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Bell, Search, User, X, Brain } from 'lucide-react';
+import { Bell, Search, User, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import {
   Dialog,
@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 interface Breadcrumb {
   label: string;
@@ -40,7 +40,6 @@ const Header: React.FC<HeaderProps> = ({ pageTitle, breadcrumbs, showCoPilotButt
     { id: 3, title: "Energy efficiency improved by 15%", time: "3 hours ago", read: true },
     { id: 4, title: "Weekly report generated", time: "Yesterday", read: true },
   ]);
-  const navigate = useNavigate();
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -61,10 +60,6 @@ const Header: React.FC<HeaderProps> = ({ pageTitle, breadcrumbs, showCoPilotButt
     if (user.firstName) return user.firstName;
     if (user.lastName) return user.lastName;
     return user.email.split('@')[0];
-  };
-
-  const handleAskCoPilot = () => {
-    navigate('/chat');
   };
 
   return (
@@ -102,17 +97,6 @@ const Header: React.FC<HeaderProps> = ({ pageTitle, breadcrumbs, showCoPilotButt
       </div>
       
       <div className="flex items-center space-x-4">
-        {/* Ask Co-Pilot Button */}
-        {showCoPilotButton && (
-          <Button 
-            className="bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-md" 
-            onClick={handleAskCoPilot}
-          >
-            <Brain className="h-4 w-4 mr-2" />
-            <span>Ask Co-Pilot</span>
-          </Button>
-        )}
-
         {/* Search */}
         <div className="relative">
           <input 

@@ -16,6 +16,27 @@ interface ModuleChatParams {
 const ModuleChatPage = () => {
   const { module } = useParams<ModuleChatParams>();
   const [moduleName, setModuleName] = useState('');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
+  useEffect(() => {
+    const handleSidebarChange = (event: CustomEvent) => {
+      const { isCollapsed } = event.detail;
+      setSidebarCollapsed(isCollapsed);
+    };
+
+    // Add event listener for sidebar state change
+    document.addEventListener('sidebar-state-changed', handleSidebarChange as EventListener);
+    
+    // Check if sidebar is already collapsed on mount
+    const currentState = document.body.getAttribute('data-sidebar-collapsed');
+    if (currentState === 'true') {
+      setSidebarCollapsed(true);
+    }
+    
+    return () => {
+      document.removeEventListener('sidebar-state-changed', handleSidebarChange as EventListener);
+    };
+  }, []);
   
   useEffect(() => {
     if (module) {
@@ -33,7 +54,10 @@ const ModuleChatPage = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-ey-black/90">
       <Navigation />
       
-      <div data-main-content className="ml-64 p-8 transition-all duration-300">
+      <div 
+        data-main-content 
+        className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-[70px]' : 'ml-64'} p-8`}
+      >
         <Header 
           pageTitle={`${moduleName || 'Module'} AI Assistant`}
           breadcrumbs={[

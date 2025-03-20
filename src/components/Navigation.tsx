@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
@@ -32,6 +31,9 @@ const Navigation: React.FC = () => {
     document.dispatchEvent(new CustomEvent('sidebar-state-changed', { 
       detail: { isCollapsed } 
     }));
+    
+    // Add a data attribute to the body element for easier CSS targeting
+    document.body.setAttribute('data-sidebar-collapsed', isCollapsed.toString());
   }, [isCollapsed]);
   
   const toggleSidebar = () => {

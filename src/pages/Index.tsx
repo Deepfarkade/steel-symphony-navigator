@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
@@ -107,6 +108,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
   const [aiAgentActive, setAiAgentActive] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -131,6 +133,20 @@ const Index = () => {
     }, 3000);
     
     return () => clearTimeout(timer);
+  }, []);
+  
+  useEffect(() => {
+    const handleSidebarChange = (event: CustomEvent) => {
+      const { isCollapsed } = event.detail;
+      setSidebarCollapsed(isCollapsed);
+    };
+
+    // Add event listener for sidebar state change
+    document.addEventListener('sidebar-state-changed', handleSidebarChange as EventListener);
+    
+    return () => {
+      document.removeEventListener('sidebar-state-changed', handleSidebarChange as EventListener);
+    };
   }, []);
   
   useEffect(() => {
@@ -179,9 +195,12 @@ const Index = () => {
     <div className="w-full min-h-screen bg-gray-50">
       <Navigation />
       
-      <div data-main-content className="ml-64 p-8 relative transition-all duration-300"> 
+      <div 
+        data-main-content 
+        className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-[70px]' : 'ml-64'} p-8 relative`}
+      > 
         <AiPulse />
-        <Header pageTitle={`Welcome, ${getUserDisplayName()}!`} showCoPilotButton={true} />
+        <Header pageTitle={`Welcome, ${getUserDisplayName()}!`} showCoPilotButton={false} />
         
         <AiIntroduction />
         
