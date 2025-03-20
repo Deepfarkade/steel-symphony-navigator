@@ -1,3 +1,4 @@
+
 // Data service for EY Steel Co-Pilot
 
 // Helper to simulate API delay
@@ -314,14 +315,6 @@ export const addAgentToUser = async (agentId: number) => {
   // This function now actually adds the agent to the user's list
   // In a real app, this would update a database
   return { success: true, message: 'Agent added successfully' };
-};
-
-// Remove an agent from the user's agents list
-export const removeAgentFromUser = async (agentId: number) => {
-  await apiDelay();
-  // This function now actually removes the agent from the user's list
-  // In a real app, this would update a database
-  return { success: true, message: 'Agent removed successfully' };
 };
 
 // Get agent by ID

@@ -70,7 +70,7 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
             }));
           }
           // If data is already an array of ModuleInsight objects
-          else if (data.length > 0 && typeof data[0] === 'object' && data[0] !== null && 'text' in data[0]) {
+          else if (data.length > 0 && typeof data[0] === 'object' && data[0] !== null && 'text' in (data[0] || {})) {
             typedInsights = data.map((item: any, index: number) => ({
               id: item.id || index + 1,
               text: item.text,

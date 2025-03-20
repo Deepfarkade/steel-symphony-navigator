@@ -55,8 +55,8 @@ const AgentChatPage = () => {
             } 
             else {
               // Convert string array to Recommendation objects
-              const stringArray = recommendationsData.filter((item): item is string => typeof item === 'string');
-              const formatted = stringArray.map((rec: string, index: number) => ({
+              const filteredStrings = recommendationsData.filter((item): item is string => typeof item === 'string');
+              const formatted = filteredStrings.map((rec: string, index: number) => ({
                 id: index + 1,
                 title: `Recommendation ${index + 1}`,
                 description: rec,

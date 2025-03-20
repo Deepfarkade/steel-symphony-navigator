@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Robot, BrainCircuit, Save, ArrowLeft, Plus, Upload, Sparkles } from 'lucide-react';
+import { Bot, BrainCircuit, Save, ArrowLeft, Plus, Upload, Sparkles } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import Header from '../components/Header';
 import { Button } from '@/components/ui/button';
