@@ -1,11 +1,36 @@
 import { faker } from '@faker-js/faker';
+import axios from 'axios';
+import { 
+  API_CONFIG, 
+  DATA_ENDPOINTS, 
+  AGENTS_ENDPOINTS,
+  RISK_ENDPOINTS 
+} from './apiConfig';
 
 // Helper function for simulating API delay
 const apiDelay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 300));
 
+/**
+ * IMPORTANT: This file currently uses mock data.
+ * TO CONNECT TO YOUR BACKEND:
+ * 1. Remove the apiDelay() calls
+ * 2. Replace the mock data returns with actual API calls using the endpoints in apiConfig.ts
+ * 3. Uncomment the axios implementation examples provided in each function
+ */
+
 // Mock KPI data
 export const getKpis = async () => {
   await apiDelay();
+  
+  // BACKEND INTEGRATION:
+  // Uncomment and replace the mock data when connecting to your backend
+  // return axios.get(DATA_ENDPOINTS.kpis, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   },
+  //   timeout: API_CONFIG.timeouts.default
+  // }).then(response => response.data);
   
   return [
     {
@@ -81,6 +106,15 @@ export const getKpis = async () => {
 export const getNotifications = async () => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // Uncomment and replace the mock data when connecting to your backend
+  // return axios.get(DATA_ENDPOINTS.notifications, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   return [
     {
       id: 1,
@@ -125,6 +159,14 @@ export const getNotifications = async () => {
 export const getProductionChartData = async () => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.productionData, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   return {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
@@ -141,6 +183,14 @@ export const getProductionChartData = async () => {
 
 export const getEnergyChartData = async () => {
   await apiDelay();
+  
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.energyData, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
   
   return {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -160,6 +210,14 @@ export const getEnergyChartData = async () => {
 export const getUserPreferences = async () => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.preferences, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   return {
     theme: 'light',
     language: 'en',
@@ -171,6 +229,14 @@ export const getUserPreferences = async () => {
 // Mock chat messages
 export const getChatMessages = async (module?: string) => {
   await apiDelay();
+  
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.chatMessages(module), {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
   
   const messages = [
     {
@@ -383,6 +449,14 @@ let userAgents: any[] = [];
 export const getAvailableAgents = async () => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.get(AGENTS_ENDPOINTS.available, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   // Get all agents that are not currently deployed by the user
   const userAgentIds = userAgents.map(agent => agent.id);
   return allAvailableAgents.filter(agent => !userAgentIds.includes(agent.id));
@@ -391,12 +465,29 @@ export const getAvailableAgents = async () => {
 // Function to get AI agents for the current user
 export const getAiAgents = async () => {
   await apiDelay();
+  
+  // BACKEND INTEGRATION:
+  // return axios.get(AGENTS_ENDPOINTS.deployed, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   return [...userAgents]; // Return a copy to prevent unintended mutations
 };
 
 // Function to add an AI agent to the current user
 export const addAgentToUser = async (agentId: number) => {
   await apiDelay();
+  
+  // BACKEND INTEGRATION:
+  // return axios.post(AGENTS_ENDPOINTS.add, { agentId }, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
   
   const availableAgents = await getAvailableAgents();
   const agentToAdd = availableAgents.find(agent => agent.id === agentId);
@@ -416,6 +507,14 @@ export const addAgentToUser = async (agentId: number) => {
 export const removeAgentFromUser = async (agentId: number) => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.delete(AGENTS_ENDPOINTS.remove(agentId), {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   // Remove from user's agents
   userAgents = userAgents.filter(agent => agent.id !== agentId);
   return true;
@@ -424,6 +523,14 @@ export const removeAgentFromUser = async (agentId: number) => {
 // Mock module insights
 export const getModuleInsights = async (moduleName: string) => {
   await apiDelay();
+  
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.moduleInsights(moduleName), {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
   
   const insights = {
     'demand-planning': [
@@ -480,6 +587,14 @@ export const getModuleInsights = async (moduleName: string) => {
 export const getLatestNews = async () => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.latestNews, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   return [
     {
       id: 1,
@@ -533,6 +648,14 @@ export const getLatestNews = async () => {
 export const getAiInsights = async () => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.aiInsights, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   return [
     {
       id: 1,
@@ -565,6 +688,14 @@ export const getAiInsights = async () => {
 export const getProductionData = async () => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.productionData, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   return Array.from({ length: 30 }, (_, i) => ({
     name: `Day ${i+1}`,
     value: faker.number.int({ min: 2000, max: 5000 })
@@ -575,6 +706,14 @@ export const getProductionData = async () => {
 export const getEnergyConsumptionData = async () => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.energyData, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   return Array.from({ length: 30 }, (_, i) => ({
     name: `Day ${i+1}`,
     value: faker.number.int({ min: 500, max: 1500 })
@@ -584,6 +723,14 @@ export const getEnergyConsumptionData = async () => {
 // Function to get KPI data
 export const getKpiData = async () => {
   await apiDelay();
+  
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.kpis, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
   
   return {
     productionYield: {
@@ -609,6 +756,14 @@ export const getKpiData = async () => {
 export const getAgentById = async (agentId: number) => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.get(AGENTS_ENDPOINTS.details(agentId), {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   // First check user's deployed agents
   const userAgent = userAgents.find(a => a.id === agentId);
   if (userAgent) {
@@ -624,6 +779,14 @@ export const getAgentById = async (agentId: number) => {
 export const getAgentAnalytics = async (agentId: number) => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.get(AGENTS_ENDPOINTS.analytics(agentId), {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   return {
     issuesResolved: faker.number.int({ min: 20, max: 150 }),
     avgResponseTime: faker.number.float({ min: 0.5, max: 5, fractionDigits: 1 }),
@@ -635,6 +798,14 @@ export const getAgentAnalytics = async (agentId: number) => {
 // Function to get agent recommendations
 export const getAgentRecommendations = async (agentId: number) => {
   await apiDelay();
+  
+  // BACKEND INTEGRATION:
+  // return axios.get(AGENTS_ENDPOINTS.recommendations(agentId), {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
   
   return [
     {
@@ -665,6 +836,14 @@ export const getAgentRecommendations = async (agentId: number) => {
 export const createCustomAgent = async (agentData: any) => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.post(AGENTS_ENDPOINTS.createCustom, agentData, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   const newAgent = {
     id: 500 + userAgents.length,
     name: agentData.name,
@@ -685,6 +864,14 @@ export const createCustomAgent = async (agentData: any) => {
 // Function to get KPI detail data
 export const getKpiDetailData = async (kpiId: string) => {
   await apiDelay();
+  
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.kpiDetail(kpiId), {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
   
   // Mock data based on the KPI ID
   return {
@@ -731,6 +918,14 @@ export const getKpiDetailData = async (kpiId: string) => {
 export const getProductionDetailData = async () => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.productionData + '/details', {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   return {
     daily: Array(30).fill(0).map((_, i) => ({
       name: `Day ${i+1}`,
@@ -758,6 +953,14 @@ export const getProductionDetailData = async () => {
 export const getEnergyDetailData = async () => {
   await apiDelay();
   
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.energyData + '/details', {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
   return {
     daily: Array(30).fill(0).map((_, i) => ({
       name: `Day ${i+1}`,
@@ -784,6 +987,14 @@ export const getEnergyDetailData = async () => {
 // Function to get co-pilot analytics
 export const getCoPilotAnalytics = async () => {
   await apiDelay();
+  
+  // BACKEND INTEGRATION:
+  // return axios.get(DATA_ENDPOINTS.coPilotAnalytics, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
   
   return {
     modelsAnalyzed: faker.number.int({ min: 12, max: 50 }),
@@ -816,4 +1027,65 @@ export const getCoPilotAnalytics = async () => {
       { name: 'Analytics', usage: faker.number.int({ min: 30, max: 100 }) }
     ]
   };
+};
+
+// Risk management specific data
+export const getRiskAssessmentData = async () => {
+  await apiDelay();
+  
+  // BACKEND INTEGRATION:
+  // return axios.get(RISK_ENDPOINTS.riskAssessment, {
+  //   headers: {
+  //     ...API_CONFIG.headers,
+  //     ...API_CONFIG.headers.getAuthHeader()
+  //   }
+  // }).then(response => response.data);
+  
+  return {
+    overallRiskScore: faker.number.int({ min: 50, max: 85 }),
+    riskCategories: [
+      { name: 'Supply Chain Disruption', score: faker.number.int({ min: 40, max: 90 }) },
+      { name: 'Demand Volatility', score: faker.number.int({ min: 30, max: 80 }) },
+      { name: 'Regulatory Compliance', score: faker.number.int({ min: 60, max: 95 }) },
+      { name: 'Environmental Factors', score: faker.number.int({ min: 50, max: 85 }) },
+      { name: 'Geopolitical Events', score: faker.number.int({ min: 40, max: 75 }) }
+    ],
+    keyRisks: [
+      {
+        id: 1,
+        title: 'Raw Material Shortage',
+        impact: 'High',
+        probability: 'Medium',
+        category: 'Supply Chain',
+        mitigation: 'Diversify supplier base and increase safety stock levels'
+      },
+      {
+        id: 2,
+        title: 'Energy Price Fluctuation',
+        impact: 'Medium',
+        probability: 'High',
+        category: 'Operational',
+        mitigation: 'Implement energy efficiency measures and consider hedging'
+      },
+      {
+        id: 3,
+        title: 'New Carbon Regulations',
+        impact: 'High',
+        probability: 'Medium',
+        category: 'Regulatory',
+        mitigation: 'Accelerate sustainability initiatives and improve carbon tracking'
+      }
+    ],
+    riskTrends: Array(6).fill(0).map((_, i) => ({
+      month: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'][i],
+      score: 40 + Math.random() * 40
+    }))
+  };
+};
+
+// Update auth service to use the new API config
+export const updateAuthService = () => {
+  // This function would be called to apply the API configuration to the auth service
+  console.log("Auth service updated to use centralized API configuration");
+  return true;
 };

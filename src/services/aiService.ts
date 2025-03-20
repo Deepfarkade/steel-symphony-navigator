@@ -1,124 +1,174 @@
 
-// AI Service for handling all AI-related functionality across steel industry modules
+import axios from 'axios';
+import { faker } from '@faker-js/faker';
+import { DATA_ENDPOINTS, API_CONFIG } from './apiConfig';
 
-interface AIResponse {
-  text: string;
-  confidence: number;
-}
-
-// Mock AI service that simulates AI responses for the steel industry
-export const generateAIResponse = async (prompt: string, context?: string): Promise<AIResponse> => {
-  console.log(`AI prompt received: ${prompt}`);
-  console.log(`Context: ${context || 'No context provided'}`);
-  
-  // Simulate API delay for LLM processing
-  await new Promise(resolve => setTimeout(resolve, 1200));
-  
-  // Map of prompts to responses for simulation of steel industry generative AI
-  const responses: Record<string, string> = {
-    'demand forecast': 'Based on our neural network analysis of historical data and current market trends, I predict a 7.2% increase in demand for automotive-grade steel over the next quarter with 93% confidence.',
-    'supply chain': 'Our generative AI analysis shows potential disruption in coal supply from Australia. Consider alternative sources or increased stockpiling. The model has identified this as a high-risk scenario.',
-    'order optimization': 'The machine learning algorithm suggests optimizing current orders by steel grade can improve production efficiency by 5.3% and reduce lead times by 2.1 days based on pattern recognition.',
-    'factory planning': 'Our predictive AI recommends blast furnace maintenance during projected low-demand periods in August. This recommendation is based on both historical patterns and anomaly detection.',
-    'inventory': 'AI analysis indicates current inventory levels of high-carbon steel are 15% above optimal. Our LLM suggests promotional pricing to reduce excess stock based on market demand patterns.',
-    'logistics': 'Our route optimization algorithm suggests consolidating shipments to the Midwest region can save approximately $42,000 in transport costs next month with 91% confidence.',
-    'risk assessment': 'The AI risk model indicates rising energy costs present a significant risk to Q3 profitability. Consider hedging energy futures based on predictive modeling.',
-    'quality control': 'Neural network analysis of recent production data indicates a 0.3% deviation in alloy composition that may affect tensile strength. Recommend recalibration of mixing parameters.',
-    'maintenance': 'Predictive maintenance AI suggests servicing rolling mill bearings within 15 days based on vibration pattern analysis, potentially avoiding 36 hours of downtime.',
-    'sustainability': 'Carbon footprint analysis by our AI shows a potential 12% reduction opportunity by optimizing blast furnace temperature cycles based on machine learning from efficiency data.',
-    'market trends': 'Our generative AI market analysis predicts increased demand for weathering steel in Q2 due to infrastructure spending patterns detected across governmental procurement data.',
-    'pricing strategy': 'The pricing optimization algorithm suggests a 3.2% price adjustment for specialty steels would maximize margin without significant impact on demand based on elasticity modeling.',
-    'co-pilot': 'I\'m your EY Steel Co-Pilot, powered by advanced generative AI and trained on extensive steel industry data. I can help with demand forecasting, production optimization, quality control, and more.',
-  };
-  
-  // Default response if no match is found
-  let responseText = 'Based on my generative AI analysis of your steel operations data, I\'ve identified potential optimization opportunities that could improve efficiency by approximately 4-7% while maintaining quality standards.';
-  
-  // Check for keywords in the prompt using a more sophisticated approach
-  Object.keys(responses).forEach(key => {
-    if (prompt.toLowerCase().includes(key)) {
-      responseText = responses[key];
-    }
-  });
-  
-  // Context-aware response enhancement for different modules
-  if (context) {
-    if (context.includes('Demand Planning') && !prompt.toLowerCase().includes('demand')) {
-      responseText += ' Our predictive models also indicate this could affect your demand forecasts by approximately 3-5%.';
-    } else if (context.includes('Factory Planning') && !prompt.toLowerCase().includes('factory')) {
-      responseText += ' I recommend adjusting your production scheduling parameters to accommodate this insight.';
-    } else if (context.includes('Inventory') && !prompt.toLowerCase().includes('inventory')) {
-      responseText += ' This may impact your optimal inventory levels for raw materials and work-in-progress steel.';
-    } else if (context.includes('Logistics') && !prompt.toLowerCase().includes('logistics')) {
-      responseText += ' Consider reviewing your logistics planning to align with these new patterns.';
-    }
+/**
+ * Generate AI insights for a specific module
+ * Used in useModuleInsights.tsx to get AI-generated recommendations
+ * 
+ * @param moduleName The name of the module
+ * @returns Array of insight texts
+ */
+export const generateModuleInsights = async (moduleName: string): Promise<string[]> => {
+  try {
+    // BACKEND INTEGRATION:
+    // Uncomment and use this when connecting to your backend API
+    // return axios.get(DATA_ENDPOINTS.moduleInsights(moduleName), {
+    //   headers: {
+    //     ...API_CONFIG.headers,
+    //     ...API_CONFIG.headers.getAuthHeader()
+    //   }
+    // }).then(response => response.data);
+    
+    // Simulate AI model processing time
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Generate mock insights
+    const insights = {
+      'demand-planning': [
+        'Forecast accuracy is projected to increase by 12% through seasonal analysis implementation.',
+        'Recommend reducing safety stock for products A10-B25 based on stable demand patterns.',
+        'Regional demand for X-series products shows a 23% increase trend for the next quarter.'
+      ],
+      'supply-planning': [
+        'Supplier performance metrics indicate a risk in raw material deliveries from Vendor #235.',
+        'Suggest diversifying supply chain by adding 2-3 more suppliers for critical components.',
+        'Cost savings of 8.3% possible through contract renegotiations with top 5 suppliers.'
+      ],
+      'order-promising': [
+        'Order fulfillment rate can be improved by 15% by optimizing warehouse picking routes.',
+        'Late deliveries have decreased by 12% after implementing the new logistics tracking system.',
+        'Customer satisfaction data shows correlation between accurate lead time estimates and repeat business.'
+      ],
+      'factory-planning': [
+        'Production efficiency can be improved by 7.5% through equipment reallocation.',
+        'Maintenance schedule optimization can reduce downtime by approximately 130 hours annually.',
+        'Energy consumption analysis shows potential 12% reduction through process adjustments.'
+      ],
+      'inventory-optimization': [
+        'Dead stock analysis identified $1.2M worth of slow-moving inventory for targeted promotion.',
+        'ABC analysis shows 15% of SKUs contribute to 80% of warehouse costs.',
+        'Just-in-time implementation for product category B can reduce carrying costs by 18%.'
+      ],
+      'inventory-liquidation': [
+        'Bundling strategy for excess inventory could recover 65% of value versus 45% from discounting.',
+        'Seasonal analysis suggests optimal liquidation timing in Q3 for highest recovery rates.',
+        'Alternative market channels could provide 25% better returns on obsolete inventory.'
+      ],
+      'logistics': [
+        'Route optimization models suggest 12% reduction in transportation costs is achievable.',
+        'Current carrier performance varies by 22% - recommend consolidating to top 3 performers.',
+        'LTL vs. FTL analysis indicates potential for 8.5% shipping cost reduction through consolidated shipments.'
+      ],
+      'risk-management': [
+        'Supply chain vulnerability score has increased 15% due to global shipping disruptions.',
+        'Recommend increasing safety stock of critical components A, B, and C by 20% temporarily.',
+        'Geographic diversification of manufacturing would reduce regional disruption risk by 35%.'
+      ],
+      'analytics': [
+        'Data quality has improved 23% following the implementation of new validation protocols.',
+        'Predictive models show 85% accuracy in forecasting component failures before they occur.',
+        'Customer behavior analysis reveals opportunity to increase average order value by 12%.'
+      ]
+    };
+    
+    return insights[moduleName as keyof typeof insights] || [
+      'AI analysis for this module is currently being processed.',
+      'Initial data review suggests opportunities for optimization.',
+      'Complete insights will be available in the next analysis cycle.'
+    ];
+  } catch (error) {
+    console.error(`Error generating AI insights for ${moduleName}:`, error);
+    throw error;
   }
-  
-  return {
-    text: responseText,
-    confidence: 0.89 + Math.random() * 0.09, // Simulate confidence score between 0.89 and 0.98
-  };
 };
 
-// Generate insights for specific modules using domain-specific steel industry AI models
-export const generateModuleInsights = async (moduleName: string): Promise<string[]> => {
-  console.log(`Generating AI insights for steel module: ${moduleName}`);
-  
-  // Simulate API delay for complex steel industry data processing
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  const moduleInsights: Record<string, string[]> = {
-    'demand-planning': [
-      'AI prediction: Automotive sector steel demand expected to increase by 8.2% in Q3 based on production schedules',
-      'Machine learning analysis shows construction steel demand follows seasonal pattern with 12% variation',
-      'Generative AI has identified export opportunities for specialty steels in Southeast Asian markets',
-    ],
-    'supply-planning': [
-      'Neural network forecast: Iron ore prices projected to rise 5% in next month based on shipping data',
-      'AI supplier analysis has identified alternative vendor for manganese with 3% cost saving potential',
-      'Carbon credits needed for Q3 steel manufacturing estimated at 12,000 tons by our predictive model',
-    ],
-    'order-promising': [
-      'AI analysis: On-time delivery rate can be improved by 4.3% with ML-optimized buffer adjustment',
-      'Natural language processing of customer feedback shows priority customers experiencing 1.2 days longer lead times than target',
-      'Machine learning has identified order batching opportunity for Midwest customers with similar steel grades',
-    ],
-    'factory-planning': [
-      'AI performance analytics: Blast furnace #2 efficiency improved 3.1% after recent maintenance',
-      'ML shift scheduling optimization can reduce overtime by 8% while maintaining production targets',
-      'Anomaly detection showing unusual energy usage pattern in rolling mill #3, investigation recommended',
-    ],
-    'inventory-optimization': [
-      'AI cost analysis: Raw material holding costs increased 6.5% year over year based on financial modeling',
-      'Generative AI suggests safety stock levels for alloy steels can be reduced by 7% with minimal risk',
-      'Machine learning has identified slow-moving inventory in structural steel category worth $1.2M',
-    ],
-    'inventory-liquidation': [
-      'AI quality prediction: 34 tons of specialty steel nearing quality degradation date in 21 days',
-      'Natural language processing of market queries has identified potential buyer for off-spec stainless steel inventory',
-      'Price optimization algorithm predicts 12% reduction will move excess inventory within 30 days with 89% confidence',
-    ],
-    'logistics': [
-      'AI transportation analytics: Rail transport delays averaging 2.3 days longer than previous quarter',
-      'Route optimization algorithm has identified alternative shipping route for West Coast deliveries with 8% cost reduction',
-      'Predictive model expects fuel surcharges to increase by 3.8% next month based on energy futures',
-    ],
-    'risk-management': [
-      'AI climate model: Identified weather risks for Gulf Coast shipping in hurricane season with 92% confidence',
-      'Natural language processing of regulatory documents predicts emissions standards changes in Q4',
-      'Currency volatility model showing European market profitability risk due to exchange rate fluctuations',
-    ],
-    'analytics': [
-      'AI performance metrics: Production yield improved 2.1% compared to previous quarter after ML optimizations',
-      'Energy consumption model shows 3.5% decrease per ton year over year after AI recommendations implemented',
-      'Quality incident prediction model shows 18% decrease following statistical process control implementation',
-    ],
-  };
-  
-  // Return insights for the specified module, or default insights if module not found
-  return moduleInsights[moduleName] || [
-    'Our generative AI analysis has completed. Multiple steel production optimization opportunities identified.',
-    'Machine learning pattern detection suggests potential for efficiency improvements in your production line.',
-    'Neural network analysis shows changes in market conditions that may affect your steel pricing strategy.',
-  ];
+/**
+ * Process chat message with AI
+ * Used in chat interfaces to get AI responses
+ * 
+ * @param message User message
+ * @param context Additional context (module, previous messages)
+ * @returns AI response
+ */
+export const processChatMessage = async (
+  message: string, 
+  context?: { module?: string; history?: any[] }
+): Promise<string> => {
+  try {
+    // BACKEND INTEGRATION:
+    // Uncomment and use this when connecting to your backend API
+    // return axios.post(
+    //   context?.module ? 
+    //     DATA_ENDPOINTS.chatMessages(context.module) : 
+    //     DATA_ENDPOINTS.chatMessages(), 
+    //   { message, context }, 
+    //   {
+    //     headers: {
+    //       ...API_CONFIG.headers,
+    //       ...API_CONFIG.headers.getAuthHeader()
+    //     }
+    //   }
+    // ).then(response => response.data.response);
+    
+    // Simulate AI processing time
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Set of possible AI responses based on message content
+    const responses = [
+      `I've analyzed your question about "${message.substring(0, 30)}...". Based on current data, we're seeing positive trends in this area.`,
+      `Regarding your inquiry on "${message.substring(0, 30)}...", our systems indicate several optimization opportunities.`,
+      `Thanks for asking about "${message.substring(0, 30)}...". I've processed the relevant data and can provide specific recommendations.`,
+      `Your question on "${message.substring(0, 30)}..." touches on a key area. Our analytics show important patterns you should be aware of.`,
+      `I've looked into "${message.substring(0, 30)}..." and found several insights that might help your decision-making process.`
+    ];
+    
+    // Add module-specific context if available
+    if (context?.module) {
+      const moduleSpecific = `Based on the ${context.module} module data, `;
+      return moduleSpecific + responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    return responses[Math.floor(Math.random() * responses.length)];
+  } catch (error) {
+    console.error('Error processing chat message:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get AI performance metrics
+ * Used to show AI system performance statistics
+ * 
+ * @returns Object with AI performance metrics
+ */
+export const getAiPerformanceMetrics = async () => {
+  try {
+    // BACKEND INTEGRATION:
+    // Uncomment and use this when connecting to your backend API
+    // return axios.get(DATA_ENDPOINTS.aiPerformance, {
+    //   headers: {
+    //     ...API_CONFIG.headers,
+    //     ...API_CONFIG.headers.getAuthHeader()
+    //   }
+    // }).then(response => response.data);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Mock AI performance metrics
+    return {
+      accuracy: faker.number.float({ min: 85, max: 98, fractionDigits: 1 }),
+      responseTime: faker.number.float({ min: 0.1, max: 2.5, fractionDigits: 2 }),
+      queriesProcessed: faker.number.int({ min: 10000, max: 100000 }),
+      insightsGenerated: faker.number.int({ min: 500, max: 5000 }),
+      modelVersion: '3.2.1',
+      lastUpdated: faker.date.recent().toISOString(),
+      confidenceScore: faker.number.float({ min: 80, max: 95, fractionDigits: 1 })
+    };
+  } catch (error) {
+    console.error('Error getting AI performance metrics:', error);
+    throw error;
+  }
 };

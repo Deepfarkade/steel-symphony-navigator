@@ -1,130 +1,221 @@
 
-// Authentication services for EY Steel Co-Pilot
+import axios from 'axios';
+import { AUTH_ENDPOINTS, API_CONFIG } from './apiConfig';
 
-import { User } from "@/types/auth";
+// Define the user object structure
+export interface User {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role?: string;
+  companyId?: string;
+}
 
-// This service simulates authentication but would connect to a real API endpoint
-export const authenticateUser = async (email: string, password: string): Promise<User> => {
-  // Simulating API call with delay
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // First check if there are any users in localStorage (for signup scenario)
-      const storedUsers = localStorage.getItem('ey-users');
-      const users = storedUsers ? JSON.parse(storedUsers) : [];
+/**
+ * Login user with email and password
+ * Used in Login.tsx for user authentication
+ * 
+ * @param email User email
+ * @param password User password
+ * @returns User object with authentication token
+ */
+export const loginUser = async (email: string, password: string): Promise<{ user: User, token: string }> => {
+  try {
+    // For backend integration, uncomment this:
+    // const response = await axios.post(AUTH_ENDPOINTS.login, { email, password });
+    // localStorage.setItem('auth-token', response.data.token);
+    // return response.data;
+    
+    // Mock implementation
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Simulate authentication
+    if (email.trim() && password.trim()) {
+      // Create a mock user and token for development
+      const user: User = {
+        id: '1',
+        email: email,
+        firstName: 'Test',
+        lastName: 'User',
+        role: 'admin',
+      };
       
-      // Try to find the user in our "database"
-      const foundUser = users.find((u: any) => u.email === email);
+      const token = 'mock-jwt-token';
       
-      // If user exists, check password
-      if (foundUser && foundUser.password === password) {
-        // Clone the user object without the password for security
-        const { password: _, ...secureUser } = foundUser;
-        
-        // Store user in localStorage
-        localStorage.setItem('ey-user', JSON.stringify(secureUser));
-        
-        // Set session expiry (7 days)
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 7);
-        localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
-        
-        resolve(secureUser);
-      } else if (email && password && password.length >= 6) {
-        // For demo purposes, if no users exist yet, create a default user
-        const newUser = {
-          id: Math.random().toString(36).substring(2, 15),
-          name: email.split('@')[0],
-          email,
-          password,
-          role: 'user'
-        };
-        
-        // Store the user in the users array
-        users.push(newUser);
-        localStorage.setItem('ey-users', JSON.stringify(users));
-        
-        // Create a clean version without password for the session
-        const { password: _, ...secureUser } = newUser;
-        
-        // Store logged-in user state
-        localStorage.setItem('ey-user', JSON.stringify(secureUser));
-        
-        // Set session expiry (7 days)
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 7);
-        localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
-        
-        resolve(secureUser);
-      } else {
-        reject(new Error('Invalid credentials'));
+      // Store token in localStorage
+      localStorage.setItem('auth-token', token);
+      
+      // Store user in localStorage
+      localStorage.setItem('current-user', JSON.stringify(user));
+      
+      // Set session expiry (7 days from now)
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 7);
+      localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
+      
+      console.log('Login successful (mock)', { user, token });
+      
+      return { user, token };
+    } else {
+      throw new Error('Invalid credentials');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Register a new user
+ * Used in Signup.tsx for user registration
+ * 
+ * @param email User email
+ * @param password User password
+ * @param firstName User first name
+ * @param lastName User last name
+ * @returns User object with authentication token
+ */
+export const registerUser = async (
+  email: string, 
+  password: string, 
+  firstName?: string, 
+  lastName?: string
+): Promise<{ user: User, token: string }> => {
+  try {
+    // For backend integration, uncomment this:
+    // const response = await axios.post(AUTH_ENDPOINTS.signup, { 
+    //   email, password, firstName, lastName 
+    // });
+    // localStorage.setItem('auth-token', response.data.token);
+    // return response.data;
+    
+    // Mock implementation
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Simulate registration
+    if (email.trim() && password.trim()) {
+      // Create a mock user and token for development
+      const user: User = {
+        id: '1',
+        email: email,
+        firstName: firstName || 'New',
+        lastName: lastName || 'User',
+        role: 'user',
+      };
+      
+      const token = 'mock-jwt-token';
+      
+      // Store token in localStorage
+      localStorage.setItem('auth-token', token);
+      
+      // Store user in localStorage
+      localStorage.setItem('current-user', JSON.stringify(user));
+      
+      // Set session expiry (7 days from now)
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 7);
+      localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
+      
+      console.log('Registration successful (mock)', { user, token });
+      
+      return { user, token };
+    } else {
+      throw new Error('Invalid registration data');
+    }
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Validate authentication token
+ * Used in AuthContext.tsx for session validation
+ * 
+ * @returns User object if token is valid
+ */
+export const validateToken = async (): Promise<User | null> => {
+  try {
+    const token = localStorage.getItem('auth-token');
+    
+    if (!token) {
+      return null;
+    }
+    
+    // For backend integration, uncomment this:
+    // const response = await axios.get(AUTH_ENDPOINTS.validateToken, {
+    //   headers: {
+    //     ...API_CONFIG.headers,
+    //     Authorization: `Bearer ${token}`
+    //   }
+    // });
+    // return response.data.user;
+    
+    // Mock implementation
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Check if session is expired
+    const sessionExpiry = localStorage.getItem('ey-session-expiry');
+    if (sessionExpiry) {
+      const expiryDate = new Date(sessionExpiry);
+      if (new Date() > expiryDate) {
+        console.log('Session expired');
+        // Clear auth data
+        localStorage.removeItem('auth-token');
+        localStorage.removeItem('current-user');
+        localStorage.removeItem('ey-session-expiry');
+        return null;
       }
-    }, 800);
-  });
+    }
+    
+    // Get user from localStorage
+    const userJson = localStorage.getItem('current-user');
+    if (userJson) {
+      const user = JSON.parse(userJson) as User;
+      console.log('Token validation successful (mock)', user);
+      return user;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Token validation error:', error);
+    return null;
+  }
 };
 
-export const registerUser = async (name: string, email: string, password: string): Promise<User> => {
-  // Simulating API call with delay
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (name && email && password.length >= 6) {
-        // Get existing users or create empty array
-        const storedUsers = localStorage.getItem('ey-users');
-        const users = storedUsers ? JSON.parse(storedUsers) : [];
-        
-        // Check if email already exists
-        const emailExists = users.some((user: any) => user.email === email);
-        if (emailExists) {
-          reject(new Error('Email already registered'));
-          return;
-        }
-        
-        // Create new user
-        const newUser = {
-          id: Math.random().toString(36).substring(2, 15),
-          name,
-          email,
-          password, // In a real app, this would be hashed
-          role: 'user'
-        };
-        
-        // Add to users array
-        users.push(newUser);
-        localStorage.setItem('ey-users', JSON.stringify(users));
-        
-        // Create a clean version without password for the session
-        const { password: _, ...secureUser } = newUser;
-        
-        // Store logged-in user state
-        localStorage.setItem('ey-user', JSON.stringify(secureUser));
-        
-        // Set session expiry (7 days)
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 7);
-        localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
-        
-        resolve(secureUser);
-      } else {
-        reject(new Error('Invalid registration data'));
-      }
-    }, 800);
-  });
-};
-
-export const checkAuthStatus = (): User | null => {
-  const storedUser = localStorage.getItem('ey-user');
-  if (!storedUser) return null;
-  
-  // Check if session is still valid
-  const expiryStr = localStorage.getItem('ey-session-expiry');
-  if (!expiryStr) return null;
-  
-  const expiry = new Date(expiryStr);
-  const isValid = expiry > new Date();
-  
-  return isValid ? JSON.parse(storedUser) : null;
-};
-
-export const logoutUser = (): void => {
-  localStorage.removeItem('ey-user');
-  localStorage.removeItem('ey-session-expiry');
+/**
+ * Logout user
+ * Used to end user session
+ */
+export const logoutUser = async (): Promise<void> => {
+  try {
+    const token = localStorage.getItem('auth-token');
+    
+    if (token) {
+      // For backend integration, uncomment this:
+      // await axios.post(AUTH_ENDPOINTS.logout, {}, {
+      //   headers: {
+      //     ...API_CONFIG.headers,
+      //     Authorization: `Bearer ${token}`
+      //   }
+      // });
+    }
+    
+    // Clear auth data
+    localStorage.removeItem('auth-token');
+    localStorage.removeItem('current-user');
+    localStorage.removeItem('ey-session-expiry');
+    
+    console.log('Logout successful');
+  } catch (error) {
+    console.error('Logout error:', error);
+    
+    // Even if the API call fails, clear local storage
+    localStorage.removeItem('auth-token');
+    localStorage.removeItem('current-user');
+    localStorage.removeItem('ey-session-expiry');
+    
+    throw error;
+  }
 };
