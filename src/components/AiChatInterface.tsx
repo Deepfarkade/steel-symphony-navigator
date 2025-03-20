@@ -28,7 +28,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   agentId,
   isOpen: propIsOpen,
   onOpenChange,
-  disableFloatingButton = true
+  disableFloatingButton = false
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
