@@ -65,7 +65,14 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
               </button>
             </TooltipTrigger>
             <TooltipContent side="right" className={theme === 'light' ? "bg-white text-gray-800 border border-gray-200 shadow-lg" : "bg-gray-800 text-white border-none"}>
-              <p>{title}</p>
+              <div className="flex items-center justify-between">
+                <p>{title}</p>
+                {isOpen ? (
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                ) : (
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                )}
+              </div>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -101,9 +108,11 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
         </motion.div>
       )}
 
-      {/* We need to render the children even when collapsed, but not visible */}
+      {/* For collapsed state, render items if dropdown is open */}
       {isCollapsed && isOpen && (
-        <div className="hidden">{children}</div>
+        <div className="mt-1 space-y-1">
+          {children}
+        </div>
       )}
     </div>
   );

@@ -59,19 +59,21 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
   if (isCollapsed) {
     return (
-      <TooltipProvider delayDuration={0}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            {content}
-          </TooltipTrigger>
-          <TooltipContent side="right" className={theme === 'light' ? "bg-white text-gray-800 border border-gray-200 shadow-lg" : "bg-gray-800 text-white border-none"}>
-            <div className="flex items-center">
-              <p>{title}</p>
-              {badge && <div className="ml-2">{badge}</div>}
-            </div>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="mb-1">
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {content}
+            </TooltipTrigger>
+            <TooltipContent side="right" className={theme === 'light' ? "bg-white text-gray-800 border border-gray-200 shadow-lg" : "bg-gray-800 text-white border-none"}>
+              <div className="flex items-center">
+                <p>{title}</p>
+                {badge && <div className="ml-2">{badge}</div>}
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     );
   }
 
