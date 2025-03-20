@@ -49,17 +49,19 @@ const AgentChatPage = () => {
         // Process recommendations properly
         if (Array.isArray(recommendationsData)) {
           if (recommendationsData.length > 0) {
-            if (typeof recommendationsData[0] === 'object' && 'title' in recommendationsData[0]) {
+            if (typeof recommendationsData[0] === 'object' && recommendationsData[0] !== null && 'title' in recommendationsData[0]) {
               // It's already in the right format
               setRecommendations(recommendationsData as Recommendation[]);
             } 
             else {
               // Convert string array to Recommendation objects
-              const filteredStrings = recommendationsData.filter((item): item is string => typeof item === 'string');
-              const formatted = filteredStrings.map((rec: string, index: number) => ({
+              // First filter to get only string items
+              const stringItems: unknown[] = recommendationsData.filter(item => typeof item === 'string');
+              // Then map the string items to recommendation objects
+              const formatted: Recommendation[] = stringItems.map((rec, index) => ({
                 id: index + 1,
                 title: `Recommendation ${index + 1}`,
-                description: rec,
+                description: rec as string,
                 impact: ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)],
                 category: 'AI'
               }));
