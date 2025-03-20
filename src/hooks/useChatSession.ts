@@ -26,7 +26,9 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
         timestamp: new Date()
       }],
       isLoading: false,
-      handleSendMessage: () => console.warn("Chat context not available"),
+      handleSendMessage: (message: string) => {
+        console.warn("Chat context not available, message not sent:", message);
+      },
       fullscreen,
       setFullscreen
     };

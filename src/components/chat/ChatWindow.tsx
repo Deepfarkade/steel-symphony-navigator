@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, MessageSquare, ChevronRight, ChevronLeft, ExternalLink } from 'lucide-react';
+import { PlusCircle, MessageSquare, ChevronRight, ChevronLeft } from 'lucide-react';
 import ChatHeader from './ChatHeader';
 import ChatMessageList from './ChatMessageList';
 import ChatInput from './ChatInput';
@@ -57,7 +57,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   
   const [activeSessionId, setActiveSessionId] = useState<string>('default');
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Keep messages updated with props
   useEffect(() => {
@@ -76,14 +76,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       });
     }
   }, [messages, activeSessionId]);
-
-  // When sidebar visibility changes, adjust the scrollable area width
-  useEffect(() => {
-    // Force layout recalculation on sidebar toggle
-    if (contentRef.current) {
-      contentRef.current.style.width = showSidebar ? 'calc(100% - 16rem)' : '100%';
-    }
-  }, [showSidebar]);
 
   const handleNewSession = () => {
     const newSession: ChatSession = {
@@ -115,6 +107,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   // Get active session messages
   const activeSession = sessions.find(session => session.id === activeSessionId) || sessions[0];
 
+  // Format date for display
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' });
+  };
+
   return (
     <div className={`ey-card ${floating ? 'fixed bottom-4 right-4 z-50 shadow-xl w-96' : 'w-full'} 
                 ${isExpanded ? 'h-[80vh] w-[500px]' : 'h-[500px]'}
@@ -132,64 +129,69 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       />
       
       <div className="flex flex-1 overflow-hidden relative">
-        <Collapsible 
-          open={showSidebar} 
-          onOpenChange={setShowSidebar}
-          className="absolute left-0 top-0 h-full z-10"
-        >
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20">
-            <CollapsibleTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="h-6 w-6 rounded-full border border-gray-200 bg-white shadow-md"
-              >
-                {showSidebar ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-              </Button>
-            </CollapsibleTrigger>
-          </div>
-
-          <CollapsibleContent className="w-64 border-r border-gray-100 flex flex-col h-full data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up transition-all bg-white dark:bg-gray-900">
-            <div className="p-3">
-              <Button 
-                onClick={handleNewSession}
-                className="w-full flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white"
-              >
-                <PlusCircle className="h-4 w-4 mr-2" />
-                New Chat
-              </Button>
-            </div>
-            
-            <ScrollArea className="flex-1">
-              <div className="p-2 space-y-2">
-                {sessions.map((session) => (
-                  <button
-                    key={session.id}
-                    onClick={() => setActiveSessionId(session.id)}
-                    className={`w-full text-left p-2 rounded-lg flex items-center ${
-                      activeSessionId === session.id 
-                        ? 'bg-indigo-100 text-indigo-700' 
-                        : 'hover:bg-gray-100 text-gray-700'
-                    }`}
-                  >
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    <div className="overflow-hidden">
-                      <div className="font-medium truncate">{session.name}</div>
-                      <div className="text-xs text-gray-500">
-                        {session.createdAt.toLocaleDateString()}
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </ScrollArea>
-          </CollapsibleContent>
-        </Collapsible>
-        
+        {/* Sidebar */}
         <div 
-          ref={contentRef}
-          className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out`}
-          style={{ width: showSidebar ? 'calc(100% - 16rem)' : '100%', marginLeft: showSidebar ? '16rem' : '0' }}
+          className={`absolute top-0 left-0 h-full z-10 border-r border-gray-100 
+            transition-all duration-300 ease-in-out bg-white dark:bg-gray-900
+            ${showSidebar ? 'w-64 opacity-100' : 'w-0 opacity-0 pointer-events-none'}
+          `}
+        >
+          <div className="p-3">
+            <Button 
+              onClick={handleNewSession}
+              className="w-full flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white"
+            >
+              <PlusCircle className="h-4 w-4 mr-2" />
+              New Chat
+            </Button>
+          </div>
+          
+          <ScrollArea className="h-[calc(100%-60px)]">
+            <div className="p-2 space-y-2">
+              {sessions.map((session) => (
+                <button
+                  key={session.id}
+                  onClick={() => setActiveSessionId(session.id)}
+                  className={`w-full text-left p-2 rounded-lg flex items-center ${
+                    activeSessionId === session.id 
+                      ? 'bg-indigo-100 text-indigo-700' 
+                      : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  <MessageSquare className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <div className="overflow-hidden">
+                    <div className="font-medium truncate">{session.name}</div>
+                    <div className="text-xs text-gray-500">
+                      {formatDate(session.createdAt)}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+        
+        {/* Toggle sidebar button */}
+        <div className={`absolute top-1/2 -translate-y-1/2 ${showSidebar ? 'left-64' : 'left-0'} z-20 transition-all duration-300`}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="h-6 w-6 rounded-full border border-gray-200 bg-white shadow-md"
+            onClick={() => setShowSidebar(!showSidebar)}
+          >
+            {showSidebar ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          </Button>
+        </div>
+        
+        {/* Chat content */}
+        <div 
+          ref={chatContainerRef}
+          className="flex-1 flex flex-col overflow-hidden"
+          style={{ 
+            marginLeft: showSidebar ? '16rem' : '0',
+            width: showSidebar ? 'calc(100% - 16rem)' : '100%',
+            transition: 'margin-left 0.3s ease, width 0.3s ease'
+          }}
         >
           <ChatMessageList 
             messages={activeSession.messages}

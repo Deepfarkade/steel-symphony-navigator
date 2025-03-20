@@ -26,7 +26,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLoading }
   }, [messages]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4 bg-white">
+    <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4 bg-white w-full h-full">
       {messages.map((message, index) => (
         <ChatMessage 
           key={index}
