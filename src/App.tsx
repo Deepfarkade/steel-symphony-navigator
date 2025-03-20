@@ -32,6 +32,7 @@ import UserInactivityHandler from "./components/UserInactivityHandler";
 import NewsPage from "./pages/NewsPage";
 import AgentChatPage from "./pages/AgentChatPage";
 import AgentsPage from "./pages/AgentsPage";
+import CreateAgentPage from "./pages/CreateAgentPage";
 
 // Install axios dependency
 import axios from 'axios';
@@ -81,6 +82,7 @@ const AppRoutes = () => (
     {/* Agents routes */}
     <Route path="/agents" element={<RequireAuth><AgentsPage /></RequireAuth>} />
     <Route path="/agent/:agentId" element={<RequireAuth><AgentChatPage /></RequireAuth>} />
+    <Route path="/create-agent" element={<RequireAuth><CreateAgentPage /></RequireAuth>} />
     
     {/* Catch-all route */}
     <Route path="*" element={<NotFound />} />

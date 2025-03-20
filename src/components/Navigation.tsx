@@ -26,7 +26,11 @@ import {
   BarChart2,
   Wrench,
   Users,
-  Trash
+  Trash,
+  Globe,
+  Lightbulb,
+  CheckSquare,
+  Eye
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -205,6 +209,9 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
       });
       await fetchAgents();
       setShowMarketplace(false);
+      
+      // Navigate to the newly added agent
+      navigate(`/agent/${agentId}`);
     } catch (error) {
       console.error('Error adding agent:', error);
       toast({
@@ -266,6 +273,11 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
       case 'tool': return <Wrench className="h-4 w-4" />;
       case 'package': return <Package className="h-4 w-4" />;
       case 'users': return <Users className="h-4 w-4" />;
+      case 'globe': return <Globe className="h-4 w-4" />;
+      case 'lightbulb': return <Lightbulb className="h-4 w-4" />;
+      case 'check-square': return <CheckSquare className="h-4 w-4" />;
+      case 'eye': return <Eye className="h-4 w-4" />;
+      case 'alert-triangle': return <AlertTriangle className="h-4 w-4" />;
       default: return <BrainCog className="h-4 w-4" />;
     }
   };
@@ -550,6 +562,15 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowMarketplace(false)}>
               Close
+            </Button>
+            <Button 
+              className="bg-purple-600 hover:bg-purple-700"
+              onClick={() => {
+                setShowMarketplace(false);
+                navigate('/create-agent');
+              }}
+            >
+              Create Custom Agent
             </Button>
           </DialogFooter>
         </DialogContent>

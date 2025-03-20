@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Header from '../components/Header';
 import AiAgentCard from '../components/AiAgentCard';
-import { getAiAgents } from '@/services/dataService';
+import { getAiAgents, getAvailableAgents, addAgentToUser } from '@/services/dataService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -24,19 +24,13 @@ import { useNavigate } from 'react-router-dom';
 
 const AgentsPage = () => {
   const [agents, setAgents] = useState<any[]>([]);
+  const [availableAgents, setAvailableAgents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showNewAgentDialog, setShowNewAgentDialog] = useState(false);
-  const [selectedAgentTemplate, setSelectedAgentTemplate] = useState<number | null>(null);
+  const [showMarketplace, setShowMarketplace] = useState(false);
+  const [deployingAgent, setDeployingAgent] = useState<number | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  const agentTemplates = [
-    { id: 1, name: 'Supply Chain Analyzer', description: 'Analyzes your steel supply chain for inefficiencies and risks', icon: 'truck' },
-    { id: 2, name: 'Production Optimizer', description: 'Optimizes steel production schedules and resource allocation', icon: 'factory' },
-    { id: 3, name: 'Quality Inspector', description: 'Detects quality issues in steel production and suggests improvements', icon: 'check-circle' },
-    { id: 4, name: 'Demand Forecaster', description: 'Predicts future steel demand based on historical data and market trends', icon: 'bar-chart' },
-  ];
 
   useEffect(() => {
     fetchAgents();
@@ -59,6 +53,54 @@ const AgentsPage = () => {
     }
   };
 
+  const fetchMarketplaceAgents = async () => {
+    try {
+      const data = await getAvailableAgents();
+      setAvailableAgents(data);
+    } catch (error) {
+      console.error('Error fetching marketplace agents:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch available agents. Please try again later.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleOpenMarketplace = () => {
+    fetchMarketplaceAgents();
+    setShowMarketplace(true);
+  };
+
+  const handleDeployAgent = async (agentId: number) => {
+    setDeployingAgent(agentId);
+    try {
+      await addAgentToUser(agentId);
+      
+      toast({
+        title: "Agent Deployed",
+        description: "The AI agent has been successfully deployed to your workspace."
+      });
+      
+      // Refresh the lists
+      await fetchAgents();
+      await fetchMarketplaceAgents();
+      
+      // Navigate to the agent page
+      navigate(`/agent/${agentId}`);
+      setShowMarketplace(false);
+    } catch (error) {
+      console.error('Error deploying agent:', error);
+      toast({
+        title: "Deployment Failed",
+        description: "Failed to deploy the agent. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setDeployingAgent(null);
+    }
+  };
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
@@ -67,32 +109,6 @@ const AgentsPage = () => {
     agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     agent.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const handleCreateAgent = () => {
-    if (!selectedAgentTemplate) {
-      toast({
-        title: "Select a template",
-        description: "Please select an agent template to continue."
-      });
-      return;
-    }
-
-    // Simulate agent creation
-    setShowNewAgentDialog(false);
-    toast({
-      title: "Agent Created",
-      description: "Your new AI agent is being deployed. This may take a few minutes."
-    });
-
-    // Simulate loading time
-    setTimeout(() => {
-      toast({
-        title: "Agent Deployed",
-        description: "Your new AI agent is now active and ready to use!"
-      });
-      fetchAgents();
-    }, 2000);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -125,7 +141,7 @@ const AgentsPage = () => {
                 <div className="flex gap-2">
                   <Button 
                     className="bg-white hover:bg-white/90 text-purple-700"
-                    onClick={() => setShowNewAgentDialog(true)}
+                    onClick={handleOpenMarketplace}
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Deploy New Agent
@@ -207,7 +223,7 @@ const AgentsPage = () => {
                   </p>
                   <div className="flex items-center justify-center gap-4">
                     <Button 
-                      onClick={() => setShowNewAgentDialog(true)}
+                      onClick={handleOpenMarketplace}
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Deploy Your First Agent
@@ -227,47 +243,66 @@ const AgentsPage = () => {
         </div>
       </div>
       
-      <Dialog open={showNewAgentDialog} onOpenChange={setShowNewAgentDialog}>
-        <DialogContent className="max-w-4xl">
+      <Dialog open={showMarketplace} onOpenChange={setShowMarketplace}>
+        <DialogContent className="sm:max-w-4xl max-h-[85vh] flex flex-col bg-gradient-to-r from-purple-800 to-indigo-900 text-white border-none">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Deploy a New AI Agent</DialogTitle>
-            <DialogDescription>
-              Choose an agent template to deploy to your steel ecosystem.
+            <DialogTitle className="text-xl font-bold text-white flex items-center">
+              <Sparkles className="h-5 w-5 mr-2 text-purple-300" />
+              AI Agent Marketplace
+            </DialogTitle>
+            <DialogDescription className="text-white/80">
+              Deploy specialized AI agents to continuously analyze your steel operations and provide actionable insights.
             </DialogDescription>
           </DialogHeader>
           
-          <ScrollArea className="max-h-[60vh]">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-              {agentTemplates.map((template) => (
-                <div 
-                  key={template.id}
-                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                    selectedAgentTemplate === template.id 
-                      ? 'border-purple-500 bg-purple-50' 
-                      : 'hover:border-purple-300'
-                  }`}
-                  onClick={() => setSelectedAgentTemplate(template.id)}
-                >
-                  <div className="flex items-center mb-3">
-                    <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                      <BrainCircuit className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">{template.name}</h4>
-                    </div>
-                  </div>
-                  <p className="text-sm text-ey-lightGray">{template.description}</p>
-                </div>
-              ))}
-            </div>
+          <ScrollArea className="flex-1 overflow-y-auto px-1">
+            {availableAgents.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                {availableAgents.map((agent) => (
+                  <motion.div
+                    key={agent.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white/10 rounded-lg overflow-hidden border border-white/10"
+                  >
+                    <AiAgentCard
+                      id={agent.id}
+                      name={agent.name}
+                      description={agent.description}
+                      status="available"
+                      confidence={agent.confidence}
+                      icon={agent.icon}
+                      onActivate={handleDeployAgent}
+                      isExpanded={true}
+                      deploying={deployingAgent === agent.id}
+                      isUserAgent={false}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white/10 rounded-lg p-6 text-center mt-4">
+                <BrainCircuit className="h-12 w-12 mx-auto mb-4 text-white/50" />
+                <h4 className="text-lg font-medium mb-2">All Agents Deployed</h4>
+                <p className="text-white/70">
+                  You've already deployed all available AI agents to your workspace.
+                </p>
+              </div>
+            )}
           </ScrollArea>
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewAgentDialog(false)}>
-              Cancel
+          <DialogFooter className="pt-4 border-t border-white/10 mt-4">
+            <Button variant="secondary" onClick={() => setShowMarketplace(false)}>
+              Close
             </Button>
-            <Button onClick={handleCreateAgent}>
-              Deploy Agent
+            <Button 
+              className="bg-indigo-500 hover:bg-indigo-600"
+              onClick={() => {
+                setShowMarketplace(false);
+                navigate('/create-agent');
+              }}
+            >
+              Create Custom Agent
             </Button>
           </DialogFooter>
         </DialogContent>
