@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
@@ -24,11 +25,12 @@ import {
   TrendingUp,
   BarChart2,
   Wrench,
-  Users
+  Users,
+  Trash
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { getAiAgents, getAvailableAgents, addAgentToUser } from '@/services/dataService';
+import { getAiAgents, getAvailableAgents, addAgentToUser, removeAgentFromUser } from '@/services/dataService';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -44,8 +46,9 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { toast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface NavigationProps {
   agentId?: number;
@@ -124,11 +127,14 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [availableAgents, setAvailableAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(false);
+  const [addingAgent, setAddingAgent] = useState<number | null>(null);
+  const [removingAgent, setRemovingAgent] = useState<number | null>(null);
   const [showMarketplace, setShowMarketplace] = useState(false);
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [selectedAgentToRemove, setSelectedAgentToRemove] = useState<Agent | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { toast } = useToast();
 
   useEffect(() => {
     const mainContent = document.querySelector('[data-main-content]');
@@ -166,10 +172,21 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
 
   const fetchAvailableAgents = async () => {
     try {
+      setLoading(true);
       const data = await getAvailableAgents();
-      setAvailableAgents(data);
+      // Filter out agents that are already added
+      const agentIds = agents.map(agent => agent.id);
+      const filteredAgents = data.filter(agent => !agentIds.includes(agent.id));
+      setAvailableAgents(filteredAgents);
     } catch (error) {
       console.error('Error fetching available agents:', error);
+      toast({
+        variant: "destructive",
+        title: "Failed to load agents",
+        description: "Please try again later"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -180,12 +197,13 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
 
   const addAgent = async (agentId: number) => {
     try {
+      setAddingAgent(agentId);
       await addAgentToUser(agentId);
       toast({
         title: "Agent added successfully",
         description: "The agent has been added to your workspace and is now available.",
       });
-      fetchAgents();
+      await fetchAgents();
       setShowMarketplace(false);
     } catch (error) {
       console.error('Error adding agent:', error);
@@ -194,6 +212,45 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
         title: "Failed to add agent",
         description: "Please try again later.",
       });
+    } finally {
+      setAddingAgent(null);
+    }
+  };
+
+  const handleRemoveAgent = (agent: Agent, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedAgentToRemove(agent);
+    setShowRemoveDialog(true);
+  };
+
+  const confirmRemoveAgent = async () => {
+    if (!selectedAgentToRemove) return;
+    
+    try {
+      setRemovingAgent(selectedAgentToRemove.id);
+      await removeAgentFromUser(selectedAgentToRemove.id);
+      toast({
+        title: "Agent removed",
+        description: "The agent has been removed from your workspace.",
+      });
+      await fetchAgents();
+      setShowRemoveDialog(false);
+      setSelectedAgentToRemove(null);
+      
+      // If currently viewing the removed agent, navigate back to agents page
+      if (location.pathname === `/agent/${selectedAgentToRemove.id}`) {
+        navigate('/agents');
+      }
+    } catch (error) {
+      console.error('Error removing agent:', error);
+      toast({
+        variant: "destructive",
+        title: "Failed to remove agent",
+        description: "Please try again later.",
+      });
+    } finally {
+      setRemovingAgent(null);
     }
   };
 
@@ -303,27 +360,41 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
                         </div>
                       ) : (
                         <>
-                          {agents.map(agent => (
-                            <Link
-                              key={agent.id}
-                              to={`/agent/${agent.id}`}
-                              className={`flex items-center p-2 rounded-md text-sm ${
-                                agentId === agent.id
-                                  ? 'bg-purple-100 text-purple-700'
-                                  : 'text-ey-darkGray/70 hover:bg-gray-100'
-                              }`}
-                            >
-                              <div className={`w-6 h-6 rounded-full ${
-                                agent.status === 'active' ? 'bg-green-100' : 'bg-gray-100'
-                              } flex items-center justify-center mr-2`}>
-                                {getAgentIcon(agent.icon)}
+                          {agents.length > 0 ? (
+                            agents.map(agent => (
+                              <div key={agent.id} className="relative group">
+                                <Link
+                                  to={`/agent/${agent.id}`}
+                                  className={`flex items-center p-2 rounded-md text-sm ${
+                                    agentId === agent.id
+                                      ? 'bg-purple-100 text-purple-700'
+                                      : 'text-ey-darkGray/70 hover:bg-gray-100'
+                                  }`}
+                                >
+                                  <div className={`w-6 h-6 rounded-full ${
+                                    agent.status === 'active' ? 'bg-green-100' : 'bg-gray-100'
+                                  } flex items-center justify-center mr-2`}>
+                                    {getAgentIcon(agent.icon)}
+                                  </div>
+                                  <span className="truncate">{agent.name}</span>
+                                  {agent.status === 'active' && (
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 ml-2 animate-pulse"></div>
+                                  )}
+                                  <button
+                                    onClick={(e) => handleRemoveAgent(agent, e)}
+                                    className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded"
+                                    title="Remove agent"
+                                  >
+                                    <Trash className="h-3.5 w-3.5 text-red-500" />
+                                  </button>
+                                </Link>
                               </div>
-                              <span className="truncate">{agent.name}</span>
-                              {agent.status === 'active' && (
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 ml-2 animate-pulse"></div>
-                              )}
-                            </Link>
-                          ))}
+                            ))
+                          ) : (
+                            <div className="py-3 px-2 text-sm text-ey-lightGray">
+                              No agents added yet
+                            </div>
+                          )}
                           
                           <button
                             onClick={handleMarketplaceOpen}
@@ -419,43 +490,96 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
           </DialogHeader>
           
           <ScrollArea className="h-[60vh] pr-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {availableAgents.map((agent) => (
-                <div 
-                  key={agent.id}
-                  className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center">
-                      <div className={`w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3`}>
-                        {getAgentIcon(agent.icon)}
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="border rounded-lg p-4 h-28 animate-pulse bg-gray-100"></div>
+                ))}
+              </div>
+            ) : availableAgents.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {availableAgents.map((agent) => (
+                  <div 
+                    key={agent.id}
+                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center">
+                        <div className={`w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3`}>
+                          {getAgentIcon(agent.icon)}
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-ey-darkGray">{agent.name}</h3>
+                          <p className="text-sm text-ey-lightGray">{agent.description}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium text-ey-darkGray">{agent.name}</h3>
-                        <p className="text-sm text-ey-lightGray">{agent.description}</p>
+                      <div className="flex flex-col items-end">
+                        <div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full mb-2">
+                          {agent.confidence}% Confidence
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => addAgent(agent.id)}
+                          disabled={addingAgent === agent.id}
+                          className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                        >
+                          {addingAgent === agent.id ? (
+                            <div className="h-4 w-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mr-1" />
+                          ) : (
+                            <Plus className="h-3.5 w-3.5 mr-1" />
+                          )}
+                          Add Agent
+                        </Button>
                       </div>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full mb-2">
-                        {agent.confidence}% Confidence
-                      </div>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => addAgent(agent.id)}
-                        className="text-purple-600 border-purple-200 hover:bg-purple-50"
-                      >
-                        <Plus className="h-3.5 w-3.5 mr-1" />
-                        Add Agent
-                      </Button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <BrainCog className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                <h3 className="text-lg font-medium text-ey-darkGray mb-2">No available agents</h3>
+                <p className="text-ey-lightGray">
+                  You've already added all available agents to your workspace.
+                </p>
+              </div>
+            )}
           </ScrollArea>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowMarketplace(false)}>
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Agent</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove {selectedAgentToRemove?.name} from your workspace? 
+              You can always add it back later from the marketplace.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmRemoveAgent}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {removingAgent === selectedAgentToRemove?.id ? (
+                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
+              ) : (
+                <Trash className="h-4 w-4 mr-1" />
+              )}
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </aside>
   );
 };

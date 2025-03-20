@@ -1,4 +1,3 @@
-
 // Data service for EY Steel Co-Pilot
 
 // Helper to simulate API delay
@@ -499,4 +498,23 @@ export const subscribeToRealTimeData = (callback: (data: any) => void) => {
   }, 5000);
   
   return () => clearInterval(interval);
+};
+
+/**
+ * Remove an agent from the user's workspace
+ * @param agentId The ID of the agent to remove
+ */
+export const removeAgentFromUser = async (agentId: number): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    // Simulate API delay
+    setTimeout(() => {
+      try {
+        // This would normally be an API call to remove the agent
+        console.log(`Removing agent ${agentId} from user's workspace`);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    }, 1000);
+  });
 };

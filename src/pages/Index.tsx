@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
@@ -58,6 +57,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useToast } from '@/hooks/use-toast';
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -108,6 +108,7 @@ const Index = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [aiAgentActive, setAiAgentActive] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const [aiStats, setAiStats] = useState({
     modelsAnalyzed: 0,
@@ -155,6 +156,14 @@ const Index = () => {
   if (showWelcome) {
     return <FuturisticWelcome />;
   }
+  
+  const handleAskCoPilot = () => {
+    setChatOpen(true);
+    toast({
+      title: "Co-Pilot Activated",
+      description: "Your EY Steel Ecosystem Co-Pilot is ready to assist you.",
+    });
+  };
   
   return (
     <div className="w-full min-h-screen bg-gray-50">
@@ -213,7 +222,7 @@ const Index = () => {
             <div>
               <Button 
                 className="bg-white hover:bg-white/90 text-purple-700 border-none shadow-lg" 
-                onClick={() => setChatOpen(true)}
+                onClick={handleAskCoPilot}
               >
                 <Brain className="h-4 w-4 mr-2" />
                 <span>Ask Co-Pilot</span>
@@ -283,7 +292,6 @@ const Index = () => {
           </div>
         </motion.div>
         
-        {/* Latest Industry News section */}
         <LatestIndustryNews />
         
         <motion.div 
@@ -539,7 +547,6 @@ const Index = () => {
         </motion.div>
       </div>
       
-      {/* Global chat interface */}
       <AiChatInterface floating isOpen={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );

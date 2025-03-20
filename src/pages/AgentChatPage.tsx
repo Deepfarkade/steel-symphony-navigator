@@ -46,22 +46,26 @@ const AgentChatPage = () => {
         setAgent(agentData);
         setAnalytics(analyticsData);
         
-        // Handle the recommendations data with proper typing
+        // Process recommendations with proper typing
         if (Array.isArray(recommendationsData)) {
-          // If we got an array of recommendation objects, use them as-is
-          if (typeof recommendationsData[0] === 'object') {
+          // If recommendationsData is an array of objects that match Recommendation interface
+          if (recommendationsData.length > 0 && typeof recommendationsData[0] === 'object' && 'title' in recommendationsData[0]) {
             setRecommendations(recommendationsData as Recommendation[]);
           } 
-          // If we got an array of strings, convert them to Recommendation objects
-          else {
-            const formattedRecommendations = recommendationsData.map((rec, index) => ({
+          // If recommendationsData is an array of strings, convert to Recommendation objects
+          else if (recommendationsData.length > 0 && typeof recommendationsData[0] === 'string') {
+            const formattedRecommendations: Recommendation[] = recommendationsData.map((rec: string, index: number) => ({
               id: index + 1,
               title: `Recommendation ${index + 1}`,
-              description: typeof rec === 'string' ? rec : 'AI generated recommendation',
-              impact: 'Medium',
+              description: rec,
+              impact: ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)],
               category: 'AI'
             }));
             setRecommendations(formattedRecommendations);
+          }
+          // If it's an empty array, set an empty array
+          else {
+            setRecommendations([]);
           }
         } else {
           setRecommendations([]);
@@ -189,17 +193,26 @@ const AgentChatPage = () => {
                 </CardHeader>
                 <CardContent className="pt-4">
                   <div className="space-y-3">
-                    {recommendations.map((rec, index) => (
-                      <motion.div 
-                        key={rec.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="bg-yellow-50 p-3 rounded-lg border-l-4 border-yellow-400"
-                      >
-                        <p className="text-sm text-ey-darkGray">{rec.description}</p>
-                      </motion.div>
-                    ))}
+                    {recommendations.length > 0 ? (
+                      recommendations.map((rec, index) => (
+                        <motion.div 
+                          key={rec.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="bg-yellow-50 p-3 rounded-lg border-l-4 border-yellow-400"
+                        >
+                          <p className="text-sm text-ey-darkGray">{rec.description}</p>
+                          <div className="flex items-center mt-1">
+                            <span className="text-xs text-yellow-600 font-medium">{rec.impact} Impact</span>
+                          </div>
+                        </motion.div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-ey-lightGray">
+                        <p>No recommendations available yet.</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

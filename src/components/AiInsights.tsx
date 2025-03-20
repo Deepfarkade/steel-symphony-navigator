@@ -4,6 +4,7 @@ import { AlertTriangle, CheckCircle, TrendingUp, Lightbulb } from 'lucide-react'
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { getAiInsights } from '@/services/dataService';
+import { useToast } from '@/hooks/use-toast';
 
 interface Insight {
   id: number;
@@ -20,6 +21,7 @@ interface AiInsightsProps {
 const AiInsights: React.FC<AiInsightsProps> = ({ insights: propInsights, loading: propLoading }) => {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(propLoading || false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (propInsights && propInsights.length > 0) {
@@ -32,13 +34,19 @@ const AiInsights: React.FC<AiInsightsProps> = ({ insights: propInsights, loading
           // Ensure the data matches the expected Insight type
           const typedInsights: Insight[] = data.map((item: any) => ({
             id: item.id,
-            type: item.type as 'alert' | 'success' | 'opportunity' | 'suggestion',
+            // Use type assertion to ensure the type is one of the allowed values
+            type: (item.type as 'alert' | 'success' | 'opportunity' | 'suggestion'),
             message: item.message,
             timestamp: item.timestamp
           }));
           setInsights(typedInsights);
         } catch (error) {
           console.error('Error fetching AI insights:', error);
+          toast({
+            variant: "destructive",
+            title: "Failed to load AI insights",
+            description: "Please try again later"
+          });
         } finally {
           setLoading(false);
         }
@@ -46,7 +54,7 @@ const AiInsights: React.FC<AiInsightsProps> = ({ insights: propInsights, loading
       
       fetchInsights();
     }
-  }, [propInsights]);
+  }, [propInsights, toast]);
 
   const getIcon = (type: string) => {
     switch (type) {
