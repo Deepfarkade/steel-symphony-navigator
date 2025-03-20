@@ -53,8 +53,8 @@ const AgentChatPage = () => {
               // It's already in the right format
               setRecommendations(recommendationsData as Recommendation[]);
             } 
-            else if (Array.isArray(recommendationsData) && recommendationsData.every(item => typeof item === 'string')) {
-              // Fix: Convert string array to Recommendation objects with correct typing
+            else if (Array.isArray(recommendationsData) && recommendationsData.every((item): item is string => typeof item === 'string')) {
+              // Fixed: Using type predicate to ensure TypeScript knows we're dealing with string items
               const formatted = recommendationsData.map((rec: string, index: number) => ({
                 id: index + 1,
                 title: `Recommendation ${index + 1}`,
