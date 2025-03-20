@@ -61,7 +61,7 @@ const ModuleChatPage = () => {
           </div>
           
           <div className="h-[calc(100vh-250px)] bg-white dark:bg-white rounded-lg overflow-hidden">
-            <AiChatInterface moduleContext={module} />
+            <AiChatInterface moduleContext={module} disableFloatingButton={true} />
           </div>
         </Card>
       </div>

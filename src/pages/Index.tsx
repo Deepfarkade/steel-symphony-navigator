@@ -181,7 +181,7 @@ const Index = () => {
       
       <div data-main-content className="ml-64 p-8 relative transition-all duration-300"> 
         <AiPulse />
-        <Header pageTitle={`Welcome, ${getUserDisplayName()}!`} />
+        <Header pageTitle={`Welcome, ${getUserDisplayName()}!`} showCoPilotButton={true} />
         
         <AiIntroduction />
         
@@ -557,7 +557,8 @@ const Index = () => {
         </motion.div>
       </div>
       
-      <AiChatInterface floating isOpen={chatOpen} onOpenChange={setChatOpen} />
+      {/* Disable the floating chatbot */}
+      {/* <AiChatInterface floating isOpen={chatOpen} onOpenChange={setChatOpen} /> */}
     </div>
   );
 };

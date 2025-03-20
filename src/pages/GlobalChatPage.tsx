@@ -57,7 +57,7 @@ const GlobalChatPage = () => {
         
         <Card className="max-w-6xl mx-auto p-0 overflow-hidden">
           <div className="bg-white h-[calc(100vh-300px)]">
-            <AiChatInterface />
+            <AiChatInterface disableFloatingButton={true} />
           </div>
         </Card>
       </div>

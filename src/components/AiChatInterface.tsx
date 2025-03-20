@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { SendHorizontal, Bot, User, Loader2, Sparkles, Brain, Maximize2, Minimize2, X, BrainCircuit } from 'lucide-react';
 import websocketService from '../services/websocketService';
@@ -14,6 +13,7 @@ interface AiChatInterfaceProps {
   agentId?: number;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  disableFloatingButton?: boolean;
 }
 
 interface ChatMessage {
@@ -27,7 +27,8 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   floating = false, 
   agentId,
   isOpen: propIsOpen,
-  onOpenChange
+  onOpenChange,
+  disableFloatingButton = true
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -47,7 +48,6 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Sync with external open state if provided
   useEffect(() => {
     if (propIsOpen !== undefined) {
       setIsDrawerOpen(propIsOpen);
@@ -63,11 +63,9 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   }, [messages, scrollToBottom]);
 
   useEffect(() => {
-    // Connect to WebSocket when component mounts
     websocketService.connect();
 
-    // Subscribe to chat messages
-    const unsubscribeChatMessages = websocketService.onMessage('chat', (payload: any) => {
+    const unsubscribeChatMessages = websocketService.onMessage(`chat${moduleContext ? `-${moduleContext}` : agentId ? `-agent-${agentId}` : ''}`, (payload: any) => {
       if (!payload.isUser) {
         setMessages(prev => [...prev, {
           text: payload.text,
@@ -78,7 +76,6 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       }
     });
 
-    // Subscribe to connection events
     const unsubscribeConnect = websocketService.onConnect(() => {
       toast({
         title: "Connected to AI Co-Pilot",
@@ -86,13 +83,11 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       });
     });
 
-    // Cleanup subscriptions when component unmounts
     return () => {
       unsubscribeChatMessages();
       unsubscribeConnect();
-      // Don't disconnect WebSocket here as other components might be using it
     };
-  }, [toast]);
+  }, [toast, moduleContext, agentId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,13 +103,11 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     setInputText('');
     setIsLoading(true);
 
-    // Auto-expand to fullscreen when user starts conversation
     if (messages.length <= 1 && !isFullscreen) {
       setIsFullscreen(true);
     }
 
-    // Send message via WebSocket
-    websocketService.sendMessage('chat', { 
+    websocketService.sendMessage(`chat${moduleContext ? `-${moduleContext}` : agentId ? `-agent-${agentId}` : ''}`, { 
       text: inputText,
       moduleContext,
       agentId,
@@ -260,17 +253,19 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     return (
       <>
         <Drawer open={isDrawerOpen || isFullscreen} onOpenChange={handleOpenChange}>
-          <DrawerTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg border-0"
-              onClick={() => handleOpenChange(true)}
-            >
-              <BrainCircuit className="h-6 w-6" />
-              <span className="absolute top-0 right-0 h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
-            </Button>
-          </DrawerTrigger>
+          {!disableFloatingButton && (
+            <DrawerTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg border-0"
+                onClick={() => handleOpenChange(true)}
+              >
+                <BrainCircuit className="h-6 w-6" />
+                <span className="absolute top-0 right-0 h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
+              </Button>
+            </DrawerTrigger>
+          )}
           <DrawerContent className={`p-0 max-h-[90vh] ${isFullscreen ? 'h-screen w-screen max-w-full' : ''}`}>
             {renderContent()}
           </DrawerContent>
