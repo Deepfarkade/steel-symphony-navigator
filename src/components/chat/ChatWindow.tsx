@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { PlusCircle, MessageSquare, ChevronRight, ChevronLeft } from 'lucide-react';
 import ChatHeader from './ChatHeader';
 import ChatMessageList from './ChatMessageList';
 import ChatInput from './ChatInput';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import ChatSidebar from './ChatSidebar';
+import SidebarToggle from './SidebarToggle';
 
 interface ChatMessage {
   text: string;
@@ -104,13 +102,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     onSendMessage(message, activeSessionId);
   };
 
+  const toggleSidebar = () => {
+    setShowSidebar(!showSidebar);
+  };
+
   // Get active session messages
   const activeSession = sessions.find(session => session.id === activeSessionId) || sessions[0];
-
-  // Format date for display
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric', year: 'numeric' });
-  };
 
   return (
     <div className={`ey-card ${floating ? 'fixed bottom-4 right-4 z-50 shadow-xl w-96' : 'w-full'} 
@@ -124,64 +121,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         handleClose={handleClose}
         navigateToChat={navigateToChat}
         floating={floating}
-        toggleSidebar={() => setShowSidebar(!showSidebar)}
+        toggleSidebar={toggleSidebar}
         showSidebar={showSidebar}
       />
       
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Sidebar */}
-        <div 
-          className={`absolute top-0 left-0 h-full z-10 border-r border-gray-100 
-            transition-all duration-300 ease-in-out bg-white dark:bg-gray-900
-            ${showSidebar ? 'w-64 opacity-100' : 'w-0 opacity-0 pointer-events-none'}
-          `}
-        >
-          <div className="p-3">
-            <Button 
-              onClick={handleNewSession}
-              className="w-full flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white"
-            >
-              <PlusCircle className="h-4 w-4 mr-2" />
-              New Chat
-            </Button>
-          </div>
-          
-          <ScrollArea className="h-[calc(100%-60px)]">
-            <div className="p-2 space-y-2">
-              {sessions.map((session) => (
-                <button
-                  key={session.id}
-                  onClick={() => setActiveSessionId(session.id)}
-                  className={`w-full text-left p-2 rounded-lg flex items-center ${
-                    activeSessionId === session.id 
-                      ? 'bg-indigo-100 text-indigo-700' 
-                      : 'hover:bg-gray-100 text-gray-700'
-                  }`}
-                >
-                  <MessageSquare className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <div className="overflow-hidden">
-                    <div className="font-medium truncate">{session.name}</div>
-                    <div className="text-xs text-gray-500">
-                      {formatDate(session.createdAt)}
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
+        {/* Sidebar Component */}
+        <ChatSidebar 
+          sessions={sessions}
+          activeSessionId={activeSessionId}
+          setActiveSessionId={setActiveSessionId}
+          handleNewSession={handleNewSession}
+          showSidebar={showSidebar}
+        />
         
-        {/* Toggle sidebar button */}
-        <div className={`absolute top-1/2 -translate-y-1/2 ${showSidebar ? 'left-64' : 'left-0'} z-20 transition-all duration-300`}>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="h-6 w-6 rounded-full border border-gray-200 bg-white shadow-md"
-            onClick={() => setShowSidebar(!showSidebar)}
-          >
-            {showSidebar ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-          </Button>
-        </div>
+        {/* Sidebar Toggle Component */}
+        <SidebarToggle 
+          showSidebar={showSidebar}
+          toggleSidebar={toggleSidebar}
+        />
         
         {/* Chat content */}
         <div 
