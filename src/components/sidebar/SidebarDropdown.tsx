@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { 
@@ -8,6 +8,7 @@ import {
   TooltipProvider,
   TooltipTrigger 
 } from "@/components/ui/tooltip";
+import { useLocation } from 'react-router-dom';
 
 interface SidebarDropdownProps {
   title: string;
@@ -16,6 +17,7 @@ interface SidebarDropdownProps {
   isActive?: boolean;
   children: React.ReactNode;
   theme?: 'light' | 'dark';
+  activeRoutes?: string[];
 }
 
 const SidebarDropdown: React.FC<SidebarDropdownProps> = ({ 
@@ -24,9 +26,22 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
   isCollapsed, 
   isActive = false,
   children,
-  theme = 'dark'
+  theme = 'dark',
+  activeRoutes = []
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  
+  // Check if current route is in activeRoutes array
+  const isRouteActive = activeRoutes.some(route => location.pathname.includes(route));
+  const finalIsActive = isActive || isRouteActive;
+
+  // Auto-open the dropdown if current route is active
+  useEffect(() => {
+    if (finalIsActive) {
+      setIsOpen(true);
+    }
+  }, [finalIsActive, location.pathname]);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -34,11 +49,11 @@ const SidebarDropdown: React.FC<SidebarDropdownProps> = ({
 
   const getButtonStyles = () => {
     if (theme === 'light') {
-      return isActive 
+      return finalIsActive 
         ? 'bg-ey-yellow/80 text-gray-800 font-medium shadow-md' 
         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-800 hover:shadow-sm';
     } else {
-      return isActive 
+      return finalIsActive 
         ? 'bg-ey-yellow/20 text-ey-yellow' 
         : 'text-gray-400 hover:bg-gray-700/30 hover:text-gray-200';
     }

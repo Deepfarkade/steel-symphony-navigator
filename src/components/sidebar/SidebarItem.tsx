@@ -16,6 +16,7 @@ interface SidebarItemProps {
   badge?: React.ReactNode;
   activeCheck?: (path: string) => boolean;
   theme?: 'light' | 'dark';
+  isInDropdown?: boolean;
 }
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ 
@@ -25,7 +26,8 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   isCollapsed,
   badge,
   activeCheck,
-  theme = 'dark'
+  theme = 'dark',
+  isInDropdown = false
 }) => {
   const location = useLocation();
   // Use the custom activeCheck function if provided, otherwise use the default check
@@ -37,6 +39,12 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
         ? 'bg-ey-yellow/80 text-gray-800 font-medium shadow-md' 
         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-800 hover:shadow-sm';
     } else {
+      // Apply consistent styling for items inside dropdown on agents page
+      if (isInDropdown && to.includes('/agents')) {
+        return isActive
+          ? 'bg-ey-yellow/20 text-ey-yellow'
+          : 'bg-ey-yellow/20 text-ey-yellow';
+      }
       return isActive 
         ? 'bg-ey-yellow/20 text-ey-yellow' 
         : 'text-gray-400 hover:bg-gray-700/30 hover:text-gray-200';

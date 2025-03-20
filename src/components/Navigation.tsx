@@ -49,6 +49,9 @@ const Navigation: React.FC = () => {
 
   // Determine if we should show the "no agents" message
   const showNoAgentsMessage = !loading && agents.length === 0;
+  
+  // Check if we're on the agents page
+  const isAgentsPage = location.pathname.includes('/agents');
 
   return (
     <motion.aside
@@ -173,8 +176,7 @@ const Navigation: React.FC = () => {
           title="Your Agents" 
           icon={<BrainCircuit className="h-5 w-5 text-ey-yellow" />} 
           isCollapsed={isCollapsed}
-          isActive={location.pathname.includes('/agent/') || 
-                   location.pathname.includes('/agents')}
+          activeRoutes={['/agent/', '/agents']}
           theme={theme}
         >
           <div className="py-2 space-y-1">
@@ -211,6 +213,7 @@ const Navigation: React.FC = () => {
               isCollapsed={isCollapsed}
               badge={<span className="px-2 py-0.5 text-xs bg-ey-yellow/20 text-ey-yellow rounded-full">Marketplace</span>}
               theme={theme}
+              isInDropdown={true}
             />
             
             <SidebarItem
@@ -220,6 +223,7 @@ const Navigation: React.FC = () => {
               isCollapsed={isCollapsed}
               activeCheck={(path) => path === "/agents"}
               theme={theme}
+              isInDropdown={true}
             />
           </div>
         </SidebarDropdown>
