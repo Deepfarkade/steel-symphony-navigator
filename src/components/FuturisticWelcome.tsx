@@ -126,12 +126,12 @@ const FuturisticWelcome = () => {
   }, []);
   
   return (
-    <div className="fixed inset-0 bg-ey-darkGray flex flex-col items-center justify-center z-50">
+    <div className="fixed inset-0 bg-[#1A1F2C] flex flex-col items-center justify-center z-50">
       <canvas ref={canvasRef} className="absolute inset-0" />
       
       <div className={`transition-all duration-1000 ${showLogo ? 'opacity-100 scale-100' : 'opacity-0 scale-90'} mb-8 relative z-10`}>
         <div className="h-24 w-24 bg-ey-yellow rounded-full flex items-center justify-center mb-4 relative">
-          <BrainCircuit className="h-12 w-12 text-ey-darkGray" />
+          <BrainCircuit className="h-12 w-12 text-[#1A1F2C]" />
           <div className="absolute inset-0 border-4 border-transparent rounded-full animate-spin-slow"></div>
           <div className="absolute -inset-2 border border-ey-yellow/20 rounded-full"></div>
           <div className="absolute -inset-4 border border-ey-yellow/10 rounded-full"></div>
@@ -139,14 +139,14 @@ const FuturisticWelcome = () => {
       </div>
       
       <h1 className="text-4xl font-bold text-white mb-2 flex items-center relative z-10">
-        <span className="text-gradient">Steel Ecosystem</span>
+        <span className="text-white">Steel Ecosystem</span>
         <span className="ml-2 text-ey-yellow flex items-center">
           Co-Pilot
           <Sparkles className="h-6 w-6 ml-2 text-ey-yellow animate-pulse" />
         </span>
       </h1>
       
-      <p className="text-ey-lightGray mb-8 relative z-10">{loadingMessages[loadingPhase]}</p>
+      <p className="text-gray-300 mb-8 relative z-10">{loadingMessages[loadingPhase]}</p>
       
       <div className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden mb-4 relative z-10">
         <div 
@@ -157,7 +157,7 @@ const FuturisticWelcome = () => {
       
       <div className="flex items-center relative z-10">
         <div className="h-2 w-2 bg-ey-yellow rounded-full animate-ping mr-2"></div>
-        <p className="text-sm text-ey-lightGray">{progress}% - Loading neural networks</p>
+        <p className="text-sm text-gray-300">{progress}% - Loading neural networks</p>
       </div>
       
       {/* Decorative elements */}

@@ -63,53 +63,53 @@
   }
 
   .dark {
-    /* Dark Mode Colors - more subtle, avoiding pure black */
+    /* Dark Mode Colors - navy blues instead of pure black */
     --background: 222 25% 13%; /* #1A1F2C - Dark navy blue instead of pure black */
-    --foreground: 0 0% 98%; /* Off-white */
+    --foreground: 210 40% 98%; /* #F1F5FB - Off-white with slight blue tint */
 
-    --card: 224 30% 15%; /* #1F2437 - Slightly lighter than background */
-    --card-foreground: 0 0% 98%; /* Off-white */
+    --card: 222 28% 17%; /* #1F2437 - Slightly lighter than background */
+    --card-foreground: 210 40% 98%; /* #F1F5FB - Same as foreground */
 
-    --popover: 224 30% 15%; /* Same as card */
-    --popover-foreground: 0 0% 98%; /* Off-white */
+    --popover: 222 28% 17%; /* Same as card */
+    --popover-foreground: 210 40% 98%; /* Same as foreground */
 
     --primary: 53 100% 50%; /* #FFE600 - EY Yellow */
-    --primary-foreground: 224 30% 15%; /* Same as card - Dark navy blue */
+    --primary-foreground: 222 28% 17%; /* Same as card - Dark navy blue */
 
-    --secondary: 223 25% 20%; /* #252D44 - Dark navy with a hint of blue */
-    --secondary-foreground: 0 0% 98%; /* Off-white */
+    --secondary: 223 25% 22%; /* #252D44 - Dark navy with a hint of blue */
+    --secondary-foreground: 210 40% 98%; /* Same as foreground */
 
-    --muted: 223 25% 25%; /* #2D3653 - Slightly lighter than secondary */
-    --muted-foreground: 0 0% 63%; /* #a1a1a1 */
+    --muted: 223 25% 27%; /* #2D3653 - Slightly lighter than secondary */
+    --muted-foreground: 210 30% 80%; /* #BCC7E0 - Lighter blue-gray */
 
-    --accent: 223 25% 20%; /* Same as secondary */
-    --accent-foreground: 0 0% 98%; /* Off-white */
+    --accent: 223 25% 22%; /* Same as secondary */
+    --accent-foreground: 210 40% 98%; /* Same as foreground */
 
-    --destructive: 0 62% 35%; /* Darker red for dark mode */
-    --destructive-foreground: 0 0% 98%; /* Off-white */
+    --destructive: 0 62% 50%; /* Brighter red for better visibility in dark mode */
+    --destructive-foreground: 210 40% 98%; /* Same as foreground */
 
     --border: 223 25% 22%; /* #282F47 - Dark blue-gray border */
-    --input: 223 25% 22%; /* Dark blue-gray input */
+    --input: 223 25% 25%; /* Slightly lighter input field */
     --ring: 53 100% 50%; /* #FFE600 - EY Yellow */
     
     /* Shadows for Dark Mode */
-    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.2);
-    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
-    --shadow-dropdown: 0 2px 10px rgba(0, 0, 0, 0.25);
-    --shadow-button: 0 2px 5px rgba(0, 0, 0, 0.15);
-    --shadow-card-hover: 0 10px 25px rgba(0, 0, 0, 0.25);
+    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.25);
+    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.35);
+    --shadow-dropdown: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --shadow-button: 0 2px 5px rgba(0, 0, 0, 0.2);
+    --shadow-card-hover: 0 10px 25px rgba(0, 0, 0, 0.3);
 
     /* Sidebar Custom Colors - Dark Mode */
-    --sidebar-background: 222 25% 13%; /* #1A1F2C - Same as background */
-    --sidebar-foreground: 0 0% 98%; /* Off-white */
+    --sidebar-background: 223 28% 15%; /* #1F2437 - Slightly different from main background */
+    --sidebar-foreground: 210 40% 98%; /* #F1F5FB - Off-white */
     --sidebar-primary: 53 100% 50%; /* #FFE600 - EY Yellow */
-    --sidebar-primary-foreground: 222 25% 13%; /* #1A1F2C */
-    --sidebar-accent: 223 25% 20%; /* Same as secondary */
-    --sidebar-accent-foreground: 0 0% 98%; /* Off-white */
+    --sidebar-primary-foreground: 223 28% 15%; /* #1F2437 */
+    --sidebar-accent: 223 25% 20%; /* Slightly lighter than sidebar background */
+    --sidebar-accent-foreground: 210 40% 98%; /* Off-white */
     --sidebar-border: 223 25% 20%; /* Dark navy blue border */
     --sidebar-ring: 53 100% 50%; /* #FFE600 - EY Yellow */
     --sidebar-muted: 222 22% 18%; /* #202636 - Darker than accent */
-    --sidebar-muted-foreground: 0 0% 63%; /* #a1a1a1 */
+    --sidebar-muted-foreground: 210 30% 80%; /* #BCC7E0 - Lighter blue-gray */
   }
 }
 
@@ -202,6 +202,16 @@
   
   .sidebar-item.active {
     @apply bg-[hsl(var(--sidebar-accent))] text-[hsl(var(--sidebar-accent-foreground))] font-medium;
+  }
+
+  /* Dark mode card styles */
+  .dark .ey-card {
+    @apply bg-[#1F2437] border-[#2A3042]/30 shadow-[0_4px_15px_rgba(0,0,0,0.1)];
+  }
+
+  /* New KPI card styles for dark mode */
+  .dark .kpi-card {
+    @apply bg-[#1F2437] text-gray-200 shadow-[0_4px_12px_rgba(0,0,0,0.15)];
   }
 }
 
@@ -361,4 +371,37 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Improved visibility for dark mode text */
+.dark {
+  --text-primary: #F1F5FB;
+  --text-secondary: #CDD6E8;
+  --text-tertiary: #9EACC7;
+}
+
+.dark .text-dark-primary {
+  color: var(--text-primary);
+}
+
+.dark .text-dark-secondary {
+  color: var(--text-secondary);
+}
+
+.dark .text-dark-tertiary {
+  color: var(--text-tertiary);
+}
+
+/* Card background improvements for dark mode */
+.dark .stat-card, 
+.dark .module-card,
+.dark .dashboard-card {
+  background-color: #1F2437;
+  border-color: rgba(80, 90, 120, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Special hover effects for dark mode */
+.dark .hover-glow:hover {
+  box-shadow: 0 0 15px rgba(255, 230, 0, 0.2);
 }

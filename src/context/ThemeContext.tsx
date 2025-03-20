@@ -50,6 +50,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     
     // Dispatch a custom event that components can listen for
     window.dispatchEvent(new CustomEvent('themechange', { detail: { theme } }));
+    
+    // Add a data attribute for easier CSS targeting
+    document.body.setAttribute('data-theme', theme);
   }, [theme]);
 
   return (
