@@ -24,6 +24,7 @@ const formSchema = z.object({
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -41,27 +42,31 @@ const Signup = () => {
     setIsLoading(true);
     
     try {
-      const user = await registerUser(values.name, values.email, values.password);
+      await registerUser(values.name, values.email, values.password);
+      
+      // Show success message
+      setSignupSuccess(true);
+      
       toast({
         title: "Account created!",
         description: "You've been successfully registered.",
       });
       
-      // Simulate successful registration
+      // Set session expiry (7 days from now)
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 7);
+      localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
+      
+      // Redirect after a short delay
       setTimeout(() => {
-        localStorage.setItem('ey-user', JSON.stringify({
-          id: '1',
-          email: values.email,
-          name: values.name,
-          role: 'user'
-        }));
         navigate('/');
-      }, 1000);
+      }, 1500);
     } catch (error) {
+      console.error("Registration error:", error);
       toast({
         variant: "destructive",
         title: "Registration Failed",
-        description: "There was an error creating your account.",
+        description: error instanceof Error ? error.message : "There was an error creating your account.",
       });
     } finally {
       setIsLoading(false);
@@ -143,136 +148,151 @@ const Signup = () => {
             <p className="text-ey-lightGray">Sign up to start using the Steel Co-Pilot</p>
           </div>
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 animate-fade-in">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-ey-darkGray">Full Name</FormLabel>
-                    <div className="relative">
-                      <FormControl>
-                        <Input 
-                          placeholder="John Doe" 
-                          className="pl-10" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <UserRound className="absolute left-3 top-3 h-4 w-4 text-ey-lightGray" />
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-ey-darkGray">Email</FormLabel>
-                    <div className="relative">
-                      <FormControl>
-                        <Input 
-                          placeholder="you@example.com" 
-                          className="pl-10" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <MailIcon className="absolute left-3 top-3 h-4 w-4 text-ey-lightGray" />
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-ey-darkGray">Password</FormLabel>
-                    <div className="relative">
-                      <FormControl>
-                        <Input 
-                          type={showPassword ? "text" : "password"} 
-                          placeholder="••••••••" 
-                          className="pl-10" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <LockKeyhole className="absolute left-3 top-3 h-4 w-4 text-ey-lightGray" />
-                      <button 
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)} 
-                        className="absolute right-3 top-3"
-                      >
-                        {showPassword ? (
-                          <EyeOffIcon className="h-4 w-4 text-ey-lightGray" />
-                        ) : (
-                          <EyeIcon className="h-4 w-4 text-ey-lightGray" />
-                        )}
-                      </button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-ey-darkGray">Confirm Password</FormLabel>
-                    <div className="relative">
-                      <FormControl>
-                        <Input 
-                          type={showPassword ? "text" : "password"} 
-                          placeholder="••••••••" 
-                          className="pl-10" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <LockKeyhole className="absolute left-3 top-3 h-4 w-4 text-ey-lightGray" />
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex items-center">
-                <input
-                  id="terms"
-                  name="terms"
-                  type="checkbox"
-                  className="h-4 w-4 text-ey-yellow focus:ring-ey-yellow border-gray-300 rounded"
-                  required
+          {signupSuccess ? (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center animate-fade-in">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-green-800 mb-2">Account Created!</h3>
+              <p className="text-green-700">You've been successfully registered.</p>
+              <p className="text-green-600 text-sm mt-2">Redirecting you to the dashboard...</p>
+            </div>
+          ) : (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 animate-fade-in">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-ey-darkGray">Full Name</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input 
+                            placeholder="John Doe" 
+                            className="pl-10" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <UserRound className="absolute left-3 top-3 h-4 w-4 text-ey-lightGray" />
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                <label htmlFor="terms" className="ml-2 block text-sm text-ey-lightGray">
-                  I agree to the <a href="#" className="text-ey-yellow hover:text-ey-yellow/80">Terms of Service</a> and <a href="#" className="text-ey-yellow hover:text-ey-yellow/80">Privacy Policy</a>
-                </label>
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full bg-ey-yellow hover:bg-ey-yellow/90 text-ey-darkGray"
-                disabled={isLoading}
-              >
-                {isLoading ? "Creating account..." : "Create Account"}
-              </Button>
-              
-              <div className="mt-4 text-center">
-                <p className="text-sm text-ey-lightGray">
-                  Already have an account?{" "}
-                  <Link to="/login" className="font-medium text-ey-yellow hover:text-ey-yellow/80">
-                    Sign in
-                  </Link>
-                </p>
-              </div>
-            </form>
-          </Form>
+                
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-ey-darkGray">Email</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input 
+                            placeholder="you@example.com" 
+                            className="pl-10" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <MailIcon className="absolute left-3 top-3 h-4 w-4 text-ey-lightGray" />
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-ey-darkGray">Password</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="••••••••" 
+                            className="pl-10" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <LockKeyhole className="absolute left-3 top-3 h-4 w-4 text-ey-lightGray" />
+                        <button 
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)} 
+                          className="absolute right-3 top-3"
+                        >
+                          {showPassword ? (
+                            <EyeOffIcon className="h-4 w-4 text-ey-lightGray" />
+                          ) : (
+                            <EyeIcon className="h-4 w-4 text-ey-lightGray" />
+                          )}
+                        </button>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-ey-darkGray">Confirm Password</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="••••••••" 
+                            className="pl-10" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <LockKeyhole className="absolute left-3 top-3 h-4 w-4 text-ey-lightGray" />
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="flex items-center">
+                  <input
+                    id="terms"
+                    name="terms"
+                    type="checkbox"
+                    className="h-4 w-4 text-ey-yellow focus:ring-ey-yellow border-gray-300 rounded"
+                    required
+                  />
+                  <label htmlFor="terms" className="ml-2 block text-sm text-ey-lightGray">
+                    I agree to the <a href="#" className="text-ey-yellow hover:text-ey-yellow/80">Terms of Service</a> and <a href="#" className="text-ey-yellow hover:text-ey-yellow/80">Privacy Policy</a>
+                  </label>
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-ey-yellow hover:bg-ey-yellow/90 text-ey-darkGray"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating account..." : "Create Account"}
+                </Button>
+                
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-ey-lightGray">
+                    Already have an account?{" "}
+                    <Link to="/login" className="font-medium text-ey-yellow hover:text-ey-yellow/80">
+                      Sign in
+                    </Link>
+                  </p>
+                </div>
+              </form>
+            </Form>
+          )}
         </div>
       </div>
     </div>

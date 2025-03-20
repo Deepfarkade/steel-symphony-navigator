@@ -47,6 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + SESSION_EXPIRY_DAYS);
     localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
+    console.log("Session expiry set to:", expiryDate);
   };
   
   // Function to check if the session is valid
@@ -55,7 +56,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!expiryStr) return false;
     
     const expiry = new Date(expiryStr);
-    return expiry > new Date();
+    const isValid = expiry > new Date();
+    console.log("Session validity check:", isValid, "Expiry:", expiry);
+    return isValid;
   };
   
   useEffect(() => {
@@ -65,6 +68,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Check if we have a valid session and user data
       const currentUser = checkAuthStatus();
       const validSession = isSessionValid();
+      
+      console.log("Auth check - User:", !!currentUser, "Valid session:", validSession);
       
       if (currentUser && validSession) {
         setUser(currentUser);
@@ -105,8 +110,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
   
   const initiateSSO = (provider: SSOProvider) => {
-    // Use the actual SSO service function
-    initiateSSOLogin(provider);
+    try {
+      // Use the actual SSO service function
+      initiateSSOLogin(provider);
+    } catch (error) {
+      console.error(`SSO error with ${provider}:`, error);
+      throw error;
+    }
   };
   
   // When a user logs in, set the session expiry
