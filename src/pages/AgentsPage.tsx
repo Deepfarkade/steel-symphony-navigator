@@ -1,17 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { BrainCircuit, Plus, Search, Filter, BrainCog, Download, ArrowUpDown, Sparkles, Loader } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Header from '../components/Header';
-import AiAgentCard from '../components/AiAgentCard';
-import { getAiAgents, getAvailableAgents, addAgentToUser } from '@/services/dataService';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { getAvailableAgents, addAgentToUser } from '@/services/dataService';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useAgents } from '@/hooks/useAgents';
+import AgentsMarketplaceHeader from '@/components/agents/AgentsMarketplaceHeader';
+import AgentsSearchBar from '@/components/agents/AgentsSearchBar';
+import MarketplaceAgentsList from '@/components/agents/MarketplaceAgentsList';
 
 // Mock agents for immediate rendering
 const mockAvailableAgents = [
@@ -156,11 +153,6 @@ const AgentsPage = () => {
     setSearchQuery(e.target.value);
   };
 
-  const filteredAgents = availableAgents.filter(agent => 
-    agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    agent.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -177,83 +169,20 @@ const AgentsPage = () => {
         <div className="mb-8">
           <Card>
             <CardHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
-                    <BrainCircuit className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl">EY Steel Ecosystem AI Agents</CardTitle>
-                    <CardDescription className="text-white/80">
-                      Deploy specialized AI agents to continuously analyze your steel operations
-                    </CardDescription>
-                  </div>
-                </div>
-                <Button 
-                  className="bg-indigo-500 hover:bg-indigo-600 text-white"
-                  onClick={() => navigate('/create-agent')}
-                >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Create Custom Agent
-                </Button>
-              </div>
+              <AgentsMarketplaceHeader />
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="relative w-80">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input 
-                    className="pl-10" 
-                    placeholder="Search marketplace..." 
-                    value={searchQuery}
-                    onChange={handleSearch}
-                  />
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Button variant="outline" size="sm" className="text-ey-darkGray">
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-ey-darkGray">
-                    <ArrowUpDown className="h-4 w-4 mr-2" />
-                    Sort
-                  </Button>
-                </div>
-              </div>
+              <AgentsSearchBar 
+                searchQuery={searchQuery}
+                onSearchChange={handleSearch}
+              />
               
-              {filteredAgents.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredAgents.map((agent) => (
-                    <motion.div
-                      key={agent.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg overflow-hidden border border-white/10"
-                    >
-                      <AiAgentCard
-                        id={agent.id}
-                        name={agent.name}
-                        description={agent.description}
-                        status="active"
-                        confidence={agent.confidence}
-                        icon={agent.icon}
-                        onActivate={handleDeployAgent}
-                        isExpanded={true}
-                        deploying={deployingAgent === agent.id}
-                        isUserAgent={false}
-                      />
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <BrainCog className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-lg font-medium text-ey-darkGray mb-2">No agents found</h3>
-                  <p className="text-ey-lightGray mb-6">
-                    {searchQuery ? 'No agents match your search criteria.' : 'All available agents have already been deployed.'}
-                  </p>
-                </div>
-              )}
+              <MarketplaceAgentsList 
+                agents={availableAgents}
+                searchQuery={searchQuery}
+                onDeployAgent={handleDeployAgent}
+                deployingAgent={deployingAgent}
+              />
             </CardContent>
           </Card>
         </div>
