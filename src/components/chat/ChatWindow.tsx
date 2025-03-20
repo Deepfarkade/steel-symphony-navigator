@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatMessageList, { ChatMessageData } from './ChatMessageList';
@@ -57,6 +56,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [activeSessionId, setActiveSessionId] = useState<string>('default');
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [messagesSent, setMessagesSent] = useState<number>(0);
 
   // Keep messages updated with props
   useEffect(() => {
@@ -75,6 +75,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       });
     }
   }, [messages, activeSessionId]);
+
+  // Auto-navigate to full view when user sends messages
+  useEffect(() => {
+    if (messagesSent > 0 && !isFullscreen && floating) {
+      navigateToChat();
+    }
+  }, [messagesSent, isFullscreen, navigateToChat, floating]);
 
   const handleNewSession = () => {
     const newSession: ChatSession = {
@@ -100,6 +107,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   };
 
   const handleSendMessage = (message: string) => {
+    setMessagesSent(prev => prev + 1);
     onSendMessage(message, activeSessionId);
   };
 
@@ -134,6 +142,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         floating={floating}
         toggleSidebar={toggleSidebar}
         showSidebar={showSidebar}
+        messageCount={messagesSent}
       />
       
       <div className="flex flex-1 overflow-hidden relative">

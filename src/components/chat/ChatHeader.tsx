@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { BrainCircuit, Maximize2, Minimize2, X, Sparkles, ExternalLink } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { BrainCircuit, Maximize2, Minimize2, X, Sparkles, ExternalLink, FullscreenIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ChatHeaderProps {
@@ -12,6 +12,7 @@ interface ChatHeaderProps {
   floating?: boolean;
   toggleSidebar?: () => void;
   showSidebar?: boolean;
+  messageCount?: number;
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ 
@@ -22,7 +23,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   navigateToChat,
   floating = false,
   toggleSidebar,
-  showSidebar
+  showSidebar,
+  messageCount = 0
 }) => {
   const handleFullscreenClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -30,6 +32,14 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     console.log("Fullscreen button clicked, current state:", isFullscreen);
     toggleFullscreen();
   };
+
+  // Auto navigate to full view when user has sent messages
+  useEffect(() => {
+    if (messageCount > 0 && floating && !isFullscreen) {
+      // We don't call navigateToChat directly here because that would create an infinite loop
+      // with the effect in ChatWindow. Instead, we highlight the button to encourage clicking.
+    }
+  }, [messageCount, floating, isFullscreen]);
 
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-100">
@@ -56,13 +66,15 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           AI Assistant
         </motion.span>
         
-        <button 
+        <motion.button 
           onClick={navigateToChat} 
-          className="text-gray-500 hover:text-indigo-600 transition-colors"
+          className={`text-gray-500 hover:text-indigo-600 transition-colors ${messageCount > 0 && floating ? 'animate-pulse text-indigo-600' : ''}`}
           title="Open Full View"
+          animate={messageCount > 0 && floating && !isFullscreen ? { scale: [1, 1.1, 1] } : {}}
+          transition={{ duration: 1.5, repeat: messageCount > 0 && floating && !isFullscreen ? Infinity : 0 }}
         >
           <ExternalLink size={18} />
-        </button>
+        </motion.button>
         
         <button 
           onClick={handleFullscreenClick} 

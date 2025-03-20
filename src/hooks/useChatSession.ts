@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useChatContext } from '@/context/ChatContext';
+import { useNavigate } from 'react-router-dom';
 
 interface ChatMessage {
   text: string;
@@ -10,6 +11,7 @@ interface ChatMessage {
 
 export const useChatSession = (moduleContext?: string, agentId?: number) => {
   const [fullscreen, setFullscreen] = useState(false);
+  const navigate = useNavigate();
   
   // Try to get context, but handle the case when it's not available
   let contextValues;

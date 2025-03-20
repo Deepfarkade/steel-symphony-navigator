@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BrainCircuit } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
@@ -8,6 +7,7 @@ import ChatWindow from './chat/ChatWindow';
 import { ChatProvider } from '@/context/ChatContext';
 import { useChatSession } from '@/hooks/useChatSession';
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface AiChatInterfaceProps {
   moduleContext?: string;
@@ -45,12 +45,14 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   };
 
   const navigateToChat = () => {
-    // Close drawer or fullscreen before navigating
+    // Close drawer before navigating
     if (isDrawerOpen) {
       handleOpenChange(false);
     }
     
-    if (localFullscreen) {
+    // Don't close fullscreen if we're already in fullscreen mode
+    // instead, keep it open and just navigate
+    if (floating && localFullscreen) {
       setLocalFullscreen(false);
     }
     
@@ -96,7 +98,8 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       console.log("Toggling fullscreen in AiChatInterface");
       const newState = !localFullscreen;
       setLocalFullscreen(newState);
-      // Only update the hook state if using the drawer
+      
+      // If we're in floating mode and going fullscreen
       if (floating) {
         // If we're going fullscreen, close the drawer
         if (newState) {
