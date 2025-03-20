@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { ArrowLeft, BrainCircuit, Zap, Activity } from 'lucide-react';
@@ -52,9 +53,9 @@ const AgentChatPage = () => {
               // It's already in the right format
               setRecommendations(recommendationsData as Recommendation[]);
             } 
-            else if (typeof recommendationsData[0] === 'string') {
-              // Convert string array to Recommendation objects
-              const formatted: Recommendation[] = recommendationsData.map((rec: string, index: number) => ({
+            else if (Array.isArray(recommendationsData) && recommendationsData.every(item => typeof item === 'string')) {
+              // Fix: Convert string array to Recommendation objects with correct typing
+              const formatted = recommendationsData.map((rec: string, index: number) => ({
                 id: index + 1,
                 title: `Recommendation ${index + 1}`,
                 description: rec,

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Rocket, Sparkles, Download, ChevronDown, Filter, Brain, LightbulbIcon, Zap, TrendingUp, BarChart2 } from 'lucide-react';
 import Navigation from './Navigation';
@@ -239,7 +240,8 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
     };
 
     const module = moduleName || title.toLowerCase().replace(/\s+/g, '-');
-    return metricsByModule[module] || {
+    // Fix for TypeScript error - Add null check with nullish coalescing operator
+    return metricsByModule[module] ?? {
       accuracy: '93.8%',
       confidence: '94.5%',
       optimization: '88.7%',
