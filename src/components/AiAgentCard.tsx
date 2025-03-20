@@ -41,6 +41,12 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
         return <CheckCircle className="h-6 w-6 text-white" />;
       case 'shield':
         return <Shield className="h-6 w-6 text-white" />;
+      case 'alert-triangle':
+        return <Shield className="h-6 w-6 text-white" />;
+      case 'globe':
+        return <BrainCircuit className="h-6 w-6 text-white" />;
+      case 'lightbulb':
+        return <BrainCircuit className="h-6 w-6 text-white" />;
       default:
         return <BrainCircuit className="h-6 w-6 text-white" />;
     }

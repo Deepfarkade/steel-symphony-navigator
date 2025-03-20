@@ -19,6 +19,7 @@ import {
   Brain,
   ChevronDown,
   ChevronRight,
+  ChevronLeft,
   Plus,
   Lock,
   ArrowRight,
@@ -157,8 +158,10 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
   useEffect(() => {
     if (agentId || location.pathname.includes('/agent/')) {
       setIsAgentsOpen(true);
-      fetchAgents();
     }
+    
+    // Always fetch agents when the component mounts
+    fetchAgents();
   }, [agentId, location.pathname]);
 
   const fetchAgents = async () => {
@@ -395,7 +398,7 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
                                     )}
                                     <button
                                       onClick={(e) => handleRemoveAgent(agent, e)}
-                                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded"
+                                      className="p-1 hover:bg-red-50 rounded visible group-hover:visible transition-opacity"
                                       title="Remove agent"
                                     >
                                       <Trash className="h-3.5 w-3.5 text-red-500" />
@@ -457,9 +460,10 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
               </div>
               <button 
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-center p-3 rounded-lg bg-ey-darkGray/5 text-ey-darkGray hover:bg-ey-darkGray/10 transition-all duration-300"
+                className="w-full flex items-center justify-center p-3 rounded-lg bg-ey-yellow/30 text-ey-darkGray hover:bg-ey-yellow/40 transition-all duration-300"
               >
-                {'<<'}
+                <ChevronLeft className="h-5 w-5 mr-2" />
+                <span>Collapse Sidebar</span>
               </button>
             </>
           ) : (
@@ -483,9 +487,9 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
               </div>
               <button 
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-center p-3 rounded-lg bg-ey-darkGray/5 text-ey-darkGray hover:bg-ey-darkGray/10 transition-all duration-300"
+                className="w-full flex items-center justify-center p-3 rounded-lg bg-ey-yellow/30 text-ey-darkGray hover:bg-ey-yellow/40 transition-all duration-300"
               >
-                {'>>'}
+                <ChevronRight className="h-5 w-5" />
               </button>
             </>
           )}
