@@ -1,4 +1,3 @@
-
 // WebSocket service for real-time communication with AI Co-Pilot
 
 class WebSocketService {
@@ -6,7 +5,7 @@ class WebSocketService {
   private listeners: Record<string, Array<(data: any) => void>> = {};
   private messageQueue: any[] = [];
   private connectionSuccessCallbacks: Array<() => void> = [];
-  private isConnected: boolean = false;
+  private _isConnected: boolean = false;
   private reconnectAttempts: number = 0;
   private maxReconnectAttempts: number = 5;
   private reconnectTimeout: NodeJS.Timeout | null = null;
@@ -19,7 +18,7 @@ class WebSocketService {
     
     // Simulate connection establishment
     setTimeout(() => {
-      this.isConnected = true;
+      this._isConnected = true;
       console.info('WebSocket connected successfully');
       
       // Notify all connection listeners
@@ -34,15 +33,20 @@ class WebSocketService {
   }
 
   disconnect() {
-    if (!this.isConnected) return;
+    if (!this._isConnected) return;
     
-    this.isConnected = false;
+    this._isConnected = false;
     console.info('WebSocket disconnected');
     
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
     }
+  }
+
+  // Public method to check connection status
+  isConnected(): boolean {
+    return this._isConnected;
   }
 
   private attemptReconnect() {
@@ -61,7 +65,7 @@ class WebSocketService {
     this.connectionSuccessCallbacks.push(callback);
     
     // If already connected, call immediately
-    if (this.isConnected) {
+    if (this._isConnected) {
       callback();
     }
     
@@ -87,7 +91,7 @@ class WebSocketService {
   }
 
   sendMessage(channel: string, data: any) {
-    if (!this.isConnected) {
+    if (!this._isConnected) {
       console.warn('WebSocket is not connected. Message will be queued.');
       this.messageQueue.push({ channel, data });
       return;

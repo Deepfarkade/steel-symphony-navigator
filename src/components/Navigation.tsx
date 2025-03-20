@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
@@ -24,7 +23,7 @@ import {
   ArrowRight,
   TrendingUp,
   BarChart2,
-  Tool,
+  Wrench,
   Users
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -132,10 +131,8 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Select the main content container that needs to be adjusted
     const mainContent = document.querySelector('[data-main-content]');
     if (mainContent) {
-      // Adjust margin based on sidebar state
       if (isExpanded) {
         mainContent.classList.remove('ml-20');
         mainContent.classList.add('ml-64');
@@ -147,7 +144,6 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
   }, [isExpanded]);
 
   useEffect(() => {
-    // If we're on an agent page, expand the agents section
     if (agentId || location.pathname.includes('/agent/')) {
       setIsAgentsOpen(true);
       fetchAgents();
@@ -189,7 +185,7 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
         title: "Agent added successfully",
         description: "The agent has been added to your workspace and is now available.",
       });
-      fetchAgents(); // Refresh the agents list
+      fetchAgents();
       setShowMarketplace(false);
     } catch (error) {
       console.error('Error adding agent:', error);
@@ -210,7 +206,7 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
       case 'check-circle': return <Box className="h-4 w-4" />;
       case 'shield': return <AlertTriangle className="h-4 w-4" />;
       case 'trending-up': return <TrendingUp className="h-4 w-4" />;
-      case 'tool': return <Tool className="h-4 w-4" />;
+      case 'tool': return <Wrench className="h-4 w-4" />;
       case 'package': return <Package className="h-4 w-4" />;
       case 'users': return <Users className="h-4 w-4" />;
       default: return <BrainCog className="h-4 w-4" />;
@@ -221,7 +217,6 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
     <aside className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 ${isExpanded ? 'w-64' : 'w-20'} bg-white border-r border-ey-lightGray/20 shadow-sm`}>
       <div className="h-full px-3 py-8 flex flex-col justify-between">
         <div className="flex flex-col h-full">
-          {/* Logo */}
           <div className="flex items-center justify-center mb-8">
             {isExpanded ? (
               <div className="flex items-center">
@@ -233,7 +228,6 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
             )}
           </div>
           
-          {/* User info when expanded */}
           {isExpanded && user && (
             <div className="px-4 py-3 mb-6 bg-gray-50 rounded-lg">
               <div className="flex items-center">
@@ -248,7 +242,6 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
             </div>
           )}
           
-          {/* Nav links */}
           <ScrollArea className="flex-grow pr-3">
             <div className="space-y-2">
               {modules.map((module) => (
@@ -273,7 +266,6 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
                 </Link>
               ))}
               
-              {/* Your Agents section */}
               <Collapsible
                 open={isAgentsOpen}
                 onOpenChange={(open) => {
@@ -352,7 +344,6 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
           </ScrollArea>
         </div>
         
-        {/* Bottom section */}
         <div>
           {isExpanded ? (
             <>
@@ -415,7 +406,6 @@ const Navigation: React.FC<NavigationProps> = ({ agentId }) => {
         </div>
       </div>
 
-      {/* Agent Marketplace Dialog */}
       <Dialog open={showMarketplace} onOpenChange={setShowMarketplace}>
         <DialogContent className="sm:max-w-4xl">
           <DialogHeader>

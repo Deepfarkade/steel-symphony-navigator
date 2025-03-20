@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Factory, Clock, Zap, BarChart2, Check, Calendar, ChevronRight, ArrowRight } from 'lucide-react';
 import ModuleLayout from '../components/ModuleLayout';
@@ -37,11 +36,18 @@ const FactoryPlanning = () => {
   const [optimizationRecommendations, setOptimizationRecommendations] = useState<any[]>([]);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [isConnectedToWebsocket, setIsConnectedToWebsocket] = useState(false);
 
   useEffect(() => {
-    // Connect to WebSocket when component mounts
-    if (!websocketService.isConnected()) {
-      websocketService.connect();
+    // Try to connect to WebSocket when component mounts using a try-catch to handle errors
+    try {
+      // Check if we can connect to the websocket service
+      if (!isConnectedToWebsocket) {
+        websocketService.connect();
+        setIsConnectedToWebsocket(true);
+      }
+    } catch (error) {
+      console.error('Error connecting to websocket:', error);
     }
 
     // Simulate fetching optimization recommendations
@@ -94,7 +100,7 @@ const FactoryPlanning = () => {
     };
     
     fetchRecommendations();
-  }, []);
+  }, [isConnectedToWebsocket]);
   
   const handleGeneratePlan = () => {
     setIsGeneratingPlan(true);
@@ -110,12 +116,18 @@ const FactoryPlanning = () => {
       });
       
       // Send websocket message to update chat
-      websocketService.sendMessage('chat', {
-        text: "I've just generated a new optimized production plan for your factory. Would you like me to explain the key optimization areas?",
-        moduleContext: "Factory Planning",
-        timestamp: new Date().toISOString(),
-        isUser: false
-      });
+      try {
+        if (isConnectedToWebsocket) {
+          websocketService.sendMessage('chat', {
+            text: "I've just generated a new optimized production plan for your factory. Would you like me to explain the key optimization areas?",
+            moduleContext: "Factory Planning",
+            timestamp: new Date().toISOString(),
+            isUser: false
+          });
+        }
+      } catch (error) {
+        console.error('Error sending websocket message:', error);
+      }
     }, 3000);
   };
 

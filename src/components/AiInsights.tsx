@@ -29,7 +29,14 @@ const AiInsights: React.FC<AiInsightsProps> = ({ insights: propInsights, loading
         setLoading(true);
         try {
           const data = await getAiInsights();
-          setInsights(data);
+          // Ensure the data matches the expected Insight type
+          const typedInsights: Insight[] = data.map((item: any) => ({
+            id: item.id,
+            type: item.type as 'alert' | 'success' | 'opportunity' | 'suggestion',
+            message: item.message,
+            timestamp: item.timestamp
+          }));
+          setInsights(typedInsights);
         } catch (error) {
           console.error('Error fetching AI insights:', error);
         } finally {

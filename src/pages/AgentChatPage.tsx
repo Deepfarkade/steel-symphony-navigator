@@ -16,11 +16,19 @@ interface AgentParams {
   agentId: string;
 }
 
+interface Recommendation {
+  id: number;
+  title: string;
+  description: string;
+  impact: string;
+  category: string;
+}
+
 const AgentChatPage = () => {
   const { agentId } = useParams<AgentParams>();
   const [agent, setAgent] = useState<any>(null);
   const [analytics, setAnalytics] = useState<any>(null);
-  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
@@ -37,7 +45,27 @@ const AgentChatPage = () => {
         
         setAgent(agentData);
         setAnalytics(analyticsData);
-        setRecommendations(recommendationsData);
+        
+        // Handle the recommendations data with proper typing
+        if (Array.isArray(recommendationsData)) {
+          // If we got an array of recommendation objects, use them as-is
+          if (typeof recommendationsData[0] === 'object') {
+            setRecommendations(recommendationsData as Recommendation[]);
+          } 
+          // If we got an array of strings, convert them to Recommendation objects
+          else {
+            const formattedRecommendations = recommendationsData.map((rec, index) => ({
+              id: index + 1,
+              title: `Recommendation ${index + 1}`,
+              description: typeof rec === 'string' ? rec : 'AI generated recommendation',
+              impact: 'Medium',
+              category: 'AI'
+            }));
+            setRecommendations(formattedRecommendations);
+          }
+        } else {
+          setRecommendations([]);
+        }
       } catch (error) {
         console.error('Error fetching agent data:', error);
       } finally {
@@ -86,11 +114,11 @@ const AgentChatPage = () => {
       
       <div data-main-content className="ml-64 p-8 transition-all duration-300">
         <Header 
-          pageTitle={`AI Agent: ${agent.name}`}
+          pageTitle={`AI Agent: ${agent?.name}`}
           breadcrumbs={[
             { label: 'Home', link: '/' },
             { label: 'Agents', link: '/agents' },
-            { label: agent.name, link: `/agent/${agentId}` }
+            { label: agent?.name, link: `/agent/${agentId}` }
           ]}
         />
         
@@ -103,11 +131,11 @@ const AgentChatPage = () => {
                     <BrainCircuit className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-xl font-bold">{agent.name}</CardTitle>
-                    <div className="text-white/80 text-sm">{agent.description}</div>
+                    <CardTitle className="text-xl font-bold">{agent?.name}</CardTitle>
+                    <div className="text-white/80 text-sm">{agent?.description}</div>
                   </div>
                   <Badge className="ml-auto bg-green-500 text-white">
-                    {agent.status === 'active' ? 'Active' : 'Learning'}
+                    {agent?.status === 'active' ? 'Active' : 'Learning'}
                   </Badge>
                 </div>
               </CardHeader>
@@ -163,13 +191,13 @@ const AgentChatPage = () => {
                   <div className="space-y-3">
                     {recommendations.map((rec, index) => (
                       <motion.div 
-                        key={index}
+                        key={rec.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                         className="bg-yellow-50 p-3 rounded-lg border-l-4 border-yellow-400"
                       >
-                        <p className="text-sm text-ey-darkGray">{rec}</p>
+                        <p className="text-sm text-ey-darkGray">{rec.description}</p>
                       </motion.div>
                     ))}
                   </div>
