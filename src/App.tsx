@@ -259,7 +259,7 @@ const App = () => (
           <AuthProvider>
             <UserInactivityHandler />
             <AppRoutes />
-            <AiChatInterface floating />
+            <AiChatInterface fixedPosition={false} />
           </AuthProvider>
         </BrowserRouter>
       </ThemeProvider>

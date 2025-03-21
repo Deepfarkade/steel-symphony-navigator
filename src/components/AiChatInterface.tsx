@@ -11,13 +11,15 @@ interface AiChatInterfaceProps {
   agentId?: number;
   disableFloatingButton?: boolean;
   fixedPosition?: boolean;
+  floating?: boolean; // Added floating prop
 }
 
 const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   moduleContext,
   agentId,
   disableFloatingButton = false,
-  fixedPosition = false
+  fixedPosition = false,
+  floating = false // Set default value
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -72,6 +74,13 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       setIsExpanded(true);
     }
   }, [fixedPosition]);
+
+  // If floating is provided, use it as an alias for fixedPosition = false
+  useEffect(() => {
+    if (floating && fixedPosition) {
+      console.warn('Both floating and fixedPosition props provided. fixedPosition will take precedence.');
+    }
+  }, [floating, fixedPosition]);
 
   if (fixedPosition) {
     return (
