@@ -34,9 +34,10 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
       fullscreen,
       setFullscreen,
       toggleFullscreen: () => {
+        console.log("Toggling fullscreen from", fullscreen, "to", !fullscreen);
         const newState = !fullscreen;
         setFullscreen(newState);
-        return newState;
+        return newState; // Return the new state
       },
       messageCount: 0
     };
@@ -54,7 +55,6 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
   const messageCount = currentMessages.filter(msg => msg.isUser).length;
 
   const handleSendMessage = (message: string, sessionId?: string) => {
-    console.log(`Sending message to session ${sessionId || currentSessionId}`);
     sendMessage(message, sessionId);
     
     // Auto expand to fullscreen on first message if not already expanded
@@ -64,9 +64,10 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
   };
 
   const toggleFullscreen = () => {
+    console.log("Toggling fullscreen from", fullscreen, "to", !fullscreen);
     const newState = !fullscreen;
     setFullscreen(newState);
-    return newState;
+    return newState; // Return the new state
   };
 
   return {
@@ -76,6 +77,6 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
     fullscreen,
     setFullscreen,
     toggleFullscreen,
-    messageCount
+    messageCount // Add messageCount to the return values
   };
 };
