@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ArrowRight, LockKeyhole } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { 
   AlertDialog,
@@ -36,18 +36,26 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
   const { hasModuleAccess } = useAuth();
   const [showAccessDeniedDialog, setShowAccessDeniedDialog] = React.useState(false);
   const hasAccess = hasModuleAccess(moduleId);
+  const navigate = useNavigate();
 
   const handleClick = (e: React.MouseEvent) => {
-    if (!hasAccess) {
-      e.preventDefault();
+    e.preventDefault();
+    if (hasAccess) {
+      // Navigate to the module page if user has access
+      navigate(path);
+    } else {
+      // Show the access denied dialog if user doesn't have access
       setShowAccessDeniedDialog(true);
     }
   };
 
   return (
     <>
-      <div onClick={handleClick} className="block group">
-        <div className="ey-card p-6 h-full transition-all duration-300 hover:translate-y-[-5px] hover:shadow-lg relative overflow-hidden">
+      <div className="block group">
+        <div 
+          onClick={handleClick} 
+          className="ey-card p-6 h-full transition-all duration-300 hover:translate-y-[-5px] hover:shadow-lg relative overflow-hidden cursor-pointer"
+        >
           {!hasAccess && (
             <div className="absolute top-2 right-2 bg-amber-600 text-white px-2 py-1 rounded-md text-xs flex items-center">
               <LockKeyhole className="h-3 w-3 mr-1" />

@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import { AUTH_ENDPOINTS, API_CONFIG } from './apiConfig';
 import { User } from '@/types/auth';
@@ -13,7 +12,7 @@ const mockUsers = {
     lastName: 'User',
     role: 'admin' as const,
     allowedModules: ['demand-planning', 'supply-planning', 'order-promising', 'factory-planning', 'inventory-optimization', 'risk-management'],
-    allowedAgents: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    allowedAgents: [101, 102, 103, 104, 105, 106, 107, 108, 109, 110]
   },
   'user@example.com': {
     id: '2',
@@ -23,7 +22,7 @@ const mockUsers = {
     lastName: 'User',
     role: 'user' as const,
     allowedModules: ['demand-planning', 'supply-planning'],
-    allowedAgents: [1, 2]
+    allowedAgents: [101, 102]
   },
   'manager@example.com': {
     id: '3',
@@ -33,7 +32,7 @@ const mockUsers = {
     lastName: 'User',
     role: 'user' as const,
     allowedModules: ['demand-planning', 'supply-planning', 'inventory-optimization'],
-    allowedAgents: [1, 2, 3, 4, 5]
+    allowedAgents: [101, 102, 103, 104, 105]
   },
   'analyst@example.com': {
     id: '4',
@@ -43,7 +42,7 @@ const mockUsers = {
     lastName: 'Analyst',
     role: 'user' as const,
     allowedModules: ['demand-planning', 'factory-planning'],
-    allowedAgents: [2, 3, 6]
+    allowedAgents: [102, 103, 106]
   },
   'planner@example.com': {
     id: '5',
@@ -53,7 +52,7 @@ const mockUsers = {
     lastName: 'Planner',
     role: 'user' as const,
     allowedModules: ['supply-planning', 'order-promising'],
-    allowedAgents: [1, 4, 5, 7]
+    allowedAgents: [101, 104, 105, 107]
   }
 };
 
