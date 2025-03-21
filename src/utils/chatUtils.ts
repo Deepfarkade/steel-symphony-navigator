@@ -43,14 +43,50 @@ export const createErrorMessage = (): ChatMessage => {
 export const convertApiMessageToChatMessage = (messageData: any): ChatMessage => {
   console.log("Converting API message:", messageData);
   
+  // Handle different message formats
+  let table_data = messageData.table_data;
+  let summary = messageData.summary;
+  let next_question = messageData.next_question || [];
+  
+  // Handle legacy 'data' field for table data
+  if (!table_data && messageData.data) {
+    table_data = messageData.data;
+  }
+  
+  // Determine if this is a user or bot message
+  const isUser = messageData.sender === "user" || messageData.isUser === true;
+  
   return {
     id: messageData.id || uuidv4(),
-    text: messageData.text,
-    isUser: messageData.sender === "user" || messageData.isUser === true,
+    text: messageData.text || messageData.content || "",
+    isUser: isUser,
     timestamp: new Date(messageData.timestamp || Date.now()),
-    table_data: messageData.table_data,
-    summary: messageData.summary,
-    next_question: messageData.next_question || [],
+    table_data: table_data,
+    summary: summary,
+    next_question: next_question,
     session_id: messageData.session_id
   };
+};
+
+// Helper to determine if a message has table data that should be displayed
+export const hasTableData = (message: ChatMessage): boolean => {
+  return !message.isUser && 
+         message.table_data !== undefined && 
+         message.table_data !== null;
+};
+
+// Helper to determine if a message has a summary that should be displayed
+export const hasSummary = (message: ChatMessage): boolean => {
+  return !message.isUser && 
+         message.summary !== undefined && 
+         message.summary !== null && 
+         message.summary !== "";
+};
+
+// Helper to get suggested questions for display
+export const getSuggestedQuestions = (message: ChatMessage): string[] => {
+  if (!message.isUser && message.next_question && Array.isArray(message.next_question)) {
+    return message.next_question;
+  }
+  return [];
 };

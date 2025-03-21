@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import ChatMessage from './ChatMessage';
+import { hasTableData, hasSummary, getSuggestedQuestions } from '@/utils/chatUtils';
 
 export interface ChatMessageData {
   id?: string;
