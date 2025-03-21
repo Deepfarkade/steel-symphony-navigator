@@ -1,11 +1,7 @@
 
 import React from 'react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, LockKeyhole } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { AlertTriangle } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 
 interface ModuleCardProps {
   title: string;
@@ -13,102 +9,53 @@ interface ModuleCardProps {
   icon: React.ReactNode;
   path: string;
   color?: string;
-  completed?: string;
-  restricted?: boolean;
+  completed?: string | number;
 }
 
 const ModuleCard: React.FC<ModuleCardProps> = ({ 
   title, 
   description, 
   icon, 
-  path, 
-  color = 'bg-blue-100',
-  completed = '0',
-  restricted = false 
+  path,
+  color = 'bg-ey-yellow/10',
+  completed
 }) => {
-  const [showAccessDialog, setShowAccessDialog] = React.useState(false);
-  
-  // Function to handle module card click
-  const handleModuleClick = (e: React.MouseEvent) => {
-    if (restricted) {
-      e.preventDefault();
-      setShowAccessDialog(true);
-    }
-  };
-  
   return (
-    <>
-      <Link 
-        to={path} 
-        onClick={handleModuleClick}
-        className={`block relative ${restricted ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-      >
-        <div className={`${restricted ? 'opacity-70' : ''} ${color} p-6 rounded-lg transition-all duration-300 transform hover:shadow-lg hover:-translate-y-1 h-full`}>
-          {restricted && (
-            <div className="absolute top-2 right-2 bg-amber-500/80 text-white rounded-full p-1">
-              <LockKeyhole className="h-4 w-4" />
-            </div>
-          )}
-          
-          <div className="flex items-start mb-4">
-            <div className="bg-white rounded-lg p-3 shadow-sm mr-4">
-              {icon}
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-            </div>
+    <Link to={path} className="block group">
+      <div className="ey-card p-6 h-full transition-all duration-300 hover:translate-y-[-5px] hover:shadow-lg relative overflow-hidden">
+        <div className="flex items-start mb-4">
+          <div className={`p-3 rounded-full ${color} mr-4 transition-all duration-300 group-hover:scale-110`}>
+            {icon}
           </div>
-          
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2">{description}</p>
-          
-          <div className="mb-3">
-            <div className="flex justify-between text-xs text-gray-600 mb-1">
-              <span>Completion</span>
-              <span>{completed}%</span>
-            </div>
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <motion.div 
-                className={`h-full ${restricted ? 'bg-gray-400' : 'bg-yellow-400'}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${completed}%` }}
-                transition={{ duration: 1, ease: "easeOut" }}
-              />
-            </div>
-          </div>
-          
-          <div className="flex justify-end mt-4">
-            <span className={`text-sm inline-flex items-center ${restricted ? 'text-gray-500' : 'text-yellow-600'}`}>
-              {restricted ? 'Access Restricted' : 'Explore'} 
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </span>
-          </div>
+          <h3 className="text-lg font-medium text-ey-darkGray">{title}</h3>
         </div>
-      </Link>
-      
-      <AlertDialog open={showAccessDialog} onOpenChange={setShowAccessDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-amber-700">
-              <AlertTriangle className="h-5 w-5" />
-              Access Restricted
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              You don't have permission to access the {title} module.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="p-4 bg-amber-50 rounded-md">
-            <p className="text-sm text-amber-800">
-              This module requires special permission. Please contact your administrator to request access.
-            </p>
+        
+        <p className="text-ey-lightGray mb-4 line-clamp-2">{description}</p>
+        
+        {completed !== undefined && (
+          <div className="mb-4">
+            <div className="flex justify-between text-xs mb-1">
+              <span className="text-ey-lightGray">Completion</span>
+              <span className="text-ey-darkGray font-medium">{completed}%</span>
+            </div>
+            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-ey-yellow rounded-full"
+                style={{ width: `${completed}%` }}
+              ></div>
+            </div>
           </div>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setShowAccessDialog(false)}>
-              Close
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+        )}
+        
+        <div className="flex items-center text-ey-yellow group-hover:underline text-sm font-medium transition-all">
+          <span>Explore</span>
+          <ArrowRight className="h-4 w-4 ml-1 transition-transform group-hover:translate-x-1" />
+        </div>
+        
+        {/* Animated background effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-ey-yellow/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+      </div>
+    </Link>
   );
 };
 

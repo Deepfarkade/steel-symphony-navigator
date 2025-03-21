@@ -1,10 +1,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Truck, BarChart3, Zap, CheckCircle, Shield, BrainCircuit, Loader2, Trash, TrendingUp, Leaf, Map, Package, BarChart2, Users, Settings, Wrench, LockKeyhole, AlertTriangle, ShieldX } from 'lucide-react';
+import { Truck, BarChart3, Zap, CheckCircle, Shield, BrainCircuit, Loader2, Trash, TrendingUp, Leaf, Map, Package, BarChart2, Users, Settings, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useAuth } from '@/context/AuthContext';
 
 interface AiAgentProps {
   id: number;
@@ -18,8 +17,7 @@ interface AiAgentProps {
   isExpanded?: boolean;
   deploying?: boolean;
   isUserAgent?: boolean;
-  restrictedBadge?: React.ReactNode;
-  showAccessIndicator?: boolean;
+  restrictedBadge?: React.ReactNode; // Add this prop
 }
 
 const AiAgentCard: React.FC<AiAgentProps> = ({ 
@@ -34,12 +32,8 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
   isExpanded = false,
   deploying = false,
   isUserAgent = false,
-  restrictedBadge,
-  showAccessIndicator = true
+  restrictedBadge // Accept the new prop
 }) => {
-  const { hasAgentAccess } = useAuth();
-  const userHasAccess = hasAgentAccess(id);
-
   const getIcon = () => {
     switch (icon) {
       case 'truck':
@@ -84,26 +78,10 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
-    if (onActivate && userHasAccess) {
+    if (onActivate) {
       onActivate(id);
     }
   };
-
-  // Generate the access restriction badge
-  const generateRestrictedBadge = () => {
-    if (!showAccessIndicator) return null;
-    if (userHasAccess) return null;
-    
-    return (
-      <div className="absolute top-2 right-2 bg-amber-600/80 text-white px-2 py-1 rounded-md text-xs flex items-center">
-        <LockKeyhole className="h-3 w-3 mr-1" />
-        Restricted
-      </div>
-    );
-  };
-
-  // Use provided badge or generate one if none provided
-  const accessBadge = restrictedBadge || generateRestrictedBadge();
 
   return (
     <motion.div
@@ -112,7 +90,7 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
       transition={{ duration: 0.3 }}
       className={`bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 relative group ${
         isExpanded ? 'col-span-1' : ''
-      } ${!userHasAccess ? 'ring-1 ring-amber-500/30' : ''}`}
+      }`}
     >
       {isUserAgent && onRemove && (
         <TooltipProvider>
@@ -137,30 +115,21 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
         </TooltipProvider>
       )}
       
-      {/* Render the access badge */}
-      {accessBadge}
+      {/* Render the restrictedBadge if provided */}
+      {restrictedBadge}
       
       <div className="flex items-center mb-3">
-        <div className={`h-12 w-12 rounded-full ${userHasAccess ? 'bg-purple-600' : 'bg-gray-600'} flex items-center justify-center mr-3`}>
-          {userHasAccess ? getIcon() : <ShieldX className="h-6 w-6 text-white/70" />}
+        <div className="h-12 w-12 rounded-full bg-purple-600 flex items-center justify-center mr-3">
+          {getIcon()}
         </div>
         <div>
           <h3 className="font-medium text-white">{name}</h3>
           <div className="flex items-center">
-            {userHasAccess ? (
-              <>
-                <div className={`h-2 w-2 rounded-full ${
-                  status === 'active' ? 'bg-green-400' : 
-                  status === 'learning' ? 'bg-yellow-400' : 'bg-red-400'
-                } mr-1.5 animate-pulse`}></div>
-                <span className="text-xs text-white/70 capitalize">{status}</span>
-              </>
-            ) : (
-              <span className="text-xs text-amber-500/80 flex items-center">
-                <AlertTriangle className="h-3 w-3 mr-1" />
-                Access Required
-              </span>
-            )}
+            <div className={`h-2 w-2 rounded-full ${
+              status === 'active' ? 'bg-green-400' : 
+              status === 'learning' ? 'bg-yellow-400' : 'bg-red-400'
+            } mr-1.5 animate-pulse`}></div>
+            <span className="text-xs text-white/70 capitalize">{status}</span>
           </div>
         </div>
       </div>
@@ -176,7 +145,7 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
         </div>
         <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
           <motion.div 
-            className={`h-full ${userHasAccess ? 'bg-purple-400' : 'bg-gray-400'} rounded-full`}
+            className="h-full bg-purple-400 rounded-full" 
             initial={{ width: 0 }}
             animate={{ width: `${confidence}%` }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -194,15 +163,6 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
             >
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               {deploying ? "Deploying Agent..." : "Activating Agent..."}
-            </Button>
-          ) : !userHasAccess ? (
-            <Button 
-              disabled
-              variant="outline" 
-              className="w-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border-amber-500/30"
-            >
-              <LockKeyhole className="h-4 w-4 mr-2" />
-              Access Restricted
             </Button>
           ) : (
             <Button 

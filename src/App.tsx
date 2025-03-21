@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AuthProvider, RequireAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import DemandPlanning from "./pages/DemandPlanning";
@@ -20,9 +21,6 @@ import Analytics from "./pages/Analytics";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AiChatInterface from "./components/AiChatInterface";
-import { useToast } from "./hooks/use-toast";
-import { AlertTriangle, LockKeyhole } from "lucide-react";
-import { Button } from "./components/ui/button";
 
 // Import additional routes for specific features
 import KpiDetails from "./pages/KpiDetails";
@@ -123,109 +121,18 @@ const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
   return userIsAdmin ? <>{children}</> : null;
 };
 
-// Enhanced Module access guard component with better UX
+// Module access guard component
 const RequireModuleAccess = ({ children, moduleId }: { children: React.ReactNode, moduleId: string }) => {
   const hasAccess = hasModuleAccess(moduleId);
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [showAccessDenied, setShowAccessDenied] = useState(false);
   
   useEffect(() => {
     if (!hasAccess) {
-      // Show toast notification
-      toast({
-        variant: "destructive",
-        title: "Access Restricted",
-        description: `You don't have permission to access the ${moduleId.replace('-', ' ')} module.`,
-      });
-      
-      // Show access denied component
-      setShowAccessDenied(true);
-      
-      // Navigate home after a delay
-      const timer = setTimeout(() => {
-        navigate('/');
-      }, 5000);
-      
-      return () => clearTimeout(timer);
+      navigate('/');
     }
-  }, [hasAccess, moduleId, navigate, toast]);
+  }, [hasAccess, navigate]);
   
   return hasAccess ? <>{children}</> : null;
-};
-
-// Enhanced Agent access guard component with better UX
-const RequireAgentAccess = ({ children, agentId }: { children: React.ReactNode, agentId: number }) => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [showAccessDenied, setShowAccessDenied] = useState(false);
-  
-  // We need to import hasAgentAccess inside the component to avoid circular dependencies
-  const hasAccess = () => {
-    try {
-      // Get the current user from localStorage
-      const userJson = localStorage.getItem('current-user');
-      if (!userJson) return false;
-      
-      const user = JSON.parse(userJson);
-      
-      // Admin has access to everything
-      if (user.role === 'admin') return true;
-      
-      // Check if agent is in user's allowed agents
-      return user.allowedAgents.includes(agentId);
-    } catch (error) {
-      console.error('Error checking agent access:', error);
-      return false;
-    }
-  };
-  
-  const userHasAccess = hasAccess();
-  
-  useEffect(() => {
-    if (!userHasAccess) {
-      // Show toast notification
-      toast({
-        variant: "destructive",
-        title: "Access Restricted",
-        description: "You don't have permission to access this agent.",
-      });
-      
-      // Show access denied component
-      setShowAccessDenied(true);
-      
-      // Navigate to agents page after a delay
-      const timer = setTimeout(() => {
-        navigate('/agents');
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [userHasAccess, navigate, toast]);
-  
-  if (showAccessDenied) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">
-          <div className="h-16 w-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <LockKeyhole className="h-8 w-8 text-amber-500" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Access Restricted</h2>
-          <p className="text-gray-600 mb-6">
-            You don't have permission to access this agent. You'll be redirected to the agent marketplace.
-          </p>
-          <Button 
-            onClick={() => navigate('/agents')}
-            className="bg-amber-500 hover:bg-amber-600 text-white"
-          >
-            Return to Agent Marketplace
-          </Button>
-        </div>
-      </div>
-    );
-  }
-  
-  return userHasAccess ? <>{children}</> : null;
 };
 
 const AppRoutes = () => (
@@ -327,13 +234,7 @@ const AppRoutes = () => (
       
       {/* Agents routes */}
       <Route path="/agents" element={<RequireAuth><AgentsPage /></RequireAuth>} />
-      <Route path="/agent/:agentId" element={
-        <RequireAuth>
-          <RequireAgentAccess agentId={Number(useLocation().pathname.split('/')[2])}>
-            <AgentChatPage />
-          </RequireAgentAccess>
-        </RequireAuth>
-      } />
+      <Route path="/agent/:agentId" element={<RequireAuth><AgentChatPage /></RequireAuth>} />
       <Route path="/create-agent" element={
         <RequireAuth>
           <RequireAdmin>
@@ -367,4 +268,3 @@ const App = () => (
 );
 
 export default App;
-
