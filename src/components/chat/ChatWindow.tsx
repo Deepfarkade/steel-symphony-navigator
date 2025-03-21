@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatMessageList, { ChatMessageData } from './ChatMessageList';
@@ -96,7 +97,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
           : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you today?`,
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
+        response_type: 'greeting'
       }],
       createdAt: new Date()
     };

@@ -3,7 +3,7 @@ import websocketService from '../services/websocketService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './AuthContext';
 import axios from 'axios';
-import { API_BASE_URL } from '@/services/apiConfig';
+import { API_BASE_URL, CHAT_ENDPOINTS } from '@/services/apiConfig';
 import { 
   getMockChatSession, 
   sendMockMessage, 
@@ -17,10 +17,11 @@ interface ChatMessage {
   isUser: boolean;
   timestamp: Date;
   id?: string;
-  table_data?: string;
+  table_data?: string | any;
   summary?: string;
   next_question?: string[];
-  response_type?: string; // This property is needed for TypeScript
+  response_type?: string;
+  sender?: 'user' | 'bot';
 }
 
 interface ChatContextProps {
@@ -171,7 +172,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           table_data: msg.table_data,
           summary: msg.summary,
           next_question: msg.next_question || [],
-          response_type: msg.response_type
+          response_type: msg.response_type || 'text'
         }));
         
         setChatSessions({
@@ -237,7 +238,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           id: uuidv4(),
           text: "Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you today?",
           isUser: false,
-          timestamp: new Date()
+          timestamp: new Date(),
+          response_type: 'greeting'
         };
         
         setChatSessions({ [fallbackSessionId]: [defaultMessage] });
@@ -313,7 +315,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
               table_data: payload.table_data,
               summary: payload.summary,
               next_question: payload.next_question || [],
-              response_type: payload.response_type
+              response_type: payload.response_type || 'text'
             }]
           };
         });
@@ -359,7 +361,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       id: uuidv4(),
       text: inputText,
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date(),
+      response_type: 'user_message'
     };
 
     setChatSessions(prev => {
@@ -399,7 +402,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           table_data: response.data.table_data,
           summary: response.data.summary,
           next_question: response.data.next_question || [],
-          response_type: response.data.response_type 
+          response_type: response.data.response_type || 'text'
         };
         
         setChatSessions(prev => {
@@ -561,7 +564,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             table_data: msg.table_data,
             summary: msg.summary,
             next_question: msg.next_question || [],
-            response_type: msg.response_type
+            response_type: msg.response_type || 'greeting'
           }));
           
           setChatSessions(prev => ({
