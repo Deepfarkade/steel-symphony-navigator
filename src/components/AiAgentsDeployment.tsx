@@ -60,6 +60,14 @@ const AiAgentsDeployment = () => {
     const isAlreadyDeployed = agents.some(agent => agent.id === id);
     
     if (isAlreadyDeployed) {
+      // Check if user has permission to access this agent
+      if (!hasAgentAccess(id)) {
+        const agent = agents.find(a => a.id === id);
+        setDeniedAgentName(agent?.name || 'this agent');
+        setShowAccessDeniedDialog(true);
+        return;
+      }
+      
       navigate(`/agent/${id}`);
       setOpen(false);
       return;
@@ -196,6 +204,7 @@ const AiAgentsDeployment = () => {
                         isExpanded={true}
                         deploying={false}
                         isUserAgent={true}
+                        showAccessIndicator={false} // Hide indicator for already deployed agents
                       />
                     ))}
                   </motion.div>
@@ -230,32 +239,22 @@ const AiAgentsDeployment = () => {
                     }
                   }}
                 >
-                  {availableAgents.slice(0, 6).map((agent) => {
-                    const userHasAccess = hasAgentAccess(agent.id);
-                    const restrictedBadge = !userHasAccess ? (
-                      <div className="absolute top-2 right-2 bg-amber-600 text-white px-2 py-1 rounded-md text-xs flex items-center">
-                        <LockKeyhole className="h-3 w-3 mr-1" />
-                        Restricted
-                      </div>
-                    ) : null;
-                    
-                    return (
-                      <AiAgentCard
-                        key={agent.id}
-                        id={agent.id}
-                        name={agent.name}
-                        description={agent.description || ''}
-                        status={'active'}
-                        confidence={agent.confidence || 0}
-                        icon={agent.icon}
-                        onActivate={deployAgent}
-                        isExpanded={true}
-                        deploying={deployingAgent === agent.id}
-                        isUserAgent={false}
-                        restrictedBadge={restrictedBadge}
-                      />
-                    );
-                  })}
+                  {availableAgents.slice(0, 6).map((agent) => (
+                    <AiAgentCard
+                      key={agent.id}
+                      id={agent.id}
+                      name={agent.name}
+                      description={agent.description || ''}
+                      status={'active'}
+                      confidence={agent.confidence || 0}
+                      icon={agent.icon}
+                      onActivate={deployAgent}
+                      isExpanded={true}
+                      deploying={deployingAgent === agent.id}
+                      isUserAgent={false}
+                      showAccessIndicator={true} // Show access indicator for marketplace agents
+                    />
+                  ))}
                 </motion.div>
               ) : (
                 <div className="bg-white/10 rounded-lg p-6 text-center">

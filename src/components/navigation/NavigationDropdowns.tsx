@@ -40,6 +40,51 @@ export const SupplyChainDropdown: React.FC<{ isCollapsed: boolean }> = ({ isColl
   
   if (!hasAnyModuleAccess) return null;
   
+  const supplyChainModules = [
+    {
+      id: 'demand-planning',
+      title: 'Demand Planning',
+      icon: <BarChart3 className="h-5 w-5 text-green-500" />,
+      path: '/demand-planning'
+    },
+    {
+      id: 'supply-planning',
+      title: 'Supply Planning',
+      icon: getIconComponent('truck', "h-5 w-5 text-green-500"),
+      path: '/supply-planning'
+    },
+    {
+      id: 'order-promising',
+      title: 'Order Promising',
+      icon: getIconComponent('package-check', "h-5 w-5 text-green-500"),
+      path: '/order-promising'
+    },
+    {
+      id: 'factory-planning',
+      title: 'Factory Planning',
+      icon: getIconComponent('factory', "h-5 w-5 text-green-500"),
+      path: '/factory-planning'
+    },
+    {
+      id: 'inventory-optimization',
+      title: 'Inventory Optimization',
+      icon: getIconComponent('gantt-chart', "h-5 w-5 text-green-500"),
+      path: '/inventory-optimization'
+    },
+    {
+      id: 'inventory-liquidation',
+      title: 'Inventory Liquidation',
+      icon: getIconComponent('dollar', "h-5 w-5 text-green-500"),
+      path: '/inventory-liquidation'
+    },
+    {
+      id: 'logistics',
+      title: 'Logistics Management',
+      icon: getIconComponent('network', "h-5 w-5 text-green-500"),
+      path: '/logistics'
+    }
+  ];
+  
   return (
     <SidebarDropdown 
       title="Supply Chain Modules" 
@@ -49,75 +94,23 @@ export const SupplyChainDropdown: React.FC<{ isCollapsed: boolean }> = ({ isColl
       theme={theme}
     >
       <div className="py-2 space-y-1">
-        {hasModuleAccess('demand-planning') && (
-          <SidebarItem
-            title="Demand Planning"
-            icon={<BarChart3 className="h-5 w-5 text-green-500" />}
-            to="/demand-planning"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
-        )}
-        
-        {hasModuleAccess('supply-planning') && (
-          <SidebarItem
-            title="Supply Planning"
-            icon={getIconComponent('truck', "h-5 w-5 text-green-500")}
-            to="/supply-planning"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
-        )}
-        
-        {hasModuleAccess('order-promising') && (
-          <SidebarItem
-            title="Order Promising"
-            icon={getIconComponent('package-check', "h-5 w-5 text-green-500")}
-            to="/order-promising"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
-        )}
-        
-        {hasModuleAccess('factory-planning') && (
-          <SidebarItem
-            title="Factory Planning"
-            icon={getIconComponent('factory', "h-5 w-5 text-green-500")}
-            to="/factory-planning"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
-        )}
-        
-        {hasModuleAccess('inventory-optimization') && (
-          <SidebarItem
-            title="Inventory Optimization"
-            icon={getIconComponent('gantt-chart', "h-5 w-5 text-green-500")}
-            to="/inventory-optimization"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
-        )}
-        
-        {hasModuleAccess('inventory-liquidation') && (
-          <SidebarItem
-            title="Inventory Liquidation"
-            icon={getIconComponent('dollar', "h-5 w-5 text-green-500")}
-            to="/inventory-liquidation"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
-        )}
-        
-        {hasModuleAccess('logistics') && (
-          <SidebarItem
-            title="Logistics Management"
-            icon={getIconComponent('network', "h-5 w-5 text-green-500")}
-            to="/logistics"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
-        )}
+        {supplyChainModules.map(module => {
+          // Only render the module item if user has access
+          const userHasAccess = hasModuleAccess(module.id);
+          
+          if (!userHasAccess) return null;
+          
+          return (
+            <SidebarItem
+              key={module.id}
+              title={module.title}
+              icon={module.icon}
+              to={module.path}
+              isCollapsed={isCollapsed}
+              theme={theme}
+            />
+          );
+        })}
       </div>
     </SidebarDropdown>
   );

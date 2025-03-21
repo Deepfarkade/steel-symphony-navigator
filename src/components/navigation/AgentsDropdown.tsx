@@ -18,7 +18,7 @@ const AgentsDropdown: React.FC<AgentsDropdownProps> = ({ isCollapsed }) => {
   const { theme } = useTheme();
   const { hasAgentAccess } = useAuth();
   
-  // Filter agents based on user's access rights
+  // Filter agents based on user's access rights ONLY
   const accessibleAgents = agents.filter(agent => hasAgentAccess(agent.id));
   
   return (

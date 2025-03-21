@@ -10,15 +10,21 @@ import { useAgents } from '@/hooks/useAgents';
 import AgentsMarketplaceHeader from '@/components/agents/AgentsMarketplaceHeader';
 import AgentsSearchBar from '@/components/agents/AgentsSearchBar';
 import MarketplaceAgentsList from '@/components/agents/MarketplaceAgentsList';
+import { useAuth } from '@/context/AuthContext';
+import { AlertTriangle } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const AgentsPage = () => {
   const [availableAgents, setAvailableAgents] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [deployingAgent, setDeployingAgent] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showAccessDeniedDialog, setShowAccessDeniedDialog] = useState(false);
+  const [deniedAgentName, setDeniedAgentName] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const { agents, refreshAgents } = useAgents();
+  const { hasAgentAccess } = useAuth();
 
   // Ensure the page starts at the top
   useEffect(() => {
@@ -48,6 +54,14 @@ const AgentsPage = () => {
   };
 
   const handleDeployAgent = async (agentId: number) => {
+    // Check if user has permission to deploy this agent
+    if (!hasAgentAccess(agentId)) {
+      const agent = availableAgents.find(a => a.id === agentId);
+      setDeniedAgentName(agent?.name || 'this agent');
+      setShowAccessDeniedDialog(true);
+      return;
+    }
+    
     setDeployingAgent(agentId);
     try {
       await addAgentToUser(agentId);
@@ -119,6 +133,29 @@ const AgentsPage = () => {
           </Card>
         </div>
       </div>
+      
+      {/* Access Denied Dialog */}
+      <AlertDialog open={showAccessDeniedDialog} onOpenChange={setShowAccessDeniedDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-amber-700">
+              <AlertTriangle className="h-5 w-5" />
+              Access Restricted
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              You don't have permission to deploy or use {deniedAgentName}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="p-4 bg-amber-50 rounded-md">
+            <p className="text-sm text-amber-800">
+              This agent requires special permission. Please contact your administrator to request access.
+            </p>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogAction>Close</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

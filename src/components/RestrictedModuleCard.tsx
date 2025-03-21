@@ -2,12 +2,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, LockKeyhole } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, LockKeyhole, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
-interface ModuleCardProps {
+interface RestrictedModuleProps {
+  id: string;
   title: string;
   description: string;
   icon: React.ReactNode;
@@ -17,15 +17,18 @@ interface ModuleCardProps {
   restricted?: boolean;
 }
 
-const ModuleCard: React.FC<ModuleCardProps> = ({ 
+const RestrictedModuleCard: React.FC<RestrictedModuleProps> = ({ 
+  id, 
   title, 
   description, 
   icon, 
   path, 
   color = 'bg-blue-100',
   completed = '0',
-  restricted = false 
+  restricted = false
 }) => {
+  const { hasModuleAccess } = useAuth();
+  const userHasAccess = hasModuleAccess(id);
   const [showAccessDialog, setShowAccessDialog] = React.useState(false);
   
   // Function to handle module card click
@@ -112,4 +115,4 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
   );
 };
 
-export default ModuleCard;
+export default RestrictedModuleCard;
