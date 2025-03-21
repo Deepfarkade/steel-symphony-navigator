@@ -1,13 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { CornerDownRight, Bot, User, Copy, Check, ChevronRight } from 'lucide-react';
+import { Bot, User, Copy, Check, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
-
-interface SuggestedQuestion {
-  text: string;
-  onClick: (question: string) => void;
-}
 
 interface ChatMessageProps {
   role: 'user' | 'assistant';
@@ -133,22 +128,17 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             </div>
           ) : (
             <div className="prose prose-sm max-w-none dark:prose-invert">
-              {/* Logic as requested by user:
-                  1. For bot messages, check if table_data exists first
-                  2. If table_data exists, show the table and then summary if it exists
-                  3. If both table_data and summary are null, just show the text content
-                  4. For user messages, always show just the text content
-              */}
+              {/* For bot messages with table data */}
               {isAssistant && tableData ? (
                 <div>
-                  {/* Show table data if it exists */}
+                  {/* Always show table data if it exists */}
                   <div className="overflow-x-auto bg-gray-50 dark:bg-gray-900 p-2 rounded-md mb-4">
                     <ReactMarkdown>
                       {formatTableData(tableData)}
                     </ReactMarkdown>
                   </div>
                   
-                  {/* Show summary only if it exists and table_data exists */}
+                  {/* Always show summary if table_data exists (according to your requirement) */}
                   {summary && (
                     <ReactMarkdown>
                       {summary}

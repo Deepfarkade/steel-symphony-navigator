@@ -48,6 +48,7 @@ export const convertApiMessageToChatMessage = (messageData: any): ChatMessage =>
     timestamp: new Date(messageData.timestamp),
     table_data: messageData.table_data,
     summary: messageData.summary,
-    next_question: messageData.next_question || []
+    next_question: messageData.next_question || [],
+    session_id: messageData.session_id
   };
 };

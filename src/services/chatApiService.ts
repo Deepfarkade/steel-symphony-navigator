@@ -146,7 +146,8 @@ export const sendMessageToApi = async (
         timestamp: new Date(response.data.timestamp),
         table_data: response.data.table_data,
         summary: response.data.summary,
-        next_question: response.data.next_question || []
+        next_question: response.data.next_question || [],
+        session_id: sessionId
       };
     } catch (error) {
       console.error("Failed to send message to backend:", error);
@@ -156,7 +157,6 @@ export const sendMessageToApi = async (
     try {
       const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
       
-      // Create the message without relying on response_type
       return {
         id: mockResponse.id || uuidv4(),
         text: mockResponse.text,
@@ -164,7 +164,8 @@ export const sendMessageToApi = async (
         timestamp: new Date(),
         table_data: mockResponse.table_data,
         summary: mockResponse.summary,
-        next_question: mockResponse.next_question || []
+        next_question: mockResponse.next_question || [],
+        session_id: sessionId
       };
     } catch (error) {
       console.error("Failed to generate mock response:", error);

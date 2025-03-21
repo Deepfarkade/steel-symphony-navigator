@@ -175,7 +175,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
               table_data: payload.table_data,
               summary: payload.summary,
               next_question: payload.next_question || [],
-              response_type: payload.response_type || 'text'
+              session_id: sessionId
             }]
           };
         });

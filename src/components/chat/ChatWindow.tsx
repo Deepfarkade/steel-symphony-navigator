@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatMessageList, { ChatMessageData } from './ChatMessageList';
@@ -14,7 +15,7 @@ interface ChatMessage {
   summary?: string;
   next_question?: string[];
   sender?: 'user' | 'bot'; // For MongoDB compatibility
-  response_type?: string;  // For MongoDB compatibility
+  session_id?: string;
 }
 
 interface ChatSession {
@@ -96,8 +97,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
           : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you today?`,
         isUser: false,
-        timestamp: new Date(),
-        response_type: 'greeting'
+        timestamp: new Date()
       }],
       createdAt: new Date()
     };
@@ -136,9 +136,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       
       table_data: msg.table_data,
       summary: msg.summary,
-      next_question: msg.next_question,
-      
-      responseType: msg.response_type || 'text' // Ensure this properly maps response_type to responseType
+      next_question: msg.next_question
     }));
   };
 

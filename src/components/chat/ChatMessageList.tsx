@@ -7,7 +7,7 @@ export interface ChatMessageData {
   role: 'user' | 'assistant';
   content: string;
   timestamp?: Date;
-  table_data?: string;
+  table_data?: string | any;
   summary?: string;
   next_question?: string[];
 }
