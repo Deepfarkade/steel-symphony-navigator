@@ -45,12 +45,20 @@ The platform includes specialized AI agents that provide domain-specific assista
 
 - Node.js v16 or higher
 - npm or yarn
+- MongoDB (for production deployment)
+- SQL Server (optional, supports dual-database mode)
 
 ### Installation
 
 1. Clone the repository
 2. Install dependencies: `npm install` or `yarn install`
 3. Start the development server: `npm run dev` or `yarn dev`
+
+### Backend Setup (Production)
+
+1. Copy `.env.example` to `.env` and configure your database settings
+2. Initialize MongoDB with predefined users: `python backend/init_mongodb.py`
+3. Start the backend server: `python backend/main.py`
 
 ### Access Control
 
@@ -65,7 +73,12 @@ Each user is assigned:
 
 ### Authentication
 
-For the demo, the application uses a mock authentication system with predefined users:
+The application supports two authentication datastores:
+
+1. **MongoDB (Primary)**: Used for storing user credentials, permissions, and profiles
+2. **SQL Server (Optional)**: Legacy support for existing deployments
+
+For the demo, the application uses predefined users stored in both MongoDB and the frontend mock data:
 
 - **Admin**: admin@example.com / admin123
 - **Regular User**: user@example.com / user123
@@ -73,7 +86,7 @@ For the demo, the application uses a mock authentication system with predefined 
 - **Analyst**: analyst@example.com / analyst123
 - **Planner**: planner@example.com / planner123
 
-In a production environment, this would be replaced with a real authentication backend.
+In a production environment, this would be managed through the user administration interface.
 
 ## Session Management
 
@@ -97,22 +110,40 @@ src/
 ├── services/       # API and service functions
 ├── types/          # TypeScript type definitions
 └── utils/          # Utility functions
+
+backend/
+├── config/         # Configuration settings
+├── core/           # Core functionality (auth, database)
+├── services/       # Microservice implementations
+│   ├── auth/       # Authentication service
+│   ├── chat/       # Chat and AI communication
+│   └── ...         # Other domain-specific services
+└── main.py         # Application entry point
 ```
 
 ### Technologies
 
-- React
-- TypeScript
-- React Router
-- Axios
-- TailwindCSS
-- shadcn/ui components
-- Lucide React icons
-- Framer Motion for animations
+- **Frontend**:
+  - React
+  - TypeScript
+  - React Router
+  - Axios
+  - TailwindCSS
+  - shadcn/ui components
+  - Lucide React icons
+  - Framer Motion for animations
+
+- **Backend**:
+  - FastAPI
+  - MongoDB
+  - SQL Server (optional)
+  - Azure OpenAI
 
 ## Backend Integration
 
 The application is designed to work with a RESTful backend API. In development mode, it uses mock data and services, but these can be replaced with actual API calls when deploying to production.
+
+See `src/BACKEND_CONNECTION.md` for detailed integration instructions.
 
 ## License
 

@@ -12,7 +12,7 @@ from slowapi.errors import RateLimitExceeded
 from config.settings import get_settings
 from core.database.mongodb import close_mongo_connection, connect_to_mongo
 from core.database.mssql import engine, SessionLocal, Base
-from services.auth.routes import router as auth_router
+from services.auth.mongodb_routes import router as auth_router  # Updated to use MongoDB routes
 from services.chat.routes import router as chat_router
 from services.demand_planning.routes import router as demand_planning_router
 from services.supply_planning.routes import router as supply_planning_router
