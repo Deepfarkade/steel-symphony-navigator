@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import ChatMessage from './ChatMessage';
 
@@ -9,7 +10,6 @@ export interface ChatMessageData {
   table_data?: string;
   summary?: string;
   next_question?: string[];
-  responseType?: string; // Add responseType for MongoDB compatibility
 }
 
 interface ChatMessageListProps {
@@ -45,7 +45,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
           summary={message.summary}
           suggestedQuestions={message.next_question}
           onSuggestedQuestionClick={onSuggestedQuestionClick}
-          responseType={message.responseType} // Pass responseType to ChatMessage
         />
       ))}
       

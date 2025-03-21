@@ -19,7 +19,6 @@ interface ChatMessageProps {
   summary?: string;
   suggestedQuestions?: string[];
   onSuggestedQuestionClick?: (question: string) => void;
-  responseType?: string; // From MongoDB response_type field
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({
@@ -31,8 +30,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   tableData,
   summary,
   suggestedQuestions = [],
-  onSuggestedQuestionClick,
-  responseType
+  onSuggestedQuestionClick
 }) => {
   const [copied, setCopied] = useState<boolean>(false);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(true);
@@ -125,11 +123,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                 {formattedTime}
               </span>
             )}
-            {responseType && (
-              <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded ml-2">
-                {responseType}
-              </span>
-            )}
           </div>
           
           {isLoading ? (
@@ -140,15 +133,22 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             </div>
           ) : (
             <div className="prose prose-sm max-w-none dark:prose-invert">
+              {/* Logic as requested by user:
+                  1. For bot messages, check if table_data exists first
+                  2. If table_data exists, show the table and then summary if it exists
+                  3. If both table_data and summary are null, just show the text content
+                  4. For user messages, always show just the text content
+              */}
               {isAssistant && tableData ? (
                 <div>
+                  {/* Show table data if it exists */}
                   <div className="overflow-x-auto bg-gray-50 dark:bg-gray-900 p-2 rounded-md mb-4">
                     <ReactMarkdown>
                       {formatTableData(tableData)}
                     </ReactMarkdown>
                   </div>
                   
-                  {/* Render summary separately if provided */}
+                  {/* Show summary only if it exists and table_data exists */}
                   {summary && (
                     <ReactMarkdown>
                       {summary}
@@ -156,6 +156,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                   )}
                 </div>
               ) : (
+                /* If no table_data, or this is a user message, just show the text */
                 <ReactMarkdown>
                   {content}
                 </ReactMarkdown>

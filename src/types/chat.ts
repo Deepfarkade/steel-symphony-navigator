@@ -9,7 +9,6 @@ export interface ChatMessage {
   table_data?: string | any;
   summary?: string;
   next_question?: string[];
-  response_type?: string;
   sender?: 'user' | 'bot';
   session_id?: string;
   df_parent?: any;

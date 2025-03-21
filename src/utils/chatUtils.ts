@@ -15,8 +15,7 @@ export const createWelcomeMessage = (agentId?: number, moduleContext?: string): 
       ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
       : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${moduleContext || 'operations'} today?`,
     isUser: false,
-    timestamp: new Date(),
-    response_type: 'greeting'
+    timestamp: new Date()
   };
 };
 
@@ -26,8 +25,7 @@ export const createUserMessage = (text: string): ChatMessage => {
     id: uuidv4(),
     text,
     isUser: true,
-    timestamp: new Date(),
-    response_type: 'user_message'
+    timestamp: new Date()
   };
 };
 
@@ -37,8 +35,7 @@ export const createErrorMessage = (): ChatMessage => {
     id: uuidv4(),
     text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
     isUser: false,
-    timestamp: new Date(),
-    response_type: 'error'
+    timestamp: new Date()
   };
 };
 
@@ -51,7 +48,6 @@ export const convertApiMessageToChatMessage = (messageData: any): ChatMessage =>
     timestamp: new Date(messageData.timestamp),
     table_data: messageData.table_data,
     summary: messageData.summary,
-    next_question: messageData.next_question || [],
-    response_type: messageData.response_type || 'text'
+    next_question: messageData.next_question || []
   };
 };

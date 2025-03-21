@@ -99,8 +99,7 @@ export const fetchOrCreateChatSession = async (
       timestamp: new Date(msg.timestamp || Date.now()),
       table_data: msg.table_data,
       summary: msg.summary,
-      next_question: msg.next_question || [],
-      response_type: msg.response_type || 'text' // Ensure this property exists
+      next_question: msg.next_question || []
     }));
     
     return {
@@ -147,8 +146,7 @@ export const sendMessageToApi = async (
         timestamp: new Date(response.data.timestamp),
         table_data: response.data.table_data,
         summary: response.data.summary,
-        next_question: response.data.next_question || [],
-        response_type: response.data.response_type || 'text' // Ensure response_type exists here
+        next_question: response.data.next_question || []
       };
     } catch (error) {
       console.error("Failed to send message to backend:", error);
@@ -156,10 +154,9 @@ export const sendMessageToApi = async (
     }
   } else {
     try {
-      // The issue is here - we need to ensure the mock response has response_type property
       const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
       
-      // Explicitly define the structure of the returned object and ensure response_type is included
+      // Create the message without relying on response_type
       return {
         id: mockResponse.id || uuidv4(),
         text: mockResponse.text,
@@ -167,8 +164,7 @@ export const sendMessageToApi = async (
         timestamp: new Date(),
         table_data: mockResponse.table_data,
         summary: mockResponse.summary,
-        next_question: mockResponse.next_question || [],
-        response_type: mockResponse.response_type || 'text' // Provide a default value if it doesn't exist
+        next_question: mockResponse.next_question || []
       };
     } catch (error) {
       console.error("Failed to generate mock response:", error);
