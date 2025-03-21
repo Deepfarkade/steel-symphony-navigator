@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { BrainCircuit, EyeIcon, EyeOffIcon, LockKeyhole, UserRound } from 'lucide-react';
+import { BrainCircuit, EyeIcon, EyeOffIcon, LockKeyhole, UserRound, AlertTriangle } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import { authenticateUser, checkAuthStatus } from '@/services/authService';
 import { useAuth } from '@/context/AuthContext';
 import { Separator } from '@/components/ui/separator';
 import { SSOProvider } from '@/services/ssoService';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -23,6 +25,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [showAccessDeniedDialog, setShowAccessDeniedDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { initiateSSO } = useAuth();
@@ -48,9 +52,10 @@ const Login = () => {
     if (isLoading) return;
     
     setIsLoading(true);
+    setLoginError(null);
     
     try {
-      await authenticateUser(values.email, values.password);
+      const result = await authenticateUser(values.email, values.password);
       
       // Show success message
       setLoginSuccess(true);
@@ -69,13 +74,14 @@ const Login = () => {
       setTimeout(() => {
         navigate('/');
       }, 1500);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
-      toast({
-        variant: "destructive",
-        title: "Login Failed",
-        description: "Please check your credentials and try again.",
-      });
+      
+      if (error.message === "User not found" || error.message === "Invalid credentials") {
+        setShowAccessDeniedDialog(true);
+      } else {
+        setLoginError(error.message || "An error occurred during login. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -158,6 +164,14 @@ const Login = () => {
           ) : (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 animate-fade-in">
+                {loginError && (
+                  <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{loginError}</AlertDescription>
+                  </Alert>
+                )}
+                
                 <FormField
                   control={form.control}
                   name="email"
@@ -302,19 +316,41 @@ const Login = () => {
                   </Button>
                 </div>
                 
-                <div className="mt-4 text-center">
-                  <p className="text-sm text-ey-lightGray">
-                    Don't have an account?{" "}
-                    <Link to="/signup" className="font-medium text-ey-yellow hover:text-ey-yellow/80">
-                      Sign up
-                    </Link>
-                  </p>
-                </div>
+                {/* Note: Signup link removed as per requirements */}
               </form>
             </Form>
           )}
         </div>
       </div>
+      
+      {/* Access Denied Dialog */}
+      <Dialog open={showAccessDeniedDialog} onOpenChange={setShowAccessDeniedDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              Access Denied
+            </DialogTitle>
+            <DialogDescription>
+              This is a restricted application. Only authorized users can access it.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="p-4 bg-red-50 rounded-md">
+            <p className="text-sm text-red-800">
+              Your account was not found in our system. This application is available by invitation only.
+              Please contact your administrator if you believe this is an error.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button 
+              onClick={() => setShowAccessDeniedDialog(false)}
+              className="w-full"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

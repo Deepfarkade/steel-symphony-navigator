@@ -41,3 +41,6 @@ aiocache==0.12.1
 # Testing
 pytest==7.4.1
 pytest-asyncio==0.21.1
+
+# Static Files
+aiofiles==23.2.1

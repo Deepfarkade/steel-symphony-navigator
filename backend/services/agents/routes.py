@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from core.database.mssql import get_db
-from core.security.auth import get_current_active_user
+from core.security.auth import get_current_active_user, get_admin_user, has_agent_access
 from services.agents.models import Agent, UserAgent
 from services.agents.schemas import AgentCreate, AgentResponse, AgentAnalytics, AgentRecommendation
 from services.auth.models import User
@@ -28,7 +28,20 @@ async def get_user_agents(
     """
     Get all agents deployed by the current user
     """
-    user_agents = db.query(UserAgent).filter(UserAgent.user_id == current_user.id).all()
+    # Admin can see all agents
+    if current_user.role == "admin":
+        user_agents = db.query(UserAgent).filter(UserAgent.user_id == current_user.id).all()
+        agent_ids = [ua.agent_id for ua in user_agents]
+        agents = db.query(Agent).filter(Agent.id.in_(agent_ids)).all()
+        return agents
+    
+    # Regular users can only see their allowed agents
+    allowed_agent_ids = current_user.allowed_agents
+    user_agents = db.query(UserAgent).filter(
+        UserAgent.user_id == current_user.id,
+        UserAgent.agent_id.in_(allowed_agent_ids)
+    ).all()
+    
     agent_ids = [ua.agent_id for ua in user_agents]
     agents = db.query(Agent).filter(Agent.id.in_(agent_ids)).all()
     return agents
@@ -48,6 +61,13 @@ async def add_agent_to_user(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Agent not found"
+        )
+    
+    # Check if user has permission to use this agent
+    if current_user.role != "admin" and agent_id not in current_user.allowed_agents:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to use this agent. Please contact your administrator."
         )
     
     # Check if user already has this agent
@@ -97,7 +117,8 @@ async def remove_agent_from_user(
 @router.get("/details/{agent_id}", response_model=AgentResponse)
 async def get_agent_details(
     agent_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Get detailed information about an agent
@@ -109,16 +130,23 @@ async def get_agent_details(
             detail="Agent not found"
         )
     
+    # If not admin, check if user has access to this agent
+    if current_user.role != "admin" and agent_id not in current_user.allowed_agents:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to view this agent"
+        )
+    
     return agent
 
 @router.post("/create", response_model=AgentResponse, status_code=status.HTTP_201_CREATED)
 async def create_custom_agent(
     agent_data: AgentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_admin_user)  # Only admins can create agents
 ):
     """
-    Create a new custom agent
+    Create a new custom agent (admin only)
     """
     from datetime import datetime
     
@@ -162,12 +190,19 @@ async def get_agent_analytics(
             detail="Agent not found"
         )
     
+    # If not admin, check if user has access to this agent
+    if current_user.role != "admin" and agent_id not in current_user.allowed_agents:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to view this agent's analytics"
+        )
+    
     user_agent = db.query(UserAgent).filter(
         UserAgent.user_id == current_user.id,
         UserAgent.agent_id == agent_id
     ).first()
     
-    if not user_agent:
+    if not user_agent and current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Agent not deployed by this user"
@@ -199,12 +234,19 @@ async def get_agent_recommendations(
             detail="Agent not found"
         )
     
+    # If not admin, check if user has access to this agent
+    if current_user.role != "admin" and agent_id not in current_user.allowed_agents:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to view this agent's recommendations"
+        )
+    
     user_agent = db.query(UserAgent).filter(
         UserAgent.user_id == current_user.id,
         UserAgent.agent_id == agent_id
     ).first()
     
-    if not user_agent:
+    if not user_agent and current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Agent not deployed by this user"

@@ -36,6 +36,7 @@ import AgentChatPage from "./pages/AgentChatPage";
 import AgentsPage from "./pages/AgentsPage";
 import CreateAgentPage from "./pages/CreateAgentPage";
 import SSOCallback from "./pages/auth/SSOCallback";
+import { isAdmin, hasModuleAccess } from "./services/authService";
 
 // Install axios dependency
 import axios from 'axios';
@@ -106,28 +107,110 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Admin route guard component
+const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
+  const userIsAdmin = isAdmin();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!userIsAdmin) {
+      navigate('/');
+    }
+  }, [userIsAdmin, navigate]);
+  
+  return userIsAdmin ? <>{children}</> : null;
+};
+
+// Module access guard component
+const RequireModuleAccess = ({ children, moduleId }: { children: React.ReactNode, moduleId: string }) => {
+  const hasAccess = hasModuleAccess(moduleId);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!hasAccess) {
+      navigate('/');
+    }
+  }, [hasAccess, navigate]);
+  
+  return hasAccess ? <>{children}</> : null;
+};
+
 const AppRoutes = () => (
   <>
     <ScrollToTop />
     <Routes>
       {/* Public routes */}
       <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route path="/signup" element={<RequireAdmin><Signup /></RequireAdmin>} />
       <Route path="/auth/callback" element={<SSOCallback />} />
 
       {/* Protected routes */}
       <Route path="/" element={<RequireAuth><Index /></RequireAuth>} />
       
-      {/* Module routes */}
-      <Route path="/demand-planning" element={<RequireAuth><DemandPlanning /></RequireAuth>} />
-      <Route path="/supply-planning" element={<RequireAuth><SupplyPlanning /></RequireAuth>} />
-      <Route path="/order-promising" element={<RequireAuth><OrderPromising /></RequireAuth>} />
-      <Route path="/factory-planning" element={<RequireAuth><FactoryPlanning /></RequireAuth>} />
-      <Route path="/inventory-optimization" element={<RequireAuth><InventoryOptimization /></RequireAuth>} />
-      <Route path="/inventory-liquidation" element={<RequireAuth><InventoryLiquidation /></RequireAuth>} />
-      <Route path="/logistics" element={<RequireAuth><LogisticsManagement /></RequireAuth>} />
-      <Route path="/risk-management" element={<RequireAuth><RiskManagement /></RequireAuth>} />
-      <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
+      {/* Module routes with permission checks */}
+      <Route path="/demand-planning" element={
+        <RequireAuth>
+          <RequireModuleAccess moduleId="demand-planning">
+            <DemandPlanning />
+          </RequireModuleAccess>
+        </RequireAuth>
+      } />
+      <Route path="/supply-planning" element={
+        <RequireAuth>
+          <RequireModuleAccess moduleId="supply-planning">
+            <SupplyPlanning />
+          </RequireModuleAccess>
+        </RequireAuth>
+      } />
+      <Route path="/order-promising" element={
+        <RequireAuth>
+          <RequireModuleAccess moduleId="order-promising">
+            <OrderPromising />
+          </RequireModuleAccess>
+        </RequireAuth>
+      } />
+      <Route path="/factory-planning" element={
+        <RequireAuth>
+          <RequireModuleAccess moduleId="factory-planning">
+            <FactoryPlanning />
+          </RequireModuleAccess>
+        </RequireAuth>
+      } />
+      <Route path="/inventory-optimization" element={
+        <RequireAuth>
+          <RequireModuleAccess moduleId="inventory-optimization">
+            <InventoryOptimization />
+          </RequireModuleAccess>
+        </RequireAuth>
+      } />
+      <Route path="/inventory-liquidation" element={
+        <RequireAuth>
+          <RequireModuleAccess moduleId="inventory-liquidation">
+            <InventoryLiquidation />
+          </RequireModuleAccess>
+        </RequireAuth>
+      } />
+      <Route path="/logistics" element={
+        <RequireAuth>
+          <RequireModuleAccess moduleId="logistics">
+            <LogisticsManagement />
+          </RequireModuleAccess>
+        </RequireAuth>
+      } />
+      <Route path="/risk-management" element={
+        <RequireAuth>
+          <RequireModuleAccess moduleId="risk-management">
+            <RiskManagement />
+          </RequireModuleAccess>
+        </RequireAuth>
+      } />
+      <Route path="/analytics" element={
+        <RequireAuth>
+          <RequireModuleAccess moduleId="analytics">
+            <Analytics />
+          </RequireModuleAccess>
+        </RequireAuth>
+      } />
       
       {/* KPI detail routes */}
       <Route path="/kpi/:id" element={<RequireAuth><KpiDetails /></RequireAuth>} />
@@ -152,7 +235,13 @@ const AppRoutes = () => (
       {/* Agents routes */}
       <Route path="/agents" element={<RequireAuth><AgentsPage /></RequireAuth>} />
       <Route path="/agent/:agentId" element={<RequireAuth><AgentChatPage /></RequireAuth>} />
-      <Route path="/create-agent" element={<RequireAuth><CreateAgentPage /></RequireAuth>} />
+      <Route path="/create-agent" element={
+        <RequireAuth>
+          <RequireAdmin>
+            <CreateAgentPage />
+          </RequireAdmin>
+        </RequireAuth>
+      } />
       
       {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />

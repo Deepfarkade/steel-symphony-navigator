@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bot, BrainCircuit, Save, ArrowLeft, Plus, Upload, Sparkles } from 'lucide-react';
+import { Bot, BrainCircuit, Save, ArrowLeft, Plus, Upload, Sparkles, AlertTriangle } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import Header from '../components/Header';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { createCustomAgent } from '@/services/dataService';
+import { isAdmin } from '@/services/authService';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const CreateAgentPage = () => {
   const navigate = useNavigate();
@@ -23,6 +25,21 @@ const CreateAgentPage = () => {
     type: 'supply-chain',
     confidence: 80
   });
+  
+  // Check if user is admin
+  const userIsAdmin = isAdmin();
+  
+  // Redirect non-admin users
+  useEffect(() => {
+    if (!userIsAdmin) {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "Only administrators can create custom agents."
+      });
+      navigate('/agents');
+    }
+  }, [userIsAdmin, navigate, toast]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -35,6 +52,16 @@ const CreateAgentPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Double-check admin permissions
+    if (!userIsAdmin) {
+      toast({
+        variant: "destructive",
+        title: "Permission Denied",
+        description: "You don't have permission to create agents."
+      });
+      return;
+    }
     
     if (!agentData.name || !agentData.description) {
       toast({
@@ -89,6 +116,46 @@ const CreateAgentPage = () => {
     { value: "shield", label: "Shield" },
     { value: "check-circle", label: "Check Circle" }
   ];
+
+  // Show access denied for non-admin users
+  if (!userIsAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        
+        <div className="ml-64 p-8 transition-all duration-300">
+          <Header 
+            pageTitle="Access Denied"
+            breadcrumbs={[
+              { label: 'Home', link: '/' },
+              { label: 'AI Agents', link: '/agents' },
+              { label: 'Access Denied', link: '#' }
+            ]}
+          />
+          
+          <div className="mt-8">
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Access Denied</AlertTitle>
+              <AlertDescription>
+                Only administrators can access this page. If you need to create a custom agent, please contact your administrator.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                onClick={() => navigate('/agents')}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Return to Agents
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

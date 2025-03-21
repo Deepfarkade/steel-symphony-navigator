@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BrainCircuit, Sparkles, Loader2, Trash } from 'lucide-react';
+import { BrainCircuit, Sparkles, Loader2, Trash, LockKeyhole, AlertTriangle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +12,7 @@ import { getAvailableAgents, addAgentToUser } from '@/services/dataService';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useAgents } from '@/hooks/useAgents';
+import { hasAgentAccess, isAdmin } from '@/services/authService';
 
 const AiAgentsDeployment = () => {
   const [open, setOpen] = useState(false);
@@ -19,10 +20,13 @@ const AiAgentsDeployment = () => {
   const [deployingAgent, setDeployingAgent] = useState<number | null>(null);
   const [selectedAgentToRemove, setSelectedAgentToRemove] = useState<any | null>(null);
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [showAccessDeniedDialog, setShowAccessDeniedDialog] = useState(false);
+  const [deniedAgentName, setDeniedAgentName] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { agents, refreshAgents, deleteAgent } = useAgents();
+  const userIsAdmin = isAdmin();
 
   // Fetch available agents when the dialog opens or user agents change
   useEffect(() => {
@@ -57,6 +61,14 @@ const AiAgentsDeployment = () => {
     if (isAlreadyDeployed) {
       navigate(`/agent/${id}`);
       setOpen(false);
+      return;
+    }
+    
+    // Check if user has permission to deploy this agent
+    if (!hasAgentAccess(id) && !userIsAdmin) {
+      const agent = availableAgents.find(a => a.id === id);
+      setDeniedAgentName(agent?.name || 'this agent');
+      setShowAccessDeniedDialog(true);
       return;
     }
     
@@ -214,21 +226,31 @@ const AiAgentsDeployment = () => {
                     }
                   }}
                 >
-                  {availableAgents.slice(0, 6).map((agent) => (
-                    <AiAgentCard
-                      key={agent.id}
-                      id={agent.id}
-                      name={agent.name}
-                      description={agent.description || ''}
-                      status={'active'}
-                      confidence={agent.confidence || 0}
-                      icon={agent.icon}
-                      onActivate={deployAgent}
-                      isExpanded={true}
-                      deploying={deployingAgent === agent.id}
-                      isUserAgent={false}
-                    />
-                  ))}
+                  {availableAgents.slice(0, 6).map((agent) => {
+                    const userHasAccess = hasAgentAccess(agent.id) || userIsAdmin;
+                    
+                    return (
+                      <AiAgentCard
+                        key={agent.id}
+                        id={agent.id}
+                        name={agent.name}
+                        description={agent.description || ''}
+                        status={'active'}
+                        confidence={agent.confidence || 0}
+                        icon={agent.icon}
+                        onActivate={deployAgent}
+                        isExpanded={true}
+                        deploying={deployingAgent === agent.id}
+                        isUserAgent={false}
+                        restrictedBadge={!userHasAccess && (
+                          <div className="absolute top-2 right-2 bg-amber-600 text-white px-2 py-1 rounded-md text-xs flex items-center">
+                            <LockKeyhole className="h-3 w-3 mr-1" />
+                            Restricted
+                          </div>
+                        )}
+                      />
+                    );
+                  })}
                 </motion.div>
               ) : (
                 <div className="bg-white/10 rounded-lg p-6 text-center">
@@ -278,15 +300,17 @@ const AiAgentsDeployment = () => {
             >
               View All Agents
             </Button>
-            <Button 
-              className="bg-indigo-500 hover:bg-indigo-600"
-              onClick={() => {
-                setOpen(false);
-                navigate('/create-agent');
-              }}
-            >
-              Create Custom Agent
-            </Button>
+            {userIsAdmin && (
+              <Button 
+                className="bg-indigo-500 hover:bg-indigo-600"
+                onClick={() => {
+                  setOpen(false);
+                  navigate('/create-agent');
+                }}
+              >
+                Create Custom Agent
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -309,6 +333,29 @@ const AiAgentsDeployment = () => {
               <Trash className="h-4 w-4 mr-1" />
               Remove
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      {/* Access Denied Dialog */}
+      <AlertDialog open={showAccessDeniedDialog} onOpenChange={setShowAccessDeniedDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-amber-700">
+              <AlertTriangle className="h-5 w-5" />
+              Access Restricted
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              You don't have permission to use {deniedAgentName}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="p-4 bg-amber-50 rounded-md">
+            <p className="text-sm text-amber-800">
+              This agent requires special permission. Please contact your administrator to request access.
+            </p>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

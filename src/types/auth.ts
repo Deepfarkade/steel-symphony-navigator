@@ -4,8 +4,10 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
-  role?: string;
+  role: 'user' | 'admin';
   companyId?: string;
+  allowedModules: string[];
+  allowedAgents: number[];
 }
 
 export type AuthMethod = 'password' | 'sso';
