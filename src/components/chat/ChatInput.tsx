@@ -29,6 +29,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, agentId
     e.preventDefault();
     if (!inputText.trim()) return;
     
+    console.log("Submitting message from input:", inputText);
     onSendMessage(inputText);
     setInputText('');
   };

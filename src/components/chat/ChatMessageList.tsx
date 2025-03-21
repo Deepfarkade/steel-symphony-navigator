@@ -32,6 +32,11 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
     }
   }, [messages]);
 
+  // For debugging
+  useEffect(() => {
+    console.log("Current messages in ChatMessageList:", messages);
+  }, [messages]);
+
   return (
     <div className="flex-1 overflow-y-auto bg-white dark:bg-ey-black/90 py-4 space-y-1">
       {messages.map((message, index) => (

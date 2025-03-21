@@ -41,11 +41,13 @@ export const createErrorMessage = (): ChatMessage => {
 
 // Helper function to convert API message to ChatMessage format
 export const convertApiMessageToChatMessage = (messageData: any): ChatMessage => {
+  console.log("Converting API message:", messageData);
+  
   return {
     id: messageData.id || uuidv4(),
     text: messageData.text,
-    isUser: messageData.sender === "user",
-    timestamp: new Date(messageData.timestamp),
+    isUser: messageData.sender === "user" || messageData.isUser === true,
+    timestamp: new Date(messageData.timestamp || Date.now()),
     table_data: messageData.table_data,
     summary: messageData.summary,
     next_question: messageData.next_question || [],

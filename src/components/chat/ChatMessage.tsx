@@ -92,6 +92,16 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     return JSON.stringify(data);
   };
 
+  // For debugging
+  useEffect(() => {
+    console.log(`Message (${role}) rendering:`, { 
+      content, 
+      hasTableData: !!tableData, 
+      hasSummary: !!summary, 
+      suggestedQuestions 
+    });
+  }, [content, role, tableData, summary, suggestedQuestions]);
+
   return (
     <div
       id={id}
@@ -130,19 +140,21 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             <div className="prose prose-sm max-w-none dark:prose-invert">
               {/* For bot messages with table data */}
               {isAssistant && tableData ? (
-                <div>
+                <div className="space-y-3">
                   {/* Always show table data if it exists */}
-                  <div className="overflow-x-auto bg-gray-50 dark:bg-gray-900 p-2 rounded-md mb-4">
+                  <div className="overflow-x-auto bg-gray-50 dark:bg-gray-900 p-2 rounded-md border border-gray-200 dark:border-gray-700">
                     <ReactMarkdown>
                       {formatTableData(tableData)}
                     </ReactMarkdown>
                   </div>
                   
-                  {/* Always show summary if table_data exists (according to your requirement) */}
+                  {/* Always show summary if it exists along with table_data */}
                   {summary && (
-                    <ReactMarkdown>
-                      {summary}
-                    </ReactMarkdown>
+                    <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                      <ReactMarkdown>
+                        {summary}
+                      </ReactMarkdown>
+                    </div>
                   )}
                 </div>
               ) : (

@@ -67,6 +67,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [messagesSent, setMessagesSent] = useState<number>(0);
   
   useEffect(() => {
+    console.log("Messages updated in ChatWindow:", messages);
+    
     if (messages && messages.length > 0) {
       setSessions(prev => {
         const sessionIndex = prev.findIndex(s => s.id === activeSessionId);
@@ -111,11 +113,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   };
 
   const handleSendMessage = (message: string) => {
+    console.log("Sending message in ChatWindow:", message);
     setMessagesSent(prev => prev + 1);
     onSendMessage(message, activeSessionId);
   };
 
   const handleSuggestedQuestionClick = (question: string) => {
+    console.log("Suggested question clicked:", question);
     handleSendMessage(question);
   };
 
@@ -126,18 +130,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const activeSession = sessions.find(session => session.id === activeSessionId) || sessions[0];
   
   const convertToChatMessageData = (messages: ChatMessage[]): ChatMessageData[] => {
-    return messages.map((msg, index) => ({
-      id: msg.id || `msg-${index}-${Date.now()}`,
+    console.log("Converting messages to ChatMessageData:", messages);
+    
+    return messages.map((msg, index) => {
+      const messageData: ChatMessageData = {
+        id: msg.id || `msg-${index}-${Date.now()}`,
+        role: msg.isUser || msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text,
+        timestamp: msg.timestamp,
+        table_data: msg.table_data,
+        summary: msg.summary,
+        next_question: msg.next_question
+      };
       
-      role: msg.isUser || msg.sender === 'user' ? 'user' : 'assistant',
-      
-      content: msg.text,
-      timestamp: msg.timestamp,
-      
-      table_data: msg.table_data,
-      summary: msg.summary,
-      next_question: msg.next_question
-    }));
+      return messageData;
+    });
   };
 
   return (
