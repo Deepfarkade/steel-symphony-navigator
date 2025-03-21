@@ -1,10 +1,11 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { AuthProvider, RequireAuth } from "./context/AuthContext";
-import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider, RequireAuth, useAuth } from "./context/AuthContext";
+import { ThemeContext, ThemeProvider } from "./context/ThemeContext";
 import { useEffect, useState, useContext } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -21,6 +22,19 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AiChatInterface from "./components/AiChatInterface";
 import AccessDeniedDialog from "./components/AccessDeniedDialog";
+import UserInactivityHandler from "./components/UserInactivityHandler";
+import SSOCallback from "./pages/auth/SSOCallback";
+import KpiDetails from "./pages/KpiDetails";
+import NotificationsCenter from "./pages/NotificationsCenter";
+import ProductionChartDetails from "./pages/charts/ProductionChartDetails";
+import EnergyChartDetails from "./pages/charts/EnergyChartDetails";
+import UserPreferences from "./pages/user/UserPreferences";
+import GlobalChatPage from "./pages/GlobalChatPage";
+import ModuleChatPage from "./pages/ModuleChatPage";
+import NewsPage from "./pages/NewsPage";
+import AgentsPage from "./pages/AgentsPage";
+import AgentChatPage from "./pages/AgentChatPage";
+import CreateAgentPage from "./pages/CreateAgentPage";
 
 import axios from 'axios';
 
@@ -81,7 +95,7 @@ const ScrollToTop = () => {
 
 const ModuleRoute = ({ element, moduleId }: { element: React.ReactNode, moduleId: string }) => {
   const [showAccessDenied, setShowAccessDenied] = useState(false);
-  const { hasModuleAccess } = useContext(AuthContext);
+  const { hasModuleAccess } = useAuth();
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -110,7 +124,8 @@ const ModuleRoute = ({ element, moduleId }: { element: React.ReactNode, moduleId
 };
 
 const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
-  const userIsAdmin = isAdmin();
+  const { user } = useAuth();
+  const userIsAdmin = user?.role === 'admin';
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -123,16 +138,16 @@ const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
 };
 
 const RequireModuleAccess = ({ children, moduleId }: { children: React.ReactNode, moduleId: string }) => {
-  const hasAccess = hasModuleAccess(moduleId);
+  const { hasModuleAccess } = useAuth();
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (!hasAccess) {
+    if (!hasModuleAccess(moduleId)) {
       navigate('/');
     }
-  }, [hasAccess, navigate]);
+  }, [hasModuleAccess, moduleId, navigate]);
   
-  return hasAccess ? <>{children}</> : null;
+  return hasModuleAccess(moduleId) ? <>{children}</> : null;
 };
 
 const AppRoutes = () => (
@@ -258,4 +273,3 @@ const App = () => (
 );
 
 export default App;
-
