@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import websocketService from '../services/websocketService';
 import { useToast } from '@/hooks/use-toast';
@@ -49,6 +50,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   
   const getAuthToken = () => localStorage.getItem('auth-token');
 
+  // Normalize module context to handle spaces correctly
+  const normalizedModuleContext = moduleContext ? moduleContext.toLowerCase().replace(/\s+/g, '-') : undefined;
+
   const initializeSession = useCallback(async () => {
     const token = getAuthToken();
     if (!token) return;
@@ -58,8 +62,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       
       let sessionResponse;
       
-      if (moduleContext) {
-        sessionResponse = await axios.get(`${API_BASE_URL}/chat/module/${moduleContext}`, {
+      if (normalizedModuleContext) {
+        sessionResponse = await axios.get(`${API_BASE_URL}/chat/module/${normalizedModuleContext}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else if (agentId) {
@@ -114,7 +118,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [moduleContext, agentId, toast]);
+  }, [normalizedModuleContext, agentId, toast]);
 
   useEffect(() => {
     const token = getAuthToken();
@@ -126,7 +130,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   useEffect(() => {
     websocketService.connect();
 
-    const unsubscribeChatMessages = websocketService.onMessage(`chat${moduleContext ? `-${moduleContext}` : agentId ? `-agent-${agentId}` : ''}`, (payload: any) => {
+    // Use normalized module context for WebSocket channel name
+    const channelName = `chat${normalizedModuleContext ? `-${normalizedModuleContext}` : agentId ? `-agent-${agentId}` : ''}`;
+    
+    const unsubscribeChatMessages = websocketService.onMessage(channelName, (payload: any) => {
       if (!payload.isUser) {
         setChatSessions(prev => {
           const sessionId = payload.sessionId || currentSessionId;
@@ -157,7 +164,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       unsubscribeChatMessages();
       unsubscribeConnect();
     };
-  }, [toast, moduleContext, agentId, currentSessionId]);
+  }, [toast, normalizedModuleContext, agentId, currentSessionId]);
 
   const sendMessage = async (inputText: string, sessionId?: string) => {
     const token = getAuthToken();
@@ -174,7 +181,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     
     if (!targetSessionId || targetSessionId === 'fallback-session') {
       try {
-        const newSessionId = await createNewSession(agentId, moduleContext);
+        const newSessionId = await createNewSession(agentId, normalizedModuleContext);
         sendMessage(inputText, newSessionId);
         return;
       } catch (error) {
@@ -205,6 +212,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     setIsLoading(true);
 
     try {
+      console.log(`Sending message to session ${targetSessionId}`);
       const response = await axios.post(`${API_BASE_URL}/chat/${targetSessionId}/send`, {
         text: inputText
       }, {
@@ -233,9 +241,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         variant: "destructive"
       });
       
-      websocketService.sendMessage(`chat${moduleContext ? `-${moduleContext}` : agentId ? `-agent-${agentId}` : ''}`, { 
+      // Fall back to WebSocket communication
+      const channelName = `chat${normalizedModuleContext ? `-${normalizedModuleContext}` : agentId ? `-agent-${agentId}` : ''}`;
+      
+      websocketService.sendMessage(channelName, { 
         text: inputText,
-        moduleContext,
+        moduleContext: normalizedModuleContext,
         agentId,
         sessionId: targetSessionId,
         timestamp: new Date().toISOString(),
