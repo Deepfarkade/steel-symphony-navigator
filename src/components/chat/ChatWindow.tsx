@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatMessageList, { ChatMessageData } from './ChatMessageList';
@@ -66,7 +65,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [messagesSent, setMessagesSent] = useState<number>(0);
   
-  // Watch for changes in the messages prop and update the sessions state
   useEffect(() => {
     if (messages && messages.length > 0) {
       setSessions(prev => {
@@ -126,24 +124,20 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const activeSession = sessions.find(session => session.id === activeSessionId) || sessions[0];
   
-  // Convert from MongoDB format to ChatMessageData
   const convertToChatMessageData = (messages: ChatMessage[]): ChatMessageData[] => {
     return messages.map((msg, index) => ({
       id: msg.id || `msg-${index}-${Date.now()}`,
       
-      // Handle both isUser and sender formats - MongoDB uses sender: 'user'|'bot'
       role: msg.isUser || msg.sender === 'user' ? 'user' : 'assistant',
       
       content: msg.text,
       timestamp: msg.timestamp,
       
-      // Pass along the table_data field - might be string or object
       table_data: msg.table_data,
       summary: msg.summary,
       next_question: msg.next_question,
       
-      // Pass MongoDB specific fields
-      responseType: msg.response_type
+      responseType: msg.response_type || 'text'
     }));
   };
 

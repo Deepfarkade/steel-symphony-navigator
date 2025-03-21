@@ -66,24 +66,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   
   const getAuthToken = () => localStorage.getItem('auth-token');
 
-  // Normalize module context to handle spaces correctly
   const normalizedModuleContext = moduleContext ? moduleContext.toLowerCase().replace(/\s+/g, '-') : undefined;
 
-  // Health check function to determine if backend is available (only runs once)
   const checkBackendAvailability = useCallback(async () => {
-    // Skip the check if we've already attempted it
     if (backendCheckAttempted.current) {
       return isBackendAvailable;
     }
 
     try {
-      backendCheckAttempted.current = true; // Mark as attempted before the request
+      backendCheckAttempted.current = true;
       console.log("Checking backend availability...");
       
-      // BACKEND CONNECTION POINT 1:
-      // This is where the app checks if your backend is available
-      // The URL should point to your MongoDB-backed API
-      // Change the timeout to a value that works for your backend (ms)
       await axios.get(`${API_BASE_URL}/`, { timeout: 5000 });
       
       console.log("Backend available!");
@@ -97,7 +90,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   }, [isBackendAvailable]);
 
   const initializeSession = useCallback(async () => {
-    // Prevent multiple initializations
     if (initializationInProgress.current || initializationComplete.current) {
       console.log("Session initialization already in progress or completed, skipping");
       return;
@@ -110,7 +102,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     try {
       setIsLoading(true);
       
-      // Only check backend availability if not checked already
       if (!backendCheckAttempted.current) {
         await checkBackendAvailability();
       }
@@ -120,9 +111,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         let endpointPath;
         
         if (normalizedModuleContext) {
-          // BACKEND CONNECTION POINT 2:
-          // This endpoint should connect to your MongoDB module chat collection
-          // Should return data matching the example MongoDB collection you provided
           endpointPath = `/api/v1/chat/module/${normalizedModuleContext}`;
           console.log(`Fetching module chat session for ${normalizedModuleContext} from ${endpointPath}`);
           
@@ -135,8 +123,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             throw error;
           }
         } else if (agentId) {
-          // BACKEND CONNECTION POINT 3:
-          // This endpoint should connect to your MongoDB agent chat collection  
           endpointPath = `/api/v1/agents/${agentId}/chat`;
           console.log(`Fetching agent chat session for agent ${agentId} from ${endpointPath}`);
           
@@ -149,8 +135,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             throw error;
           }
         } else {
-          // BACKEND CONNECTION POINT 4:
-          // This endpoint should create a new chat session in your MongoDB collection
           endpointPath = `/api/v1/chat/sessions`;
           console.log(`Creating new general chat session at ${endpointPath}`);
           
@@ -179,18 +163,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         
         setCurrentSessionId(sessionData.id);
         
-        // BACKEND DATA CONVERSION POINT 1:
-        // Convert MongoDB message format to frontend format
-        // This code needs to match your MongoDB schema
         const messages: ChatMessage[] = (sessionData.messages || []).map((msg: any) => ({
           id: msg.id || uuidv4(),
           text: msg.text,
-          isUser: msg.sender === "user", // MongoDB uses 'sender' field
+          isUser: msg.sender === "user",
           timestamp: new Date(msg.timestamp),
           table_data: msg.table_data,
           summary: msg.summary,
           next_question: msg.next_question || [],
-          response_type: msg.response_type // MongoDB specific field
+          response_type: msg.response_type
         }));
         
         setChatSessions({
@@ -198,7 +179,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         });
         
       } else {
-        // Use mock data when backend is not available
         console.log("Using mock data for chat session", { moduleContext: normalizedModuleContext, agentId });
         const mockSession = getMockChatSession(normalizedModuleContext, agentId);
         
@@ -217,14 +197,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           table_data: msg.table_data,
           summary: msg.summary,
           next_question: msg.next_question || [],
-          response_type: msg.response_type
+          response_type: msg.response_type || 'text'
         }));
         
         setChatSessions({
           [mockSession.id]: messages
         });
         
-        // Show offline mode toast only once
         if (!backendCheckAttempted.current) {
           toast({
             title: "Offline Mode Activated",
@@ -234,14 +213,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         }
       }
       
-      // Mark initialization as successful
       initializationComplete.current = true;
       
     } catch (error) {
       console.error("Failed to initialize chat session:", error);
       setIsBackendAvailable(false);
       
-      // Show offline mode toast only once
       if (!backendCheckAttempted.current) {
         toast({
           title: "Offline Mode Activated",
@@ -250,12 +227,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         });
       }
       
-      // Fallback to mock data
       const mockSession = getMockChatSession(normalizedModuleContext, agentId);
       
       if (!mockSession || !mockSession.id) {
         console.error("Invalid mock session after fallback:", mockSession);
-        // Last resort - create a simple session
         const fallbackSessionId = generateSessionId();
         
         const defaultMessage = {
@@ -276,14 +251,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           table_data: msg.table_data,
           summary: msg.summary,
           next_question: msg.next_question || [],
-          response_type: msg.response_type
+          response_type: msg.response_type || 'text'
         }));
         
         setChatSessions({ [mockSession.id]: messages });
         setCurrentSessionId(mockSession.id);
       }
       
-      // Still mark initialization as complete even if we used fallback
       initializationComplete.current = true;
       
     } finally {
@@ -295,11 +269,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
 
   useEffect(() => {
     const token = getAuthToken();
-    // Only initialize if we have a token or we know backend is unavailable
     if (token || backendCheckAttempted.current) {
       initializeSession();
     } else {
-      // Check backend availability first
       checkBackendAvailability().then(() => {
         initializeSession();
       });
@@ -307,7 +279,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   }, [initializeSession, checkBackendAvailability]);
 
   useEffect(() => {
-    // Only initialize WebSocket once
     if (websocketInitialized.current) {
       console.log("WebSocket already initialized, skipping");
       return;
@@ -317,14 +288,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     console.log("Initializing WebSocket connection...");
     websocketService.connect();
 
-    // Use normalized module context for WebSocket channel name
     const channelName = `chat${normalizedModuleContext ? `-${normalizedModuleContext}` : agentId ? `-agent-${agentId}` : ''}`;
     
     const unsubscribeChatMessages = websocketService.onMessage(channelName, (payload: any) => {
       if (!payload.isUser) {
         console.log("Received WebSocket message:", payload);
         
-        // Ensure we have a valid session ID
         const sessionId = payload.sessionId || currentSessionId;
         if (!sessionId) {
           console.error("No session ID for incoming message");
@@ -355,7 +324,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
 
     const unsubscribeConnect = websocketService.onConnect(() => {
       console.log("WebSocket connected in ChatContext");
-      // Remove toast to reduce UI clutter
       /* toast({
         title: "Connected to AI Co-Pilot",
         description: "Real-time AI assistance is now available.",
@@ -387,7 +355,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       agentId
     });
     
-    // Add user message to state immediately
     const userMessage: ChatMessage = {
       id: uuidv4(),
       text: inputText,
@@ -409,16 +376,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       try {
         console.log(`Sending message to session ${targetSessionId}`);
         
-        // BACKEND CONNECTION POINT 5:
-        // This endpoint should send a message to your MongoDB chat session
-        // Should match the route in your backend/services/chat/routes.py file
         const sendEndpoint = `/api/v1/chat/${targetSessionId}/send`;
         
         const response = await axios.post(`${API_BASE_URL}${sendEndpoint}`, {
           text: inputText
         }, {
           headers: { Authorization: `Bearer ${token}` },
-          timeout: 10000 // 10 second timeout
+          timeout: 10000
         });
         
         if (!response.data) {
@@ -427,9 +391,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         
         console.log("Received response:", response.data);
         
-        // BACKEND DATA CONVERSION POINT 2:
-        // Convert MongoDB response format to frontend format
-        // Should match your MongoDB schema shown in the example
         const aiMessage: ChatMessage = {
           id: response.data.id || uuidv4(),
           text: response.data.text,
@@ -438,7 +399,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           table_data: response.data.table_data,
           summary: response.data.summary,
           next_question: response.data.next_question || [],
-          response_type: response.data.response_type // MongoDB specific field
+          response_type: response.data.response_type
         };
         
         setChatSessions(prev => {
@@ -453,7 +414,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       } catch (error) {
         console.error("Failed to send message to backend, falling back to mock data:", error);
         
-        // Try WebSocket first if available
         try {
           const channelName = `chat${normalizedModule ? `-${normalizedModule}` : agentId ? `-agent-${agentId}` : ''}`;
           
@@ -469,12 +429,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           console.error("WebSocket send failed:", wsError);
         }
         
-        // Immediately use mock data without waiting
         try {
-          // Get mock response
           const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
           
-          // Add the mock AI response to the chat session
           setChatSessions(prev => {
             const sessionMessages = prev[targetSessionId] || [];
             return {
@@ -487,7 +444,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
                 table_data: mockResponse.table_data,
                 summary: mockResponse.summary,
                 next_question: mockResponse.next_question,
-                response_type: mockResponse.response_type
+                response_type: mockResponse.response_type || 'text'
               }]
             };
           });
@@ -496,7 +453,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         } catch (mockError) {
           console.error("Failed to generate mock response:", mockError);
           
-          // Provide a generic fallback response if everything else fails
           setChatSessions(prev => {
             const sessionMessages = prev[targetSessionId] || [];
             return {
@@ -505,7 +461,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
                 id: uuidv4(),
                 text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
                 isUser: false,
-                timestamp: new Date()
+                timestamp: new Date(),
+                response_type: 'error'
               }]
             };
           });
@@ -514,15 +471,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         }
       }
     } else {
-      // If backend is not available, use mock data immediately
       try {
-        // Use a short delay to simulate processing
         setTimeout(async () => {
           try {
-            // Get mock response
             const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
             
-            // Add the mock AI response to the chat session
             setChatSessions(prev => {
               const sessionMessages = prev[targetSessionId] || [];
               return {
@@ -535,14 +488,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
                   table_data: mockResponse.table_data,
                   summary: mockResponse.summary,
                   next_question: mockResponse.next_question,
-                  response_type: mockResponse.response_type
+                  response_type: mockResponse.response_type || 'text'
                 }]
               };
             });
           } catch (error) {
             console.error("Failed to generate mock response:", error);
             
-            // Provide a generic fallback response
             setChatSessions(prev => {
               const sessionMessages = prev[targetSessionId] || [];
               return {
@@ -551,7 +503,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
                   id: uuidv4(),
                   text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
                   isUser: false,
-                  timestamp: new Date()
+                  timestamp: new Date(),
+                  response_type: 'error'
                 }]
               };
             });
@@ -592,7 +545,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           
           const newSessionId = response.data.id;
           
-          // Convert backend message format to frontend format
           const welcomeMessages = (response.data.messages || []).map((msg: any) => ({
             id: msg.id || uuidv4(),
             text: msg.text,
@@ -616,27 +568,38 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           throw error;
         }
       } else {
-        // Use mock data when backend is not available
         const mockSession = getMockChatSession(normalizedModule, agentId);
         
         if (!mockSession || !mockSession.id) {
-          throw new Error("Failed to create mock session");
+          console.error("Invalid mock session in fallback");
+          const fallbackSessionId = generateSessionId();
+          setChatSessions(prev => ({
+            ...prev,
+            [fallbackSessionId]: [{
+              id: uuidv4(),
+              text: "Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you today?",
+              isUser: false,
+              timestamp: new Date(),
+              response_type: 'greeting'
+            }]
+          }));
+          
+          setCurrentSessionId(fallbackSessionId);
+          return fallbackSessionId;
         }
-        
-        const welcomeMessages = mockSession.messages.map((msg: any) => ({
-          id: msg.id || uuidv4(),
-          text: msg.text,
-          isUser: msg.isUser,
-          timestamp: new Date(msg.timestamp || Date.now()),
-          table_data: msg.table_data,
-          summary: msg.summary,
-          next_question: msg.next_question || [],
-          response_type: msg.response_type
-        }));
         
         setChatSessions(prev => ({
           ...prev,
-          [mockSession.id]: welcomeMessages
+          [mockSession.id]: mockSession.messages.map((msg: any) => ({
+            id: msg.id || uuidv4(),
+            text: msg.text,
+            isUser: msg.isUser,
+            timestamp: new Date(msg.timestamp || Date.now()),
+            table_data: msg.table_data,
+            summary: msg.summary,
+            next_question: msg.next_question || [],
+            response_type: msg.response_type || 'text'
+          }))
         }));
         
         setCurrentSessionId(mockSession.id);
@@ -647,7 +610,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       console.error("Failed to create new session:", error);
       setIsBackendAvailable(false);
       
-      // Fallback to mock data
       const mockSession = getMockChatSession(normalizedModule, agentId);
       
       if (!mockSession || !mockSession.id) {
@@ -659,7 +621,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             id: uuidv4(),
             text: "Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you today?",
             isUser: false,
-            timestamp: new Date()
+            timestamp: new Date(),
+            response_type: 'greeting'
           }]
         }));
         
@@ -677,7 +640,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           table_data: msg.table_data,
           summary: msg.summary,
           next_question: msg.next_question || [],
-          response_type: msg.response_type
+          response_type: msg.response_type || 'text'
         }))
       }));
       

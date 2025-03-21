@@ -40,7 +40,8 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
           ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
           : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${normalizedModuleContext || 'operations'} today?`,
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
+        response_type: 'greeting' // Add response_type for fallback message
       }],
       isLoading: false,
       handleSendMessage: (message: string) => {
@@ -74,7 +75,8 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
           ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
           : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${normalizedModuleContext || 'operations'} today?`,
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
+        response_type: 'greeting' // Add response_type for initial welcome message
       }];
 
   // Count user messages to track interaction
