@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 import { AUTH_ENDPOINTS, API_CONFIG } from './apiConfig';
 import { User } from '@/types/auth';
@@ -336,6 +337,13 @@ export const hasModuleAccess = (moduleId: string): boolean => {
   const user = checkAuthStatus();
   if (!user) return false;
   
+  console.log(`Checking module access for ${moduleId}`, {
+    user: user.email,
+    role: user.role,
+    allowedModules: user.allowedModules,
+    hasAccess: user.role === 'admin' || user.allowedModules.includes(moduleId)
+  });
+  
   // Admins have access to everything
   if (user.role === 'admin') return true;
   
@@ -352,6 +360,13 @@ export const hasModuleAccess = (moduleId: string): boolean => {
 export const hasAgentAccess = (agentId: number): boolean => {
   const user = checkAuthStatus();
   if (!user) return false;
+  
+  console.log(`Checking agent access for ${agentId}`, {
+    user: user.email,
+    role: user.role,
+    allowedAgents: user.allowedAgents,
+    hasAccess: user.role === 'admin' || user.allowedAgents.includes(agentId)
+  });
   
   // Admins have access to everything
   if (user.role === 'admin') return true;

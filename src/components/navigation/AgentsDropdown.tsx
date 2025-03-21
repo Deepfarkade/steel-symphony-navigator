@@ -7,6 +7,7 @@ import AgentItem from '../sidebar/AgentItem';
 import { getIconComponent } from '@/utils/iconUtils';
 import { useAgents } from '@/hooks/useAgents';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface AgentsDropdownProps {
   isCollapsed: boolean;
@@ -15,6 +16,10 @@ interface AgentsDropdownProps {
 const AgentsDropdown: React.FC<AgentsDropdownProps> = ({ isCollapsed }) => {
   const { agents, loading, deleteAgent } = useAgents();
   const { theme } = useTheme();
+  const { hasAgentAccess } = useAuth();
+  
+  // Filter agents based on user's access rights
+  const accessibleAgents = agents.filter(agent => hasAgentAccess(agent.id));
   
   return (
     <SidebarDropdown 
@@ -29,8 +34,8 @@ const AgentsDropdown: React.FC<AgentsDropdownProps> = ({ isCollapsed }) => {
           Array(3).fill(0).map((_, i) => (
             <div key={i} className={`w-full h-10 ${theme === 'light' ? 'bg-gray-200' : 'bg-gray-700/20'} animate-pulse rounded-md mb-1`}></div>
           ))
-        ) : agents.length > 0 ? (
-          agents.map(agent => (
+        ) : accessibleAgents.length > 0 ? (
+          accessibleAgents.map(agent => (
             <AgentItem
               key={agent.id}
               id={agent.id}

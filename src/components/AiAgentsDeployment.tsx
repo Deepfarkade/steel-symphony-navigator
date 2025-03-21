@@ -12,7 +12,7 @@ import { getAvailableAgents, addAgentToUser } from '@/services/dataService';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useAgents } from '@/hooks/useAgents';
-import { hasAgentAccess, isAdmin } from '@/services/authService';
+import { useAuth } from '@/context/AuthContext';
 
 const AiAgentsDeployment = () => {
   const [open, setOpen] = useState(false);
@@ -26,7 +26,8 @@ const AiAgentsDeployment = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { agents, refreshAgents, deleteAgent } = useAgents();
-  const userIsAdmin = isAdmin();
+  const { user, hasAgentAccess } = useAuth();
+  const userIsAdmin = user?.role === 'admin';
 
   // Fetch available agents when the dialog opens or user agents change
   useEffect(() => {
@@ -65,7 +66,7 @@ const AiAgentsDeployment = () => {
     }
     
     // Check if user has permission to deploy this agent
-    if (!hasAgentAccess(id) && !userIsAdmin) {
+    if (!hasAgentAccess(id)) {
       const agent = availableAgents.find(a => a.id === id);
       setDeniedAgentName(agent?.name || 'this agent');
       setShowAccessDeniedDialog(true);
@@ -133,6 +134,9 @@ const AiAgentsDeployment = () => {
     }
   };
 
+  // Filter to show only user's authorized agents
+  const accessibleAgents = agents.filter(agent => hasAgentAccess(agent.id));
+
   return (
     <>
       <Button 
@@ -157,7 +161,7 @@ const AiAgentsDeployment = () => {
           
           <ScrollArea className="flex-1 overflow-y-auto px-1">
             <div className="mt-4">
-              {agents.length > 0 && (
+              {accessibleAgents.length > 0 && (
                 <>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-medium">Your Active Agents</h3>
@@ -178,7 +182,7 @@ const AiAgentsDeployment = () => {
                       }
                     }}
                   >
-                    {agents.map((agent) => (
+                    {accessibleAgents.map((agent) => (
                       <AiAgentCard
                         key={agent.id}
                         id={agent.id}
@@ -227,7 +231,13 @@ const AiAgentsDeployment = () => {
                   }}
                 >
                   {availableAgents.slice(0, 6).map((agent) => {
-                    const userHasAccess = hasAgentAccess(agent.id) || userIsAdmin;
+                    const userHasAccess = hasAgentAccess(agent.id);
+                    const restrictedBadge = !userHasAccess ? (
+                      <div className="absolute top-2 right-2 bg-amber-600 text-white px-2 py-1 rounded-md text-xs flex items-center">
+                        <LockKeyhole className="h-3 w-3 mr-1" />
+                        Restricted
+                      </div>
+                    ) : null;
                     
                     return (
                       <AiAgentCard
@@ -242,12 +252,7 @@ const AiAgentsDeployment = () => {
                         isExpanded={true}
                         deploying={deployingAgent === agent.id}
                         isUserAgent={false}
-                        restrictedBadge={!userHasAccess && (
-                          <div className="absolute top-2 right-2 bg-amber-600 text-white px-2 py-1 rounded-md text-xs flex items-center">
-                            <LockKeyhole className="h-3 w-3 mr-1" />
-                            Restricted
-                          </div>
-                        )}
+                        restrictedBadge={restrictedBadge}
                       />
                     );
                   })}

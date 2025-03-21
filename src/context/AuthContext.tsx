@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { checkAuthStatus, logoutUser } from '../services/authService';
+import { checkAuthStatus, logoutUser, hasModuleAccess, hasAgentAccess } from '../services/authService';
 import { useToast } from '@/hooks/use-toast';
 import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
 import { User } from '@/types/auth';
@@ -12,6 +13,8 @@ interface AuthContextType {
   isLoading: boolean;
   logout: () => void;
   initiateSSO: (provider: SSOProvider) => void;
+  hasModuleAccess: (moduleId: string) => boolean;
+  hasAgentAccess: (agentId: number) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -20,6 +23,8 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   logout: () => {},
   initiateSSO: () => {},
+  hasModuleAccess: () => false,
+  hasAgentAccess: () => false,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -140,12 +145,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [user]);
   
+  // Utility functions to check access rights
+  const checkModuleAccess = (moduleId: string): boolean => {
+    if (!user) return false;
+    
+    // Admin has access to everything
+    if (user.role === 'admin') return true;
+    
+    // Check if module is in user's allowed modules
+    return user.allowedModules.includes(moduleId);
+  };
+  
+  const checkAgentAccess = (agentId: number): boolean => {
+    if (!user) return false;
+    
+    // Admin has access to everything
+    if (user.role === 'admin') return true;
+    
+    // Check if agent is in user's allowed agents
+    return user.allowedAgents.includes(agentId);
+  };
+  
   const value = {
     user,
     isAuthenticated: !!user,
     isLoading,
     logout,
     initiateSSO,
+    hasModuleAccess: checkModuleAccess,
+    hasAgentAccess: checkAgentAccess,
   };
 
   // Use the inactivity timeout hook
@@ -179,4 +207,50 @@ export const RequireAuth: React.FC<{ children: ReactNode }> = ({ children }) => 
   }
   
   return isAuthenticated ? <>{children}</> : null;
+};
+
+// Module access guard component
+export const RequireModuleAccess: React.FC<{ children: ReactNode; moduleId: string }> = ({ children, moduleId }) => {
+  const { hasModuleAccess, isLoading } = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!isLoading && !hasModuleAccess(moduleId)) {
+      navigate('/');
+      // We could also show an access denied message here
+    }
+  }, [hasModuleAccess, isLoading, moduleId, navigate]);
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-ey-yellow"></div>
+      </div>
+    );
+  }
+  
+  return hasModuleAccess(moduleId) ? <>{children}</> : null;
+};
+
+// Agent access guard component
+export const RequireAgentAccess: React.FC<{ children: ReactNode; agentId: number }> = ({ children, agentId }) => {
+  const { hasAgentAccess, isLoading } = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!isLoading && !hasAgentAccess(agentId)) {
+      navigate('/agents');
+      // We could also show an access denied message here
+    }
+  }, [hasAgentAccess, isLoading, agentId, navigate]);
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-ey-yellow"></div>
+      </div>
+    );
+  }
+  
+  return hasAgentAccess(agentId) ? <>{children}</> : null;
 };
