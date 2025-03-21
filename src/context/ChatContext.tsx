@@ -20,7 +20,7 @@ interface ChatMessage {
   table_data?: string;
   summary?: string;
   next_question?: string[];
-  response_type?: string;
+  response_type?: string; // Add this property to fix the error
 }
 
 interface ChatContextProps {
@@ -399,7 +399,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           table_data: response.data.table_data,
           summary: response.data.summary,
           next_question: response.data.next_question || [],
-          response_type: response.data.response_type
+          response_type: response.data.response_type // Make sure this is properly assigned
         };
         
         setChatSessions(prev => {
@@ -444,7 +444,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
                 table_data: mockResponse.table_data,
                 summary: mockResponse.summary,
                 next_question: mockResponse.next_question,
-                response_type: mockResponse.response_type || 'text'
+                response_type: mockResponse.response_type || 'text' // Set default value
               }]
             };
           });
@@ -462,7 +462,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
                 text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
                 isUser: false,
                 timestamp: new Date(),
-                response_type: 'error'
+                response_type: 'error' // Set response_type for error messages
               }]
             };
           });
@@ -488,7 +488,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
                   table_data: mockResponse.table_data,
                   summary: mockResponse.summary,
                   next_question: mockResponse.next_question,
-                  response_type: mockResponse.response_type || 'text'
+                  response_type: mockResponse.response_type || 'text' // Set default value
                 }]
               };
             });
@@ -504,7 +504,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
                   text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
                   isUser: false,
                   timestamp: new Date(),
-                  response_type: 'error'
+                  response_type: 'error' // Set response_type for error messages
                 }]
               };
             });
