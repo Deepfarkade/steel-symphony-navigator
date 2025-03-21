@@ -20,7 +20,7 @@ interface ChatMessage {
   table_data?: string;
   summary?: string;
   next_question?: string[];
-  response_type?: string; // Add this property to fix the error
+  response_type?: string; // This property is needed for TypeScript
 }
 
 interface ChatContextProps {
@@ -399,7 +399,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           table_data: response.data.table_data,
           summary: response.data.summary,
           next_question: response.data.next_question || [],
-          response_type: response.data.response_type // Make sure this is properly assigned
+          response_type: response.data.response_type 
         };
         
         setChatSessions(prev => {
@@ -434,18 +434,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           
           setChatSessions(prev => {
             const sessionMessages = prev[targetSessionId] || [];
+            const updatedMessage = {
+              id: mockResponse.id || uuidv4(),
+              text: mockResponse.text,
+              isUser: false,
+              timestamp: new Date(),
+              table_data: mockResponse.table_data,
+              summary: mockResponse.summary,
+              next_question: mockResponse.next_question,
+              response_type: mockResponse.response_type || 'text'
+            };
+            
             return {
               ...prev,
-              [targetSessionId]: [...sessionMessages, {
-                id: mockResponse.id || uuidv4(),
-                text: mockResponse.text,
-                isUser: false,
-                timestamp: new Date(),
-                table_data: mockResponse.table_data,
-                summary: mockResponse.summary,
-                next_question: mockResponse.next_question,
-                response_type: mockResponse.response_type || 'text' // Set default value
-              }]
+              [targetSessionId]: [...sessionMessages, updatedMessage]
             };
           });
           
@@ -455,15 +457,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           
           setChatSessions(prev => {
             const sessionMessages = prev[targetSessionId] || [];
+            const errorMessage = {
+              id: uuidv4(),
+              text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
+              isUser: false,
+              timestamp: new Date(),
+              response_type: 'error'
+            };
+            
             return {
               ...prev,
-              [targetSessionId]: [...sessionMessages, {
-                id: uuidv4(),
-                text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
-                isUser: false,
-                timestamp: new Date(),
-                response_type: 'error' // Set response_type for error messages
-              }]
+              [targetSessionId]: [...sessionMessages, errorMessage]
             };
           });
           
@@ -478,18 +482,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             
             setChatSessions(prev => {
               const sessionMessages = prev[targetSessionId] || [];
+              const updatedMessage = {
+                id: mockResponse.id || uuidv4(),
+                text: mockResponse.text,
+                isUser: false,
+                timestamp: new Date(),
+                table_data: mockResponse.table_data,
+                summary: mockResponse.summary,
+                next_question: mockResponse.next_question,
+                response_type: mockResponse.response_type || 'text'
+              };
+              
               return {
                 ...prev,
-                [targetSessionId]: [...sessionMessages, {
-                  id: mockResponse.id || uuidv4(),
-                  text: mockResponse.text,
-                  isUser: false,
-                  timestamp: new Date(),
-                  table_data: mockResponse.table_data,
-                  summary: mockResponse.summary,
-                  next_question: mockResponse.next_question,
-                  response_type: mockResponse.response_type || 'text' // Set default value
-                }]
+                [targetSessionId]: [...sessionMessages, updatedMessage]
               };
             });
           } catch (error) {
@@ -497,15 +503,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             
             setChatSessions(prev => {
               const sessionMessages = prev[targetSessionId] || [];
+              const errorMessage = {
+                id: uuidv4(),
+                text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
+                isUser: false,
+                timestamp: new Date(),
+                response_type: 'error'
+              };
+              
               return {
                 ...prev,
-                [targetSessionId]: [...sessionMessages, {
-                  id: uuidv4(),
-                  text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
-                  isUser: false,
-                  timestamp: new Date(),
-                  response_type: 'error' // Set response_type for error messages
-                }]
+                [targetSessionId]: [...sessionMessages, errorMessage]
               };
             });
           } finally {

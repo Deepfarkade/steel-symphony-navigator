@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatMessageList, { ChatMessageData } from './ChatMessageList';
@@ -138,7 +137,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       summary: msg.summary,
       next_question: msg.next_question,
       
-      responseType: msg.response_type || 'text' // Set default value if not present
+      responseType: msg.response_type || 'text' // Ensure this properly maps response_type to responseType
     }));
   };
 
