@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatMessageList, { ChatMessageData } from './ChatMessageList';
