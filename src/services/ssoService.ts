@@ -92,13 +92,13 @@ export const handleSSOCallback = async (code: string, state: string): Promise<Us
   return new Promise((resolve) => {
     setTimeout(() => {
       const user: User = {
-        id: '1',
+        id: '100',
         email: 'sso.user@example.com',
         firstName: 'SSO',
         lastName: 'User',
         role: 'user',
-        allowedModules: [],
-        allowedAgents: []
+        allowedModules: ['demand-planning', 'supply-planning'],
+        allowedAgents: [1, 2, 3]
       };
       
       // Store user in localStorage

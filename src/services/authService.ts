@@ -3,6 +3,60 @@ import axios from 'axios';
 import { AUTH_ENDPOINTS, API_CONFIG } from './apiConfig';
 import { User } from '@/types/auth';
 
+// Define mock users for testing
+const mockUsers = {
+  'admin@example.com': {
+    id: '1',
+    email: 'admin@example.com',
+    password: 'admin123',
+    firstName: 'Admin',
+    lastName: 'User',
+    role: 'admin' as const,
+    allowedModules: ['demand-planning', 'supply-planning', 'order-promising', 'factory-planning', 'inventory-optimization', 'risk-management'],
+    allowedAgents: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  },
+  'user@example.com': {
+    id: '2',
+    email: 'user@example.com',
+    password: 'user123',
+    firstName: 'Regular',
+    lastName: 'User',
+    role: 'user' as const,
+    allowedModules: ['demand-planning', 'supply-planning'],
+    allowedAgents: [1, 2]
+  },
+  'manager@example.com': {
+    id: '3',
+    email: 'manager@example.com',
+    password: 'manager123',
+    firstName: 'Manager',
+    lastName: 'User',
+    role: 'user' as const,
+    allowedModules: ['demand-planning', 'supply-planning', 'inventory-optimization'],
+    allowedAgents: [1, 2, 3, 4, 5]
+  },
+  'analyst@example.com': {
+    id: '4',
+    email: 'analyst@example.com',
+    password: 'analyst123',
+    firstName: 'Data',
+    lastName: 'Analyst',
+    role: 'user' as const,
+    allowedModules: ['demand-planning', 'factory-planning'],
+    allowedAgents: [2, 3, 6]
+  },
+  'planner@example.com': {
+    id: '5',
+    email: 'planner@example.com',
+    password: 'planner123',
+    firstName: 'Supply',
+    lastName: 'Planner',
+    role: 'user' as const,
+    allowedModules: ['supply-planning', 'order-promising'],
+    allowedAgents: [1, 4, 5, 7]
+  }
+};
+
 /**
  * Login user with email and password
  * Used in Login.tsx for user authentication
@@ -21,47 +75,33 @@ export const loginUser = async (email: string, password: string): Promise<{ user
     // Mock implementation
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Simulate authentication
-    if (email.trim() && password.trim()) {
-      // Simulate checking if user exists (in a real app, this would be done on the backend)
-      if (email !== 'admin@example.com' && email !== 'user@example.com') {
-        throw new Error("User not found");
-      }
-      
-      // Create a mock user and token for development
-      const isAdmin = email === 'admin@example.com';
-      
-      const user: User = {
-        id: '1',
-        email: email,
-        firstName: isAdmin ? 'Admin' : 'Test',
-        lastName: 'User',
-        role: isAdmin ? 'admin' : 'user',
-        allowedModules: isAdmin 
-          ? ['demand-planning', 'supply-planning', 'order-promising', 'factory-planning', 'inventory-optimization'] 
-          : ['demand-planning', 'supply-planning'],
-        allowedAgents: isAdmin ? [1, 2, 3, 4, 5] : [1, 2]
-      };
-      
-      const token = 'mock-jwt-token';
-      
-      // Store token in localStorage
-      localStorage.setItem('auth-token', token);
-      
-      // Store user in localStorage
-      localStorage.setItem('current-user', JSON.stringify(user));
-      
-      // Set session expiry (7 days from now)
-      const expiryDate = new Date();
-      expiryDate.setDate(expiryDate.getDate() + 7);
-      localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
-      
-      console.log('Login successful (mock)', { user, token });
-      
-      return { user, token };
-    } else {
-      throw new Error('Invalid credentials');
+    // Check if user exists in our mock database
+    const mockUser = mockUsers[email.toLowerCase()];
+    
+    if (!mockUser || mockUser.password !== password) {
+      throw new Error("Invalid credentials");
     }
+    
+    // Create a user object without the password
+    const { password: _, ...userWithoutPassword } = mockUser;
+    const user: User = userWithoutPassword;
+    
+    const token = 'mock-jwt-token-' + Math.random().toString(36).substring(2, 15);
+    
+    // Store token in localStorage
+    localStorage.setItem('auth-token', token);
+    
+    // Store user in localStorage
+    localStorage.setItem('current-user', JSON.stringify(user));
+    
+    // Set session expiry (7 days from now)
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 7);
+    localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
+    
+    console.log('Login successful (mock)', { user, token });
+    
+    return { user, token };
   } catch (error) {
     console.error('Login error:', error);
     throw error;
