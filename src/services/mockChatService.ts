@@ -28,12 +28,12 @@ const MODULE_TABLES = {
 | ORD-7846 | Beta Co  | CRC     | 120            | 2025-04-20    | 2025-04-22   | 90%        |
 | ORD-7850 | Delta Ltd| HDG     | 220            | 2025-04-12    | 2025-04-14   | 85%        |`,
 
-  'factory-planning': `| Production Line | Capacity (tons/day) | Utilization | Maintenance | Efficiency |
-|-----------------|-------------------|-------------|-------------|------------|
-| Line A          | 450               | 92%         | Apr 10-12   | 88%        |
-| Line B          | 380               | 87%         | Apr 18-20   | 91%        |
-| Line C          | 520               | 95%         | May 5-8     | 85%        |
-| Line D          | 320               | 78%         | None        | 93%        |`,
+  'factory-planning': `| Production Line | Current Output (tons/day) | Target Output (tons/day) | Efficiency (%) | Downtime (hrs/week) |
+|-----------------|--------------------------|------------------------|----------------|---------------------|
+| Line Alpha      | 750                      | 800                    | 93.8%          | 4.2                 |
+| Line Beta       | 620                      | 700                    | 88.6%          | 7.8                 |
+| Line Gamma      | 840                      | 850                    | 98.8%          | 1.5                 |
+| Line Delta      | 580                      | 650                    | 89.2%          | 6.3                 |`,
 
   'inventory-optimization': `| Warehouse | Current Stock (tons) | Safety Stock | Days of Supply | Turnover Rate |
 |-----------|---------------------|--------------|----------------|--------------|
@@ -62,6 +62,13 @@ const MODULE_TABLES = {
 | Quality Rate     | 97.2%   | 98.5%  | Stable     | +0.8%      |
 | On-time Delivery | 88.5%   | 95.0%  | Improving  | +4.2%      |
 | Energy Use       | 450kWh/t| 420kWh/t| Decreasing | -5.1%      |`,
+
+  'enterprise-supply-planning': `| Factory | Material Type | Current Stock (tons) | Min Stock (tons) | On Order (tons) | Lead Time (days) |
+|---------|--------------|---------------------|-----------------|-----------------|-----------------|
+| Plant A | HRC          | 1,280               | 850             | 2,000           | 14              |
+| Plant B | CRC          | 950                 | 800             | 1,500           | 21              |
+| Plant C | HDG          | 720                 | 600             | 1,200           | 18              |
+| Plant D | EG           | 550                 | 450             | 800             | 16              |`
 };
 
 // Mock summaries for different modules
@@ -72,7 +79,7 @@ const MODULE_SUMMARIES = {
   
   'order-promising': "Order promising analysis indicates we can fulfill all current orders with high confidence levels. The order for Acme Inc has the highest confidence rating at 95%, with a delivery promise just 2 days after the requested date. Delta Ltd's order has the lowest confidence at 85% and may require additional monitoring to ensure on-time delivery.",
   
-  'factory-planning': "Factory production capacity is currently well-utilized, with Line C showing the highest utilization at 95%. Line D has significant available capacity at only 78% utilization and could handle additional production requirements. Scheduled maintenance activities for Lines A, B, and C need to be factored into production planning for April and May.",
+  'factory-planning': "Factory planning analysis shows Line Gamma is your highest performing production line at 98.8% efficiency with minimal downtime of just 1.5 hours per week. Line Alpha is operating well at 93.8% efficiency but is still below target output. Lines Beta and Delta show the most opportunity for improvement, with efficiency ratings below 90% and significant downtime hours that should be addressed.",
   
   'inventory-optimization': "Inventory levels across all warehouses are currently sufficient, with the East warehouse having the highest days of supply at 18 days. The West warehouse has the highest turnover rate at 11.3, indicating efficient inventory management. Consider reducing safety stock levels at the East warehouse to improve capital efficiency while maintaining service levels.",
   
@@ -80,7 +87,9 @@ const MODULE_SUMMARIES = {
   
   'risk-management': "Risk assessment indicates Supply Chain risks present the highest risk score at 16, followed closely by Market risks at 15. While Production risks have a high impact, their low probability reduces the overall risk score to 12. The current mitigation strategies are appropriate, but we should consider enhancing our approach to Supply Chain risks through additional supplier diversification.",
   
-  'analytics': "Performance analytics show positive trends across all key metrics. Production costs are decreasing (-3.5% YoY) and approaching the target of $650/ton. On-time delivery has shown the most significant improvement at +4.2% YoY but remains below the target of 95.0%. Energy usage is decreasing faster than other metrics, reflecting successful efficiency initiatives."
+  'analytics': "Performance analytics show positive trends across all key metrics. Production costs are decreasing (-3.5% YoY) and approaching the target of $650/ton. On-time delivery has shown the most significant improvement at +4.2% YoY but remains below the target of 95.0%. Energy usage is decreasing faster than other metrics, reflecting successful efficiency initiatives.",
+
+  'enterprise-supply-planning': "Enterprise supply planning analysis shows varying stock levels across plants. Plant A has the highest current stock at 1,280 tons with 2,000 tons on order. Plant D has the lowest stock at 550 tons, but is still above minimum requirements. Lead times vary from 14-21 days, with Plant B having the longest lead time for CRC materials. All plants are maintaining appropriate safety stock levels."
 };
 
 // Mock next questions for different modules
@@ -99,6 +108,16 @@ const MODULE_NEXT_QUESTIONS = {
     "What's our contingency plan for Delta Ltd's order?",
     "Can we improve our delivery timeline for Acme Inc?",
     "What's our current capacity for additional orders this month?"
+  ],
+  'factory-planning': [
+    "What maintenance should we prioritize for Line Beta?",
+    "How can we optimize Line Alpha to reach target output?",
+    "What's causing the higher downtime on Line Beta?"
+  ],
+  'enterprise-supply-planning': [
+    "How can we optimize inventory levels at Plant A?",
+    "Should we increase the minimum stock for Plant C?",
+    "What strategies can reduce lead times for Plant B?"
   ]
 };
 

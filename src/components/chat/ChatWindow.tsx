@@ -7,7 +7,7 @@ import ChatSidebar from './ChatSidebar';
 import SidebarToggle from './SidebarToggle';
 
 interface ChatMessage {
-  id?: string;
+  id?: string;  // Make sure id is defined in the interface
   text: string;
   isUser: boolean;
   timestamp: Date;
@@ -63,7 +63,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [messagesSent, setMessagesSent] = useState<number>(0);
-
+  
+  // Watch for changes in the messages prop and update the sessions state
   useEffect(() => {
     if (messages && messages.length > 0) {
       setSessions(prev => {

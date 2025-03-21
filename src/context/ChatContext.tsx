@@ -59,6 +59,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   const [isBackendAvailable, setIsBackendAvailable] = useState(false);
   const backendCheckAttempted = useRef(false);
   const initializationInProgress = useRef(false);
+  const initializationComplete = useRef(false);
+  const websocketInitialized = useRef(false);
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -67,7 +69,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   // Normalize module context to handle spaces correctly
   const normalizedModuleContext = moduleContext ? moduleContext.toLowerCase().replace(/\s+/g, '-') : undefined;
 
-  // Health check function to determine if backend is available
+  // Health check function to determine if backend is available (only runs once)
   const checkBackendAvailability = useCallback(async () => {
     // Skip the check if we've already attempted it
     if (backendCheckAttempted.current) {
@@ -75,13 +77,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     }
 
     try {
+      backendCheckAttempted.current = true; // Mark as attempted before the request
+      console.log("Checking backend availability...");
       await axios.get(`${API_BASE_URL}/`, { timeout: 3000 });
-      backendCheckAttempted.current = true;
+      console.log("Backend available!");
       setIsBackendAvailable(true);
       return true;
     } catch (error) {
       console.log("Backend health check failed, switching to offline mode", error);
-      backendCheckAttempted.current = true;
       setIsBackendAvailable(false);
       return false;
     }
@@ -89,10 +92,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
 
   const initializeSession = useCallback(async () => {
     // Prevent multiple initializations
-    if (initializationInProgress.current) {
+    if (initializationInProgress.current || initializationComplete.current) {
+      console.log("Session initialization already in progress or completed, skipping");
       return;
     }
     
+    console.log("Starting session initialization...");
     initializationInProgress.current = true;
     const token = getAuthToken();
     
@@ -191,8 +196,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         const messages: ChatMessage[] = mockSession.messages.map((msg: any) => ({
           id: msg.id || uuidv4(),
           text: msg.text,
-          isUser: msg.sender === "user",
-          timestamp: new Date(msg.timestamp),
+          isUser: msg.isUser,
+          timestamp: new Date(msg.timestamp || Date.now()),
           table_data: msg.table_data,
           summary: msg.summary,
           next_question: msg.next_question || []
@@ -211,6 +216,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           });
         }
       }
+      
+      // Mark initialization as successful
+      initializationComplete.current = true;
       
     } catch (error) {
       console.error("Failed to initialize chat session:", error);
@@ -246,8 +254,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         const messages: ChatMessage[] = mockSession.messages.map((msg: any) => ({
           id: msg.id || uuidv4(),
           text: msg.text,
-          isUser: msg.sender === "user",
-          timestamp: new Date(msg.timestamp),
+          isUser: msg.isUser,
+          timestamp: new Date(msg.timestamp || Date.now()),
           table_data: msg.table_data,
           summary: msg.summary,
           next_question: msg.next_question || []
@@ -257,9 +265,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         setCurrentSessionId(mockSession.id);
       }
       
+      // Still mark initialization as complete even if we used fallback
+      initializationComplete.current = true;
+      
     } finally {
       setIsLoading(false);
       initializationInProgress.current = false;
+      console.log("Session initialization completed");
     }
   }, [normalizedModuleContext, agentId, toast, checkBackendAvailability, getAuthToken, isBackendAvailable]);
 
@@ -277,6 +289,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   }, [initializeSession, checkBackendAvailability]);
 
   useEffect(() => {
+    // Only initialize WebSocket once
+    if (websocketInitialized.current) {
+      console.log("WebSocket already initialized, skipping");
+      return;
+    }
+    
+    websocketInitialized.current = true;
+    console.log("Initializing WebSocket connection...");
     websocketService.connect();
 
     // Use normalized module context for WebSocket channel name
@@ -315,16 +335,18 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     });
 
     const unsubscribeConnect = websocketService.onConnect(() => {
-      console.log("WebSocket connected");
-      toast({
+      console.log("WebSocket connected in ChatContext");
+      // Remove toast to reduce UI clutter
+      /* toast({
         title: "Connected to AI Co-Pilot",
         description: "Real-time AI assistance is now available.",
-      });
+      }); */
     });
 
     return () => {
       unsubscribeChatMessages();
       unsubscribeConnect();
+      websocketInitialized.current = false;
     };
   }, [toast, normalizedModuleContext, agentId, currentSessionId]);
 
@@ -543,8 +565,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         const welcomeMessages = mockSession.messages.map((msg: any) => ({
           id: msg.id || uuidv4(),
           text: msg.text,
-          isUser: msg.sender === "user",
-          timestamp: new Date(msg.timestamp),
+          isUser: msg.isUser,
+          timestamp: new Date(msg.timestamp || Date.now()),
           table_data: msg.table_data,
           summary: msg.summary,
           next_question: msg.next_question || []
@@ -588,8 +610,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         [mockSession.id]: mockSession.messages.map((msg: any) => ({
           id: msg.id || uuidv4(),
           text: msg.text,
-          isUser: msg.sender === "user",
-          timestamp: new Date(msg.timestamp),
+          isUser: msg.isUser,
+          timestamp: new Date(msg.timestamp || Date.now()),
           table_data: msg.table_data,
           summary: msg.summary,
           next_question: msg.next_question || []

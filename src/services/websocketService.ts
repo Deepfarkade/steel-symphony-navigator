@@ -20,6 +20,7 @@ class WebSocketService {
   private reconnectTimeout: number = 3000;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private connectionAttempted: boolean = false;
+  private connectionId: string = `conn-${Date.now()}`; // Unique connection ID
   
   // Base URL for the WebSocket connection - would be replaced with your actual WebSocket server URL
   private baseUrl: string = 'wss://your-websocket-server.com';
@@ -28,6 +29,7 @@ class WebSocketService {
   connect(): void {
     // Don't attempt to connect if already connected or connecting
     if (this.isConnected || this.connectionAttempted) {
+      console.log('WebSocket already connected or connecting. Skipping connection attempt.');
       return;
     }
     
@@ -37,14 +39,14 @@ class WebSocketService {
       // In a real app, this would connect to your actual WebSocket server
       // this.socket = new WebSocket(this.baseUrl);
       
-      // For demo purposes, we'll simulate a successful connection
+      // For demo purposes, we'll simulate a successful connection (once)
       this.isConnected = true;
       this.reconnectAttempts = 0;
       
       // Notify connect handlers
       this.connectHandlers.forEach(handler => handler());
       
-      console.log('WebSocket connected');
+      console.log(`WebSocket connected (ID: ${this.connectionId})`);
     } catch (error) {
       console.error('WebSocket connection error:', error);
       this.attemptReconnect();
@@ -66,7 +68,7 @@ class WebSocketService {
       this.reconnectTimer = null;
     }
     
-    console.log('WebSocket disconnected');
+    console.log(`WebSocket disconnected (ID: ${this.connectionId})`);
   }
   
   // Attempt to reconnect to WebSocket server
@@ -230,7 +232,14 @@ const MODULE_TABLES = {
 | Line Alpha      | 750                      | 800                    | 93.8%          | 4.2                 |
 | Line Beta       | 620                      | 700                    | 88.6%          | 7.8                 |
 | Line Gamma      | 840                      | 850                    | 98.8%          | 1.5                 |
-| Line Delta      | 580                      | 650                    | 89.2%          | 6.3                 |`
+| Line Delta      | 580                      | 650                    | 89.2%          | 6.3                 |`,
+
+  'enterprise-supply-planning': `| Factory | Material Type | Current Stock (tons) | Min Stock (tons) | On Order (tons) | Lead Time (days) |
+|---------|--------------|---------------------|-----------------|-----------------|-----------------|
+| Plant A | HRC          | 1,280               | 850             | 2,000           | 14              |
+| Plant B | CRC          | 950                 | 800             | 1,500           | 21              |
+| Plant C | HDG          | 720                 | 600             | 1,200           | 18              |
+| Plant D | EG           | 550                 | 450             | 800             | 16              |`
 };
 
 // Mock summaries for different modules
@@ -241,7 +250,9 @@ const MODULE_SUMMARIES = {
   
   'order-promising': "Order promising analysis indicates we can fulfill all current orders with high confidence levels. The order for Acme Inc has the highest confidence rating at 95%, with a delivery promise just 2 days after the requested date. Delta Ltd's order has the lowest confidence at 85% and may require additional monitoring to ensure on-time delivery.",
   
-  'factory-planning': "Factory planning analysis shows Line Gamma is your highest performing production line at 98.8% efficiency with minimal downtime of just 1.5 hours per week. Line Alpha is operating well at 93.8% efficiency but is still below target output. Lines Beta and Delta show the most opportunity for improvement, with efficiency ratings below 90% and significant downtime hours that should be addressed."
+  'factory-planning': "Factory planning analysis shows Line Gamma is your highest performing production line at 98.8% efficiency with minimal downtime of just 1.5 hours per week. Line Alpha is operating well at 93.8% efficiency but is still below target output. Lines Beta and Delta show the most opportunity for improvement, with efficiency ratings below 90% and significant downtime hours that should be addressed.",
+
+  'enterprise-supply-planning': "Enterprise supply planning analysis shows varying stock levels across plants. Plant A has the highest current stock at 1,280 tons with 2,000 tons on order. Plant D has the lowest stock at 550 tons, but is still above minimum requirements. Lead times vary from 14-21 days, with Plant B having the longest lead time for CRC materials. All plants are maintaining appropriate safety stock levels."
 };
 
 // Mock next questions for different modules
@@ -265,6 +276,11 @@ const MODULE_NEXT_QUESTIONS = {
     "What maintenance should we prioritize for Line Beta?",
     "How can we optimize Line Alpha to reach target output?",
     "What's causing the higher downtime on Line Beta?"
+  ],
+  'enterprise-supply-planning': [
+    "How can we optimize inventory levels at Plant A?",
+    "Should we increase the minimum stock for Plant C?",
+    "What strategies can reduce lead times for Plant B?"
   ]
 };
 
@@ -275,6 +291,7 @@ const DEFAULT_NEXT_QUESTIONS = [
   "How efficient is our inventory management?"
 ];
 
+// Create a singleton instance
 const websocketService = new WebSocketService();
 
 export default websocketService;
