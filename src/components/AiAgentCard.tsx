@@ -17,6 +17,7 @@ interface AiAgentProps {
   isExpanded?: boolean;
   deploying?: boolean;
   isUserAgent?: boolean;
+  restrictedBadge?: React.ReactNode; // Add this prop
 }
 
 const AiAgentCard: React.FC<AiAgentProps> = ({ 
@@ -30,7 +31,8 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
   onRemove,
   isExpanded = false,
   deploying = false,
-  isUserAgent = false
+  isUserAgent = false,
+  restrictedBadge // Accept the new prop
 }) => {
   const getIcon = () => {
     switch (icon) {
@@ -112,6 +114,9 @@ const AiAgentCard: React.FC<AiAgentProps> = ({
           </Tooltip>
         </TooltipProvider>
       )}
+      
+      {/* Render the restrictedBadge if provided */}
+      {restrictedBadge}
       
       <div className="flex items-center mb-3">
         <div className="h-12 w-12 rounded-full bg-purple-600 flex items-center justify-center mr-3">

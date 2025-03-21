@@ -91,11 +91,14 @@ export const handleSSOCallback = async (code: string, state: string): Promise<Us
   // Simulating API call with delay
   return new Promise((resolve) => {
     setTimeout(() => {
-      const user = {
+      const user: User = {
         id: '1',
-        name: 'SSO User',
         email: 'sso.user@example.com',
-        role: 'user'
+        firstName: 'SSO',
+        lastName: 'User',
+        role: 'user',
+        allowedModules: [],
+        allowedAgents: []
       };
       
       // Store user in localStorage
