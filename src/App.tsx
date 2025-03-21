@@ -135,12 +135,7 @@ const RequireModuleAccess = ({ children, moduleId }: { children: React.ReactNode
       // Show toast notification
       toast({
         variant: "destructive",
-        title: (
-          <div className="flex items-center">
-            <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
-            <span>Access Restricted</span>
-          </div>
-        ),
+        title: "Access Restricted",
         description: `You don't have permission to access the ${moduleId.replace('-', ' ')} module.`,
       });
       
@@ -155,28 +150,6 @@ const RequireModuleAccess = ({ children, moduleId }: { children: React.ReactNode
       return () => clearTimeout(timer);
     }
   }, [hasAccess, moduleId, navigate, toast]);
-  
-  if (showAccessDenied) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">
-          <div className="h-16 w-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <LockKeyhole className="h-8 w-8 text-amber-500" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Access Restricted</h2>
-          <p className="text-gray-600 mb-6">
-            You don't have permission to access this module. You'll be redirected to the home page.
-          </p>
-          <Button 
-            onClick={() => navigate('/')}
-            className="bg-amber-500 hover:bg-amber-600 text-white"
-          >
-            Return to Home
-          </Button>
-        </div>
-      </div>
-    );
-  }
   
   return hasAccess ? <>{children}</> : null;
 };
@@ -214,12 +187,7 @@ const RequireAgentAccess = ({ children, agentId }: { children: React.ReactNode, 
       // Show toast notification
       toast({
         variant: "destructive",
-        title: (
-          <div className="flex items-center">
-            <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
-            <span>Access Restricted</span>
-          </div>
-        ),
+        title: "Access Restricted",
         description: "You don't have permission to access this agent.",
       });
       
@@ -399,3 +367,4 @@ const App = () => (
 );
 
 export default App;
+

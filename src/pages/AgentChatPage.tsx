@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
@@ -31,12 +30,7 @@ const AgentChatPage = () => {
       // Show access denied toast
       toast({
         variant: "destructive",
-        title: (
-          <div className="flex items-center">
-            <AlertTriangle className="h-5 w-5 mr-2 text-amber-500" />
-            <span>Access Restricted</span>
-          </div>
-        ),
+        title: "Access Restricted",
         description: "You don't have permission to access this agent. Please contact your administrator.",
       });
       
