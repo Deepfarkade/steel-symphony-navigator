@@ -9,7 +9,7 @@ interface ThemeContextType {
   isDarkMode: boolean;
 }
 
-const ThemeContext = createContext<ThemeContextType>({
+export const ThemeContext = createContext<ThemeContextType>({
   theme: 'light',
   setTheme: () => {},
   isDarkMode: false,
