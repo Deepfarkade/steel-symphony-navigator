@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SendHorizontal, Loader2 } from 'lucide-react';
 
 interface ChatInputProps {
@@ -10,6 +10,20 @@ interface ChatInputProps {
 
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, agentId }) => {
   const [inputText, setInputText] = useState('');
+
+  useEffect(() => {
+    const handleSuggestedQuestion = (event: CustomEvent) => {
+      const { question } = event.detail;
+      setInputText(question);
+    };
+
+    // Add event listener for suggested questions
+    document.addEventListener('suggest-question', handleSuggestedQuestion as EventListener);
+    
+    return () => {
+      document.removeEventListener('suggest-question', handleSuggestedQuestion as EventListener);
+    };
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,11 +2,17 @@
 import { useState, useEffect } from 'react';
 import { useChatContext } from '@/context/ChatContext';
 import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
-interface ChatMessage {
+export interface ChatMessage {
   text: string;
   isUser: boolean;
   timestamp: Date;
+  table_data?: Record<string, any>;
+  summary?: string;
+  next_question?: string[];
+  id?: string;
+  session_id?: string;
 }
 
 export const useChatSession = (moduleContext?: string, agentId?: number) => {
@@ -25,6 +31,7 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
     // Provide default values when context is not available
     return {
       currentMessages: [{
+        id: uuidv4(),
         text: agentId 
           ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
           : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${normalizedModuleContext || 'operations'} today?`,
@@ -59,8 +66,15 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
   const messageCount = currentMessages.filter(msg => msg.isUser).length;
 
   const handleSendMessage = (message: string, sessionId?: string) => {
+    // Ensure we have a valid sessionId
+    const targetSessionId = sessionId || currentSessionId;
+    if (!targetSessionId) {
+      console.error("No session ID available for sending message");
+      return;
+    }
+    
     // Pass the normalized module context
-    sendMessage(message, sessionId, normalizedModuleContext, agentId);
+    sendMessage(message, targetSessionId, normalizedModuleContext, agentId);
     
     // Auto expand to fullscreen on first message if not already expanded
     if (!fullscreen && currentMessages.length <= 1) {

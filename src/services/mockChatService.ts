@@ -83,21 +83,60 @@ const MODULE_SUMMARIES = {
   'analytics': "Performance analytics show positive trends across all key metrics. Production costs are decreasing (-3.5% YoY) and approaching the target of $650/ton. On-time delivery has shown the most significant improvement at +4.2% YoY but remains below the target of 95.0%. Energy usage is decreasing faster than other metrics, reflecting successful efficiency initiatives."
 };
 
+// Mock next questions for different modules
+const MODULE_NEXT_QUESTIONS = {
+  'demand-planning': [
+    "How can we improve our February forecast accuracy?",
+    "What factors are driving the April demand increase?",
+    "Should we adjust our production plan for upcoming months?"
+  ],
+  'supply-planning': [
+    "What alternatives do we have to SupplierB?",
+    "How can we reduce lead times from SupplierC?",
+    "Should we consider dual-sourcing for critical materials?"
+  ],
+  'order-promising': [
+    "What's our contingency plan for Delta Ltd's order?",
+    "Can we improve our delivery timeline for Acme Inc?",
+    "What's our current capacity for additional orders this month?"
+  ]
+};
+
 // Default response for general or agent-based chats
 const DEFAULT_RESPONSE = "I've analyzed your question and can provide insights based on the available data. To get more specific information, consider exploring one of our specialized modules such as Demand Planning, Supply Planning, or Risk Management. Each module offers targeted analysis and recommendations for different aspects of your steel operations.";
 
+// Default next questions for general chats
+const DEFAULT_NEXT_QUESTIONS = [
+  "Show me our production performance this quarter",
+  "What are our main supply chain risks?",
+  "How efficient is our inventory management?"
+];
+
+// Generate a session ID
+export const generateSessionId = () => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
 // Simulate streaming response with word-by-word parsing
-export const getMockStreamingResponse = (moduleContext?: string, query?: string): Promise<string> => {
+export const getMockStreamingResponse = (moduleContext?: string, query?: string): Promise<any> => {
   // Get the appropriate response based on module context
-  let response = DEFAULT_RESPONSE;
+  let response: any = {
+    text: DEFAULT_RESPONSE,
+    summary: DEFAULT_RESPONSE,
+    next_question: DEFAULT_NEXT_QUESTIONS
+  };
   
   if (moduleContext && MODULE_SUMMARIES[moduleContext]) {
     // If this is a module-specific chat, include a table and summary
     const tableData = MODULE_TABLES[moduleContext] || '';
     const summaryData = MODULE_SUMMARIES[moduleContext] || '';
+    const nextQuestions = MODULE_NEXT_QUESTIONS[moduleContext] || DEFAULT_NEXT_QUESTIONS;
     
-    // Combine table and summary
-    response = `${tableData}\n\n${summaryData}`;
+    // Set response with table and summary
+    response = {
+      text: `${tableData}\n\n${summaryData}`,
+      table_data: tableData,
+      summary: summaryData,
+      next_question: nextQuestions
+    };
   }
   
   return new Promise((resolve) => {
@@ -112,12 +151,15 @@ export const getMockStreamingResponse = (moduleContext?: string, query?: string)
 
 // Mock function to get chat sessions
 export const getMockChatSessions = () => {
-  const mockSessionId = `session-${Date.now()}`;
+  const mockSessionId = generateSessionId();
   
   return [{
     session_id: mockSessionId,
+    id: mockSessionId,
+    title: "New Conversation",
     messages: [
       {
+        id: uuidv4(),
         text: "Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel operations today?",
         isUser: false,
         timestamp: new Date()
@@ -132,7 +174,7 @@ export const getMockChatSessions = () => {
 
 // Mock function to get or create a chat session
 export const getMockChatSession = (moduleContext?: string, agentId?: number) => {
-  const mockSessionId = `session-${Date.now()}`;
+  const mockSessionId = generateSessionId();
   
   let welcomeMessage = "Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel operations today?";
   
@@ -147,8 +189,11 @@ export const getMockChatSession = (moduleContext?: string, agentId?: number) => 
   
   return {
     session_id: mockSessionId,
+    id: mockSessionId,
+    title: moduleContext ? `${moduleContext.replace(/-/g, ' ')} chat` : "General Chat",
     messages: [
       {
+        id: uuidv4(),
         text: welcomeMessage,
         isUser: false,
         timestamp: new Date()
@@ -164,11 +209,47 @@ export const getMockChatSession = (moduleContext?: string, agentId?: number) => 
 // Add more mock functions as needed for testing other chat functionality
 export const sendMockMessage = async (text: string, moduleContext?: string, agentId?: number) => {
   // Generate a mock response
-  const response = await getMockStreamingResponse(moduleContext, text);
+  const mockResponseData = await getMockStreamingResponse(moduleContext, text);
   
   return {
-    text: response,
+    id: uuidv4(),
+    text: mockResponseData.text,
     isUser: false,
-    timestamp: new Date()
+    timestamp: new Date(),
+    table_data: mockResponseData.table_data,
+    summary: mockResponseData.summary,
+    next_question: mockResponseData.next_question
+  };
+};
+
+// Mock function to create a new session
+export const createMockSession = (userId: string, moduleContext?: string, agentId?: number) => {
+  const sessionId = generateSessionId();
+  const formattedModule = moduleContext ? moduleContext.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase()) : "General";
+  const title = agentId ? `Chat with Agent #${agentId}` : `${formattedModule} Chat`;
+  
+  return {
+    id: sessionId,
+    session_id: sessionId,
+    title,
+    last_message: null,
+    timestamp: new Date(),
+    user_id: userId,
+    messages: [],
+    module: moduleContext,
+    agent_id: agentId
+  };
+};
+
+// Convert backend message format to frontend format
+export const convertMessageFormat = (backendMessage: any) => {
+  return {
+    id: backendMessage.id || uuidv4(),
+    role: backendMessage.sender === 'user' ? 'user' : 'assistant',
+    content: backendMessage.text,
+    timestamp: new Date(backendMessage.timestamp),
+    table_data: backendMessage.table_data,
+    summary: backendMessage.summary,
+    next_question: backendMessage.next_question || []
   };
 };

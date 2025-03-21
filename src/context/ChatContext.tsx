@@ -5,12 +5,22 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './AuthContext';
 import axios from 'axios';
 import { API_BASE_URL } from '@/services/apiConfig';
-import { getMockChatSession, sendMockMessage } from '@/services/mockChatService';
+import { 
+  getMockChatSession, 
+  sendMockMessage, 
+  convertMessageFormat, 
+  generateSessionId 
+} from '@/services/mockChatService';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ChatMessage {
   text: string;
   isUser: boolean;
   timestamp: Date;
+  id?: string;
+  table_data?: Record<string, any>;
+  summary?: string;
+  next_question?: string[];
 }
 
 interface ChatContextProps {
@@ -78,57 +88,106 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       
       if (backendAvailable && token) {
         let sessionResponse;
+        let endpointPath;
         
         if (normalizedModuleContext) {
-          console.log(`Fetching module chat session for ${normalizedModuleContext}`);
-          sessionResponse = await axios.get(`${API_BASE_URL}/api/v1/chat/module/${normalizedModuleContext}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          endpointPath = `/api/v1/chat/module/${normalizedModuleContext}`;
+          console.log(`Fetching module chat session for ${normalizedModuleContext} from ${endpointPath}`);
+          
+          try {
+            sessionResponse = await axios.get(`${API_BASE_URL}${endpointPath}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+          } catch (error) {
+            console.error(`Failed to fetch module chat session: ${error}`);
+            throw error;
+          }
         } else if (agentId) {
-          console.log(`Fetching agent chat session for agent ${agentId}`);
-          sessionResponse = await axios.get(`${API_BASE_URL}/api/v1/chat/agents/${agentId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          endpointPath = `/api/v1/agents/${agentId}/chat`;
+          console.log(`Fetching agent chat session for agent ${agentId} from ${endpointPath}`);
+          
+          try {
+            sessionResponse = await axios.get(`${API_BASE_URL}${endpointPath}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+          } catch (error) {
+            console.error(`Failed to fetch agent chat session: ${error}`);
+            throw error;
+          }
         } else {
-          console.log("Creating new general chat session");
-          const createResponse = await axios.post(`${API_BASE_URL}/api/v1/chat/sessions`, {
-            module: null,
-            agent_id: null,
-            metadata: {}
-          }, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          sessionResponse = { data: createResponse.data };
+          endpointPath = `/api/v1/chat/sessions`;
+          console.log(`Creating new general chat session at ${endpointPath}`);
+          
+          try {
+            const createResponse = await axios.post(`${API_BASE_URL}${endpointPath}`, {
+              module: null,
+              agent_id: null,
+              metadata: {}
+            }, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            sessionResponse = { data: createResponse.data };
+          } catch (error) {
+            console.error(`Failed to create general chat session: ${error}`);
+            throw error;
+          }
         }
         
         const sessionData = sessionResponse.data;
+        console.log("Received session data:", sessionData);
         
-        setCurrentSessionId(sessionData.session_id);
+        if (!sessionData || !sessionData.id) {
+          console.error("Invalid session data received:", sessionData);
+          throw new Error("Invalid session data");
+        }
         
-        const messages: ChatMessage[] = sessionData.messages.map((msg: any) => ({
+        setCurrentSessionId(sessionData.id);
+        
+        // Convert backend message format to frontend format
+        const messages: ChatMessage[] = (sessionData.messages || []).map((msg: any) => ({
+          id: msg.id || uuidv4(),
           text: msg.text,
-          isUser: msg.isUser,
-          timestamp: new Date(msg.timestamp)
+          isUser: msg.sender === "user",
+          timestamp: new Date(msg.timestamp),
+          table_data: msg.table_data,
+          summary: msg.summary,
+          next_question: msg.next_question || []
         }));
         
         setChatSessions({
-          [sessionData.session_id]: messages
+          [sessionData.id]: messages
         });
       } else {
         // Use mock data when backend is not available
         console.log("Using mock data for chat session", { moduleContext: normalizedModuleContext, agentId });
         const mockSession = getMockChatSession(normalizedModuleContext, agentId);
         
-        setCurrentSessionId(mockSession.session_id);
+        if (!mockSession || !mockSession.id) {
+          console.error("Invalid mock session:", mockSession);
+          throw new Error("Failed to create mock session");
+        }
+        
+        setCurrentSessionId(mockSession.id);
         
         const messages: ChatMessage[] = mockSession.messages.map((msg: any) => ({
+          id: msg.id || uuidv4(),
           text: msg.text,
-          isUser: msg.isUser,
-          timestamp: new Date(msg.timestamp)
+          isUser: msg.sender === "user",
+          timestamp: new Date(msg.timestamp),
+          table_data: msg.table_data,
+          summary: msg.summary,
+          next_question: msg.next_question || []
         }));
         
         setChatSessions({
-          [mockSession.session_id]: messages
+          [mockSession.id]: messages
+        });
+        
+        // Show offline mode toast
+        toast({
+          title: "Offline Mode Activated",
+          description: "Operating in offline mode with simulated responses.",
+          variant: "default"
         });
       }
       
@@ -145,14 +204,34 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       // Fallback to mock data
       const mockSession = getMockChatSession(normalizedModuleContext, agentId);
       
-      const defaultMessage = {
-        text: mockSession.messages[0].text,
-        isUser: false,
-        timestamp: new Date()
-      };
-      
-      setChatSessions({ [mockSession.session_id]: [defaultMessage] });
-      setCurrentSessionId(mockSession.session_id);
+      if (!mockSession || !mockSession.id) {
+        console.error("Invalid mock session after fallback:", mockSession);
+        // Last resort - create a simple session
+        const fallbackSessionId = generateSessionId();
+        
+        const defaultMessage = {
+          id: uuidv4(),
+          text: "Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you today?",
+          isUser: false,
+          timestamp: new Date()
+        };
+        
+        setChatSessions({ [fallbackSessionId]: [defaultMessage] });
+        setCurrentSessionId(fallbackSessionId);
+      } else {
+        const messages: ChatMessage[] = mockSession.messages.map((msg: any) => ({
+          id: msg.id || uuidv4(),
+          text: msg.text,
+          isUser: msg.sender === "user",
+          timestamp: new Date(msg.timestamp),
+          table_data: msg.table_data,
+          summary: msg.summary,
+          next_question: msg.next_question || []
+        }));
+        
+        setChatSessions({ [mockSession.id]: messages });
+        setCurrentSessionId(mockSession.id);
+      }
       
     } finally {
       setIsLoading(false);
@@ -174,16 +253,28 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     
     const unsubscribeChatMessages = websocketService.onMessage(channelName, (payload: any) => {
       if (!payload.isUser) {
+        console.log("Received WebSocket message:", payload);
+        
+        // Ensure we have a valid session ID
+        const sessionId = payload.sessionId || currentSessionId;
+        if (!sessionId) {
+          console.error("No session ID for incoming message");
+          return;
+        }
+        
         setChatSessions(prev => {
-          const sessionId = payload.sessionId || currentSessionId;
           const sessionMessages = prev[sessionId] || [];
           
           return {
             ...prev,
             [sessionId]: [...sessionMessages, {
+              id: payload.id || uuidv4(),
               text: payload.text,
               isUser: false,
-              timestamp: new Date(payload.timestamp)
+              timestamp: new Date(payload.timestamp),
+              table_data: payload.table_data,
+              summary: payload.summary,
+              next_question: payload.next_question || []
             }]
           };
         });
@@ -193,6 +284,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     });
 
     const unsubscribeConnect = websocketService.onConnect(() => {
+      console.log("WebSocket connected");
       toast({
         title: "Connected to AI Co-Pilot",
         description: "Real-time AI assistance is now available.",
@@ -208,6 +300,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   const sendMessage = async (inputText: string, sessionId?: string, moduleContext?: string, agentId?: number) => {
     const token = getAuthToken();
     const targetSessionId = sessionId || currentSessionId;
+    
+    if (!targetSessionId) {
+      console.error("No session ID for sending message");
+      return;
+    }
+    
     const normalizedModule = moduleContext ? moduleContext.toLowerCase().replace(/\s+/g, '-') : normalizedModuleContext;
     
     console.log("Sending message:", {
@@ -217,7 +315,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       agentId
     });
     
-    const userMessage = {
+    // Add user message to state immediately
+    const userMessage: ChatMessage = {
+      id: uuidv4(),
       text: inputText,
       isUser: true,
       timestamp: new Date()
@@ -236,16 +336,30 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     if (isBackendAvailable && token) {
       try {
         console.log(`Sending message to session ${targetSessionId}`);
-        const response = await axios.post(`${API_BASE_URL}/api/v1/chat/${targetSessionId}/send`, {
+        const sendEndpoint = `/api/v1/chat/${targetSessionId}/send`;
+        
+        const response = await axios.post(`${API_BASE_URL}${sendEndpoint}`, {
           text: inputText
         }, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 10000 // 10 second timeout
         });
         
-        const aiMessage = {
+        if (!response.data) {
+          throw new Error("Empty response from backend");
+        }
+        
+        console.log("Received response:", response.data);
+        
+        // Convert backend message format to frontend format
+        const aiMessage: ChatMessage = {
+          id: response.data.id || uuidv4(),
           text: response.data.text,
           isUser: false,
-          timestamp: new Date(response.data.timestamp)
+          timestamp: new Date(response.data.timestamp),
+          table_data: response.data.table_data,
+          summary: response.data.summary,
+          next_question: response.data.next_question || []
         };
         
         setChatSessions(prev => {
@@ -270,6 +384,39 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           timestamp: new Date().toISOString(),
           isUser: true
         });
+        
+        // If WebSocket is not connected or fails, fall back to mock data
+        setTimeout(async () => {
+          if (isLoading) {
+            console.log("WebSocket response timeout, using mock data");
+            try {
+              // Get mock response
+              const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
+              
+              // Add the mock AI response to the chat session
+              setChatSessions(prev => {
+                const sessionMessages = prev[targetSessionId] || [];
+                return {
+                  ...prev,
+                  [targetSessionId]: [...sessionMessages, {
+                    id: mockResponse.id,
+                    text: mockResponse.text,
+                    isUser: false,
+                    timestamp: new Date(),
+                    table_data: mockResponse.table_data,
+                    summary: mockResponse.summary,
+                    next_question: mockResponse.next_question
+                  }]
+                };
+              });
+              
+              setIsLoading(false);
+            } catch (mockError) {
+              console.error("Failed to generate mock response:", mockError);
+              setIsLoading(false);
+            }
+          }
+        }, 5000); // Wait 5 seconds for WebSocket response before using mock data
       }
     } else {
       // If backend is not available, use mock data
@@ -283,9 +430,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           return {
             ...prev,
             [targetSessionId]: [...sessionMessages, {
+              id: mockResponse.id,
               text: mockResponse.text,
               isUser: false,
-              timestamp: new Date()
+              timestamp: new Date(),
+              table_data: mockResponse.table_data,
+              summary: mockResponse.summary,
+              next_question: mockResponse.next_question
             }]
           };
         });
@@ -317,46 +468,71 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       setIsLoading(true);
       
       if (isBackendAvailable && token) {
-        const response = await axios.post(`${API_BASE_URL}/api/v1/chat/sessions`, {
-          module: normalizedModule,
-          agent_id: agentId,
-          metadata: {}
-        }, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const endpoint = `/api/v1/chat/sessions`;
+        console.log(`Creating new session at ${endpoint}`, { module: normalizedModule, agent_id: agentId });
         
-        const newSessionId = response.data.session_id;
-        
-        const welcomeMessages = response.data.messages.map((msg: any) => ({
-          text: msg.text,
-          isUser: msg.isUser,
-          timestamp: new Date(msg.timestamp)
-        }));
-        
-        setChatSessions(prev => ({
-          ...prev,
-          [newSessionId]: welcomeMessages
-        }));
-        
-        setCurrentSessionId(newSessionId);
-        return newSessionId;
+        try {
+          const response = await axios.post(`${API_BASE_URL}${endpoint}`, {
+            module: normalizedModule,
+            agent_id: agentId,
+            metadata: {}
+          }, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          if (!response.data || !response.data.id) {
+            throw new Error("Invalid session data in response");
+          }
+          
+          const newSessionId = response.data.id;
+          
+          // Convert backend message format to frontend format
+          const welcomeMessages = (response.data.messages || []).map((msg: any) => ({
+            id: msg.id || uuidv4(),
+            text: msg.text,
+            isUser: msg.sender === "user",
+            timestamp: new Date(msg.timestamp),
+            table_data: msg.table_data,
+            summary: msg.summary,
+            next_question: msg.next_question || []
+          }));
+          
+          setChatSessions(prev => ({
+            ...prev,
+            [newSessionId]: welcomeMessages
+          }));
+          
+          setCurrentSessionId(newSessionId);
+          return newSessionId;
+        } catch (error) {
+          console.error(`Failed to create new session via API: ${error}`);
+          throw error;
+        }
       } else {
         // Use mock data when backend is not available
         const mockSession = getMockChatSession(normalizedModule, agentId);
         
+        if (!mockSession || !mockSession.id) {
+          throw new Error("Failed to create mock session");
+        }
+        
         const welcomeMessages = mockSession.messages.map((msg: any) => ({
+          id: msg.id || uuidv4(),
           text: msg.text,
-          isUser: msg.isUser,
-          timestamp: new Date(msg.timestamp)
+          isUser: msg.sender === "user",
+          timestamp: new Date(msg.timestamp),
+          table_data: msg.table_data,
+          summary: msg.summary,
+          next_question: msg.next_question || []
         }));
         
         setChatSessions(prev => ({
           ...prev,
-          [mockSession.session_id]: welcomeMessages
+          [mockSession.id]: welcomeMessages
         }));
         
-        setCurrentSessionId(mockSession.session_id);
-        return mockSession.session_id;
+        setCurrentSessionId(mockSession.id);
+        return mockSession.id;
       }
       
     } catch (error) {
@@ -366,17 +542,38 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       // Fallback to mock data
       const mockSession = getMockChatSession(normalizedModule, agentId);
       
+      if (!mockSession || !mockSession.id) {
+        console.error("Invalid mock session in fallback");
+        const fallbackSessionId = generateSessionId();
+        setChatSessions(prev => ({
+          ...prev,
+          [fallbackSessionId]: [{
+            id: uuidv4(),
+            text: "Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you today?",
+            isUser: false,
+            timestamp: new Date()
+          }]
+        }));
+        
+        setCurrentSessionId(fallbackSessionId);
+        return fallbackSessionId;
+      }
+      
       setChatSessions(prev => ({
         ...prev,
-        [mockSession.session_id]: mockSession.messages.map((msg: any) => ({
+        [mockSession.id]: mockSession.messages.map((msg: any) => ({
+          id: msg.id || uuidv4(),
           text: msg.text,
-          isUser: msg.isUser,
-          timestamp: new Date(msg.timestamp)
+          isUser: msg.sender === "user",
+          timestamp: new Date(msg.timestamp),
+          table_data: msg.table_data,
+          summary: msg.summary,
+          next_question: msg.next_question || []
         }))
       }));
       
-      setCurrentSessionId(mockSession.session_id);
-      return mockSession.session_id;
+      setCurrentSessionId(mockSession.id);
+      return mockSession.id;
     } finally {
       setIsLoading(false);
     }
