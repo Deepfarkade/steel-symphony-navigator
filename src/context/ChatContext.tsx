@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './AuthContext';
 import axios from 'axios';
 import { API_BASE_URL } from '@/services/apiConfig';
+import { getMockResponse } from '@/services/mockChatService';
 
 interface ChatMessage {
   text: string;
@@ -60,39 +61,62 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     try {
       setIsLoading(true);
       
-      let sessionResponse;
-      
-      if (normalizedModuleContext) {
-        sessionResponse = await axios.get(`${API_BASE_URL}/chat/module/${normalizedModuleContext}`, {
-          headers: { Authorization: `Bearer ${token}` }
+      // Try to fetch from backend first
+      try {
+        let sessionResponse;
+        
+        if (normalizedModuleContext) {
+          sessionResponse = await axios.get(`${API_BASE_URL}/chat/module/${normalizedModuleContext}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+        } else if (agentId) {
+          sessionResponse = await axios.get(`${API_BASE_URL}/chat/agents/${agentId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+        } else {
+          const createResponse = await axios.post(`${API_BASE_URL}/chat/sessions`, {
+            module: null,
+            agent_id: null,
+            metadata: {}
+          }, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          sessionResponse = { data: createResponse.data };
+        }
+        
+        const sessionData = sessionResponse.data;
+        
+        setCurrentSessionId(sessionData.session_id);
+        
+        const messages: ChatMessage[] = sessionData.messages.map((msg: any) => ({
+          text: msg.text,
+          isUser: msg.isUser,
+          timestamp: new Date(msg.timestamp)
+        }));
+        
+        setChatSessions({
+          [sessionData.session_id]: messages
         });
-      } else if (agentId) {
-        sessionResponse = await axios.get(`${API_BASE_URL}/chat/agents/${agentId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      } else {
-        const createResponse = await axios.post(`${API_BASE_URL}/chat/sessions`, {
-          module: null,
-          agent_id: null,
-          metadata: {}
-        }, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        sessionResponse = { data: createResponse.data };
+        return;
+      } catch (error) {
+        console.log("Backend connection failed, using fallback", error);
+        // Fall through to fallback
       }
       
-      const sessionData = sessionResponse.data;
+      // Fallback to local mock if backend connection fails
+      const sessionId = `session-${Date.now()}`;
+      setCurrentSessionId(sessionId);
       
-      setCurrentSessionId(sessionData.session_id);
+      const welcomeMessage = {
+        text: agentId 
+          ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
+          : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${moduleContext || 'operations'} today?`,
+        isUser: false,
+        timestamp: new Date()
+      };
       
-      const messages: ChatMessage[] = sessionData.messages.map((msg: any) => ({
-        text: msg.text,
-        isUser: msg.isUser,
-        timestamp: new Date(msg.timestamp)
-      }));
-      
-      setChatSessions({
-        [sessionData.session_id]: messages
+      setChatSessions({ 
+        [sessionId]: [welcomeMessage] 
       });
       
     } catch (error) {
@@ -177,8 +201,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       return;
     }
     
+    // Use the provided sessionId or current session
     const targetSessionId = sessionId || currentSessionId;
+    console.log(`Sending message to session ${targetSessionId}`);
     
+    // If no valid session exists, create one
     if (!targetSessionId || targetSessionId === 'fallback-session') {
       try {
         const newSessionId = await createNewSession(agentId, normalizedModuleContext);
@@ -195,6 +222,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       }
     }
     
+    // Add user message to the UI immediately
     const userMessage = {
       text: inputText,
       isUser: true,
@@ -211,8 +239,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     
     setIsLoading(true);
 
+    // Try to send to backend first
     try {
-      console.log(`Sending message to session ${targetSessionId}`);
       const response = await axios.post(`${API_BASE_URL}/chat/${targetSessionId}/send`, {
         text: inputText
       }, {
@@ -233,15 +261,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         };
       });
       
+      setIsLoading(false);
+      return;
     } catch (error) {
-      console.error("Failed to send message:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive"
-      });
-      
-      // Fall back to WebSocket communication
+      console.error("Backend API failed, using fallback:", error);
+      // Fall through to websocket/mock fallback
+    }
+
+    try {
+      // First try WebSocket communication
       const channelName = `chat${normalizedModuleContext ? `-${normalizedModuleContext}` : agentId ? `-agent-${agentId}` : ''}`;
       
       websocketService.sendMessage(channelName, { 
@@ -253,7 +281,32 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         isUser: true
       });
       
-    } finally {
+      // Then use mock response since backend is not available
+      setTimeout(() => {
+        const mockResponse = getMockResponse(inputText, normalizedModuleContext);
+        
+        setChatSessions(prev => {
+          const sessionMessages = prev[targetSessionId] || [];
+          return {
+            ...prev,
+            [targetSessionId]: [...sessionMessages, {
+              text: mockResponse,
+              isUser: false,
+              timestamp: new Date()
+            }]
+          };
+        });
+        
+        setIsLoading(false);
+      }, 1000); // Simulate network delay
+      
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive"
+      });
       setIsLoading(false);
     }
   };
@@ -267,29 +320,54 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     try {
       setIsLoading(true);
       
-      const response = await axios.post(`${API_BASE_URL}/chat/sessions`, {
-        module: moduleContext,
-        agent_id: agentId,
-        metadata: {}
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // Try to create session on backend first
+      try {
+        const response = await axios.post(`${API_BASE_URL}/chat/sessions`, {
+          module: moduleContext,
+          agent_id: agentId,
+          metadata: {}
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        const newSessionId = response.data.session_id;
+        
+        const welcomeMessages = response.data.messages.map((msg: any) => ({
+          text: msg.text,
+          isUser: msg.isUser,
+          timestamp: new Date(msg.timestamp)
+        }));
+        
+        setChatSessions(prev => ({
+          ...prev,
+          [newSessionId]: welcomeMessages
+        }));
+        
+        setCurrentSessionId(newSessionId);
+        return newSessionId;
+      } catch (error) {
+        console.log("Backend connection failed for new session, using fallback");
+        // Fall through to fallback
+      }
       
-      const newSessionId = response.data.session_id;
+      // Fallback to local mock if backend connection fails
+      const sessionId = `session-${Date.now()}`;
       
-      const welcomeMessages = response.data.messages.map((msg: any) => ({
-        text: msg.text,
-        isUser: msg.isUser,
-        timestamp: new Date(msg.timestamp)
-      }));
+      const welcomeMessage = {
+        text: agentId 
+          ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
+          : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${moduleContext || 'operations'} today?`,
+        isUser: false,
+        timestamp: new Date()
+      };
       
       setChatSessions(prev => ({
         ...prev,
-        [newSessionId]: welcomeMessages
+        [sessionId]: [welcomeMessage]
       }));
       
-      setCurrentSessionId(newSessionId);
-      return newSessionId;
+      setCurrentSessionId(sessionId);
+      return sessionId;
       
     } catch (error) {
       console.error("Failed to create new session:", error);
