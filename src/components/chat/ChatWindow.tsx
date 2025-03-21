@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatMessageList, { ChatMessageData } from './ChatMessageList';
@@ -7,6 +6,7 @@ import ChatSidebar from './ChatSidebar';
 import SidebarToggle from './SidebarToggle';
 
 interface ChatMessage {
+  id?: string;
   text: string;
   isUser: boolean;
   timestamp: Date;
@@ -49,7 +49,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   floating = false,
   messageCount = 0
 }) => {
-  // Create mock sessions for demonstration
   const [sessions, setSessions] = useState<ChatSession[]>([
     {
       id: 'default',
@@ -64,7 +63,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [messagesSent, setMessagesSent] = useState<number>(0);
 
-  // Keep messages updated with props
   useEffect(() => {
     if (messages && messages.length > 0) {
       setSessions(prev => {
@@ -82,9 +80,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [messages, activeSessionId]);
 
-  // Track user messages for navigation
   useEffect(() => {
-    // Count user messages in the current session
     const userMessageCount = messages.filter(msg => msg.isUser).length;
     setMessagesSent(userMessageCount);
   }, [messages]);
@@ -106,7 +102,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     setSessions([...sessions, newSession]);
     setActiveSessionId(newSession.id);
     
-    // Automatically open the sidebar when creating a new session
     if (!showSidebar) {
       setShowSidebar(true);
     }
@@ -125,10 +120,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     setShowSidebar(!showSidebar);
   };
 
-  // Get active session messages
   const activeSession = sessions.find(session => session.id === activeSessionId) || sessions[0];
   
-  // Convert ChatMessage[] to ChatMessageData[]
   const convertToChatMessageData = (messages: ChatMessage[]): ChatMessageData[] => {
     return messages.map((msg, index) => ({
       id: msg.id || `msg-${index}-${Date.now()}`,
@@ -159,7 +152,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       />
       
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Sidebar Component */}
         <ChatSidebar 
           sessions={sessions}
           activeSessionId={activeSessionId}
@@ -168,13 +160,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           showSidebar={showSidebar}
         />
         
-        {/* Sidebar Toggle Component */}
         <SidebarToggle 
           showSidebar={showSidebar}
           toggleSidebar={toggleSidebar}
         />
         
-        {/* Chat content */}
         <div 
           ref={chatContainerRef}
           className="flex-1 flex flex-col overflow-hidden"
