@@ -1,7 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
 import ChatMessage from './ChatMessage';
-import { hasTableData, hasSummary, getSuggestedQuestions } from '@/utils/chatUtils';
 
 export interface ChatMessageData {
   id?: string;
@@ -40,19 +39,23 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
 
   return (
     <div className="flex-1 overflow-y-auto bg-white dark:bg-ey-black/90 py-4 space-y-1">
-      {messages.map((message, index) => (
-        <ChatMessage
-          key={message.id || `message-${index}`}
-          id={message.id || `message-${index}`}
-          role={message.role}
-          content={message.content}
-          timestamp={message.timestamp}
-          tableData={message.table_data}
-          summary={message.summary}
-          suggestedQuestions={message.next_question}
-          onSuggestedQuestionClick={onSuggestedQuestionClick}
-        />
-      ))}
+      {messages && messages.length > 0 ? (
+        messages.map((message, index) => (
+          <ChatMessage
+            key={message.id || `message-${index}`}
+            id={message.id || `message-${index}`}
+            role={message.role}
+            content={message.content || ""}
+            timestamp={message.timestamp}
+            tableData={message.table_data}
+            summary={message.summary}
+            suggestedQuestions={message.next_question || []}
+            onSuggestedQuestionClick={onSuggestedQuestionClick}
+          />
+        ))
+      ) : (
+        <div className="text-center text-gray-500 py-8">No messages yet</div>
+      )}
       
       {isLoading && (
         <ChatMessage

@@ -56,7 +56,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     {
       id: 'default',
       name: 'Current Session',
-      messages: messages,
+      messages: messages || [],
       createdAt: new Date()
     }
   ]);
@@ -86,7 +86,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   }, [messages, activeSessionId]);
 
   useEffect(() => {
-    const userMessageCount = messages.filter(msg => msg.isUser).length;
+    const userMessageCount = messages ? messages.filter(msg => msg.isUser).length : 0;
     setMessagesSent(userMessageCount);
   }, [messages]);
 
@@ -132,15 +132,29 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const convertToChatMessageData = (messages: ChatMessage[]): ChatMessageData[] => {
     console.log("Converting messages to ChatMessageData:", messages);
     
+    if (!messages || !Array.isArray(messages)) {
+      console.warn("Messages is not an array:", messages);
+      return [];
+    }
+    
     return messages.map((msg, index) => {
+      if (!msg) {
+        console.warn("Invalid message at index", index);
+        return {
+          id: `empty-msg-${index}`,
+          role: 'assistant',
+          content: '',
+        };
+      }
+      
       const messageData: ChatMessageData = {
         id: msg.id || `msg-${index}-${Date.now()}`,
         role: msg.isUser || msg.sender === 'user' ? 'user' : 'assistant',
-        content: msg.text,
+        content: msg.text || '',
         timestamp: msg.timestamp,
         table_data: msg.table_data,
         summary: msg.summary,
-        next_question: msg.next_question
+        next_question: msg.next_question || []
       };
       
       return messageData;

@@ -4,7 +4,7 @@ import logging
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, Any
+from typing import Dict, Any, Optional, List, Union
 
 from ..utils.logger import SessionLogger
 from ..utils.prompt_generator import PromptQuestion
@@ -17,6 +17,7 @@ class MessageProcessor:
     def __init__(self, session_manager, cache_service):
         self.session_manager = session_manager
         self.cache_service = cache_service
+        self.logger = logging.getLogger(__name__)
     
     async def process_request(self, user_id: str, session_id: str, message: str, current_user: Dict[str, Any]) -> Dict[str, Any]:
         """Process a single request with proper error handling"""
@@ -37,8 +38,7 @@ class MessageProcessor:
             
             if not isinstance(response, dict):
                 response = {
-                    "type": "text",
-                    "content": str(response),
+                    "text": str(response),
                     "next_question": []
                 }
             
@@ -49,11 +49,10 @@ class MessageProcessor:
             return response
             
         except Exception as e:
-            logging.error(f"Error processing request: {e}")
+            self.logger.error(f"Error processing request: {e}")
             return {
-                "type": "text",
-                "content": "An error occurred while processing your request.",
-                "next_question": []
+                "text": "An error occurred while processing your request.",
+                "next_question": self._get_default_questions()
             }
 
     async def _process_message_with_cache(self, message: str, context_str: str, persona: str, session_id: str) -> Dict[str, Any]:
@@ -101,7 +100,7 @@ class MessageProcessor:
                     await self.session_manager.release_semaphore(session_id)
 
         except Exception as e:
-            logging.error(f"Processing error for session {session_id}: {e}")
+            self.logger.error(f"Processing error for session {session_id}: {e}")
             # Ensure semaphore is released on error
             if semaphore:
                 await self.session_manager.release_semaphore(session_id)
@@ -126,7 +125,7 @@ class MessageProcessor:
                 return self._process_text_request(message, session_id, next_question, context_str)
                 
         except Exception as e:
-            logging.error(f"Message processing error: {e}")
+            self.logger.error(f"Message processing error: {e}")
             raise
 
     def _process_data_request(self, message: str, session_id: str, next_question: list, context_str: str) -> Dict[str, Any]:
@@ -191,9 +190,8 @@ class MessageProcessor:
             current_step = 100
             
             ai_response = {
-                'type': 'sql_response',
-                'content': extracted_sql,
-                'data': table_data,
+                'text': extracted_sql,
+                'table_data': table_data,
                 'summary': summary,
                 'next_question': next_question
             }
@@ -204,10 +202,9 @@ class MessageProcessor:
             return ai_response
             
         except Exception as e:
-            logging.error(f"Error processing data request: {e}")
+            self.logger.error(f"Error processing data request: {e}")
             return {
-                'type': 'text',
-                'content': f"I'm sorry, I encountered an error while processing your data request: {str(e)}",
+                'text': f"I'm sorry, I encountered an error while processing your data request: {str(e)}",
                 'next_question': next_question
             }
     
@@ -229,16 +226,14 @@ class MessageProcessor:
                 content = f"I've analyzed your question about '{message}'. Based on the available data, I recommend focusing on operational efficiency and resource optimization to improve your steel manufacturing processes."
             
             return {
-                'type': 'text',
-                'content': content,
+                'text': content,
                 'next_question': next_question
             }
         
         except Exception as e:
-            logging.error(f"Error processing text request: {e}")
+            self.logger.error(f"Error processing text request: {e}")
             return {
-                'type': 'text',
-                'content': f"I'm sorry, I encountered an error while processing your request: {str(e)}",
+                'text': f"I'm sorry, I encountered an error while processing your request: {str(e)}",
                 'next_question': next_question
             }
 
@@ -255,4 +250,12 @@ class MessageProcessor:
                 del self.session_manager.session_semaphores[session_id]
                 
         except Exception as e:
-            logging.error(f"Error cleaning up session resources: {e}")
+            self.logger.error(f"Error cleaning up session resources: {e}")
+            
+    def _get_default_questions(self) -> List[str]:
+        """Get default suggested questions when no specific ones are available"""
+        return [
+            "How can I optimize my production efficiency?",
+            "What are the best practices for inventory management?",
+            "Can you analyze my supply chain performance?"
+        ]

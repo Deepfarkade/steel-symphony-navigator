@@ -43,14 +43,19 @@ export const createErrorMessage = (): ChatMessage => {
 export const convertApiMessageToChatMessage = (messageData: any): ChatMessage => {
   console.log("Converting API message:", messageData);
   
+  if (!messageData) {
+    console.warn("Invalid message data received:", messageData);
+    return createErrorMessage();
+  }
+  
   // Handle response field variations (content/text, data/table_data)
-  let table_data = messageData.table_data || messageData.data;
+  let table_data = messageData.table_data || messageData.data || null;
   let text = messageData.text || messageData.content || "";
-  let summary = messageData.summary;
-  let next_question = messageData.next_question || [];
+  let summary = messageData.summary || null;
+  let next_question = Array.isArray(messageData.next_question) ? messageData.next_question : [];
   
   // Determine if this is a user or bot message
-  const isUser = messageData.sender === "user" || messageData.isUser === true;
+  const isUser = messageData.sender === "user" || messageData.isUser === true || messageData.role === "user";
   
   return {
     id: messageData.id || uuidv4(),
@@ -85,4 +90,18 @@ export const getSuggestedQuestions = (message: ChatMessage): string[] => {
     return message.next_question;
   }
   return [];
+};
+
+// Safely parse JSON strings if needed
+export const safelyParseJSON = (data: any): any => {
+  if (typeof data !== 'string') {
+    return data;
+  }
+  
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    console.warn("Failed to parse JSON:", e);
+    return data;
+  }
 };
