@@ -10,6 +10,9 @@ interface ChatMessage {
   text: string;
   isUser: boolean;
   timestamp: Date;
+  table_data?: string;
+  summary?: string;
+  next_question?: string[];
 }
 
 interface ChatSession {
@@ -114,6 +117,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     onSendMessage(message, activeSessionId);
   };
 
+  const handleSuggestedQuestionClick = (question: string) => {
+    handleSendMessage(question);
+  };
+
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
   };
@@ -124,10 +131,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   // Convert ChatMessage[] to ChatMessageData[]
   const convertToChatMessageData = (messages: ChatMessage[]): ChatMessageData[] => {
     return messages.map((msg, index) => ({
-      id: `msg-${index}-${Date.now()}`,
+      id: msg.id || `msg-${index}-${Date.now()}`,
       role: msg.isUser ? 'user' : 'assistant',
       content: msg.text,
-      timestamp: msg.timestamp
+      timestamp: msg.timestamp,
+      table_data: msg.table_data,
+      summary: msg.summary,
+      next_question: msg.next_question
     }));
   };
 
@@ -177,6 +187,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           <ChatMessageList 
             messages={convertToChatMessageData(activeSession.messages)}
             isLoading={isLoading}
+            onSuggestedQuestionClick={handleSuggestedQuestionClick}
           />
           
           <ChatInput 

@@ -61,7 +61,18 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
     sendMessage 
   } = contextValues;
 
-  const currentMessages = chatSessions[currentSessionId] || [];
+  // Handle the case when current session doesn't exist yet
+  const currentMessages = currentSessionId && chatSessions[currentSessionId] 
+    ? chatSessions[currentSessionId] 
+    : [{
+        id: uuidv4(),
+        text: agentId 
+          ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
+          : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${normalizedModuleContext || 'operations'} today?`,
+        isUser: false,
+        timestamp: new Date()
+      }];
+
   // Count user messages to track interaction
   const messageCount = currentMessages.filter(msg => msg.isUser).length;
 

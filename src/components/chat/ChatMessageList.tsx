@@ -3,54 +3,57 @@ import React, { useEffect, useRef } from 'react';
 import ChatMessage from './ChatMessage';
 
 export interface ChatMessageData {
-  id: string;
-  role: 'user' | 'assistant' | 'system';
+  id?: string;
+  role: 'user' | 'assistant';
   content: string;
-  timestamp: Date;
+  timestamp?: Date;
+  table_data?: string;
+  summary?: string;
+  next_question?: string[];
 }
 
 interface ChatMessageListProps {
   messages: ChatMessageData[];
   isLoading?: boolean;
+  onSuggestedQuestionClick?: (question: string) => void;
 }
 
-const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLoading }) => {
+const ChatMessageList: React.FC<ChatMessageListProps> = ({ 
+  messages, 
+  isLoading = false,
+  onSuggestedQuestionClick
+}) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const prevMessagesLengthRef = useRef<number>(messages.length);
-  const isAutoScrollingRef = useRef<boolean>(false);
 
-  const scrollToBottom = () => {
-    if (isAutoScrollingRef.current && messagesEndRef.current) {
+  // Auto-scroll to bottom on new messages
+  useEffect(() => {
+    if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  };
-
-  // Only scroll when new messages are added, not on component mount or page navigation
-  useEffect(() => {
-    // Only auto-scroll if new messages were added (not on initial render)
-    if (messages.length > prevMessagesLengthRef.current) {
-      isAutoScrollingRef.current = true;
-      scrollToBottom();
-    } else {
-      isAutoScrollingRef.current = false;
-    }
-    
-    // Update the previous messages length reference
-    prevMessagesLengthRef.current = messages.length;
   }, [messages]);
 
   return (
-    <div className="flex flex-col space-y-4 p-4 overflow-y-auto">
-      {messages.map((message) => (
-        <ChatMessage key={message.id} message={message} />
+    <div className="flex-1 overflow-y-auto bg-white dark:bg-ey-black/90 py-4 space-y-1">
+      {messages.map((message, index) => (
+        <ChatMessage
+          key={message.id || `message-${index}`}
+          id={message.id || `message-${index}`}
+          role={message.role}
+          content={message.content}
+          timestamp={message.timestamp}
+          tableData={message.table_data}
+          summary={message.summary}
+          suggestedQuestions={message.next_question}
+          onSuggestedQuestionClick={onSuggestedQuestionClick}
+        />
       ))}
       
       {isLoading && (
-        <div className="flex space-x-2 p-4 rounded-lg bg-purple-50 self-start max-w-[80%]">
-          <div className="h-2 w-2 bg-purple-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-          <div className="h-2 w-2 bg-purple-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-          <div className="h-2 w-2 bg-purple-400 rounded-full animate-bounce"></div>
-        </div>
+        <ChatMessage
+          role="assistant"
+          content=""
+          isLoading={true}
+        />
       )}
       
       <div ref={messagesEndRef} />

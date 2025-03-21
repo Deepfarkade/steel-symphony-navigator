@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import websocketService from '../services/websocketService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './AuthContext';
@@ -56,7 +55,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   const [chatSessions, setChatSessions] = useState<Record<string, ChatMessage[]>>({});
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isBackendAvailable, setIsBackendAvailable] = useState(true);
+  const [isBackendAvailable, setIsBackendAvailable] = useState(false);
+  const backendCheckAttempted = useRef(false);
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -67,14 +67,21 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
 
   // Health check function to determine if backend is available
   const checkBackendAvailability = useCallback(async () => {
+    // Skip the check if we've already attempted it
+    if (backendCheckAttempted.current) {
+      return isBackendAvailable;
+    }
+
     try {
       await axios.get(`${API_BASE_URL}/`, { timeout: 3000 });
+      backendCheckAttempted.current = true;
       return true;
     } catch (error) {
       console.log("Backend health check failed, switching to offline mode", error);
+      backendCheckAttempted.current = true;
       return false;
     }
-  }, []);
+  }, [isBackendAvailable]);
 
   const initializeSession = useCallback(async () => {
     const token = getAuthToken();
@@ -82,11 +89,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     try {
       setIsLoading(true);
       
-      // Check if backend is available
-      const backendAvailable = await checkBackendAvailability();
-      setIsBackendAvailable(backendAvailable);
+      // Only check backend availability if not checked already
+      if (!backendCheckAttempted.current) {
+        const backendAvailable = await checkBackendAvailability();
+        setIsBackendAvailable(backendAvailable);
+      }
       
-      if (backendAvailable && token) {
+      if (isBackendAvailable && token) {
         let sessionResponse;
         let endpointPath;
         
@@ -157,6 +166,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         setChatSessions({
           [sessionData.id]: messages
         });
+        
       } else {
         // Use mock data when backend is not available
         console.log("Using mock data for chat session", { moduleContext: normalizedModuleContext, agentId });
@@ -183,23 +193,30 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           [mockSession.id]: messages
         });
         
-        // Show offline mode toast
-        toast({
-          title: "Offline Mode Activated",
-          description: "Operating in offline mode with simulated responses.",
-          variant: "default"
-        });
+        // Show offline mode toast only once
+        if (!backendCheckAttempted.current) {
+          toast({
+            title: "Offline Mode Activated",
+            description: "Operating in offline mode with simulated responses.",
+            variant: "default"
+          });
+          backendCheckAttempted.current = true;
+        }
       }
       
     } catch (error) {
       console.error("Failed to initialize chat session:", error);
       setIsBackendAvailable(false);
       
-      toast({
-        title: "Offline Mode Activated",
-        description: "Operating in offline mode with simulated responses.",
-        variant: "default"
-      });
+      // Show offline mode toast only once
+      if (!backendCheckAttempted.current) {
+        toast({
+          title: "Offline Mode Activated",
+          description: "Operating in offline mode with simulated responses.",
+          variant: "default"
+        });
+        backendCheckAttempted.current = true;
+      }
       
       // Fallback to mock data
       const mockSession = getMockChatSession(normalizedModuleContext, agentId);
@@ -236,14 +253,21 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [normalizedModuleContext, agentId, toast, checkBackendAvailability, getAuthToken]);
+  }, [normalizedModuleContext, agentId, toast, checkBackendAvailability, getAuthToken, isBackendAvailable]);
 
   useEffect(() => {
     const token = getAuthToken();
-    if (token || !isBackendAvailable) {
+    // Only initialize if we have a token or we know backend is unavailable
+    if (token || backendCheckAttempted.current) {
       initializeSession();
+    } else {
+      // Check backend availability first
+      checkBackendAvailability().then(available => {
+        setIsBackendAvailable(available);
+        initializeSession();
+      });
     }
-  }, [initializeSession, isBackendAvailable]);
+  }, [initializeSession, checkBackendAvailability]);
 
   useEffect(() => {
     websocketService.connect();
@@ -369,11 +393,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             [targetSessionId]: [...sessionMessages, aiMessage]
           };
         });
+        setIsLoading(false);
         
       } catch (error) {
         console.error("Failed to send message to backend, falling back to WebSocket:", error);
         
-        // Fall back to WebSocket communication
+        // Try WebSocket first
         const channelName = `chat${normalizedModule ? `-${normalizedModule}` : agentId ? `-agent-${agentId}` : ''}`;
         
         websocketService.sendMessage(channelName, { 
@@ -385,7 +410,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           isUser: true
         });
         
-        // If WebSocket is not connected or fails, fall back to mock data
+        // If WebSocket doesn't deliver in 3 seconds, use mock data
         setTimeout(async () => {
           if (isLoading) {
             console.log("WebSocket response timeout, using mock data");
@@ -416,48 +441,40 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
               setIsLoading(false);
             }
           }
-        }, 5000); // Wait 5 seconds for WebSocket response before using mock data
+        }, 3000); // Wait 3 seconds for WebSocket response before using mock data
       }
     } else {
-      // If backend is not available, use mock data
+      // If backend is not available, use mock data immediately
       try {
-        // Get mock response
-        const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
-        
-        // Add the mock AI response to the chat session
-        setChatSessions(prev => {
-          const sessionMessages = prev[targetSessionId] || [];
-          return {
-            ...prev,
-            [targetSessionId]: [...sessionMessages, {
-              id: mockResponse.id,
-              text: mockResponse.text,
-              isUser: false,
-              timestamp: new Date(),
-              table_data: mockResponse.table_data,
-              summary: mockResponse.summary,
-              next_question: mockResponse.next_question
-            }]
-          };
-        });
+        // Simulate a small delay to make it feel more realistic
+        setTimeout(async () => {
+          // Get mock response
+          const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
+          
+          // Add the mock AI response to the chat session
+          setChatSessions(prev => {
+            const sessionMessages = prev[targetSessionId] || [];
+            return {
+              ...prev,
+              [targetSessionId]: [...sessionMessages, {
+                id: mockResponse.id,
+                text: mockResponse.text,
+                isUser: false,
+                timestamp: new Date(),
+                table_data: mockResponse.table_data,
+                summary: mockResponse.summary,
+                next_question: mockResponse.next_question
+              }]
+            };
+          });
+          
+          setIsLoading(false);
+        }, 1000);
       } catch (error) {
         console.error("Failed to generate mock response:", error);
-        
-        // As a last resort, use WebSocket
-        const channelName = `chat${normalizedModule ? `-${normalizedModule}` : agentId ? `-agent-${agentId}` : ''}`;
-        
-        websocketService.sendMessage(channelName, { 
-          text: inputText,
-          moduleContext: normalizedModule,
-          agentId,
-          sessionId: targetSessionId,
-          timestamp: new Date().toISOString(),
-          isUser: true
-        });
+        setIsLoading(false);
       }
     }
-    
-    setIsLoading(false);
   };
 
   const createNewSession = async (agentId?: number, moduleContext?: string): Promise<string> => {
