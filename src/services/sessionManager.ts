@@ -114,10 +114,10 @@ export const saveUserChatPreferences = (userId: string, preferences: Record<stri
  * Load user chat session preferences
  */
 export const loadUserChatPreferences = (userId: string): Record<string, any> => {
-  const preferencesStr = localStorage.setItem(`user-${userId}-chat-preferences`, JSON.stringify({}));
+  const preferencesStr = localStorage.getItem(`user-${userId}-chat-preferences`);
   if (preferencesStr) {
     try {
-      return JSON.parse(preferencesStr as string);
+      return JSON.parse(preferencesStr);
     } catch (e) {
       console.error('Error parsing chat preferences:', e);
     }

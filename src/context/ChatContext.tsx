@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import websocketService from '../services/websocketService';
 import { useToast } from '@/hooks/use-toast';
@@ -46,10 +45,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { user, token } = useAuth();
+  const { user } = useAuth();
+  
+  const getAuthToken = () => localStorage.getItem('auth-token');
 
-  // Initialize or fetch existing session
   const initializeSession = useCallback(async () => {
+    const token = getAuthToken();
     if (!token) return;
     
     try {
@@ -57,7 +58,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       
       let sessionResponse;
       
-      // Get or create a session based on context
       if (moduleContext) {
         sessionResponse = await axios.get(`${API_BASE_URL}/chat/module/${moduleContext}`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -67,7 +67,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        // Create a default session if no context
         const createResponse = await axios.post(`${API_BASE_URL}/chat/sessions`, {
           module: null,
           agent_id: null,
@@ -80,10 +79,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       
       const sessionData = sessionResponse.data;
       
-      // Initialize with session data
       setCurrentSessionId(sessionData.session_id);
       
-      // Convert API messages to our format
       const messages: ChatMessage[] = sessionData.messages.map((msg: any) => ({
         text: msg.text,
         isUser: msg.isUser,
@@ -102,7 +99,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         variant: "destructive"
       });
       
-      // Create a fallback welcome message
       const defaultMessage = {
         text: agentId 
           ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
@@ -118,13 +114,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [token, moduleContext, agentId, toast]);
+  }, [moduleContext, agentId, toast]);
 
   useEffect(() => {
+    const token = getAuthToken();
     if (token) {
       initializeSession();
     }
-  }, [token, initializeSession]);
+  }, [initializeSession]);
 
   useEffect(() => {
     websocketService.connect();
@@ -163,6 +160,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   }, [toast, moduleContext, agentId, currentSessionId]);
 
   const sendMessage = async (inputText: string, sessionId?: string) => {
+    const token = getAuthToken();
     if (!token) {
       toast({
         title: "Authentication Required",
@@ -175,7 +173,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     const targetSessionId = sessionId || currentSessionId;
     
     if (!targetSessionId || targetSessionId === 'fallback-session') {
-      // Create a new session if we don't have a valid one
       try {
         const newSessionId = await createNewSession(agentId, moduleContext);
         sendMessage(inputText, newSessionId);
@@ -197,7 +194,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       timestamp: new Date()
     };
 
-    // Update UI immediately with user message
     setChatSessions(prev => {
       const sessionMessages = prev[targetSessionId] || [];
       return {
@@ -209,14 +205,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     setIsLoading(true);
 
     try {
-      // Send to backend API
       const response = await axios.post(`${API_BASE_URL}/chat/${targetSessionId}/send`, {
         text: inputText
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      // Update with AI response
       const aiMessage = {
         text: response.data.text,
         isUser: false,
@@ -239,7 +233,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         variant: "destructive"
       });
       
-      // Also send via websocket as fallback
       websocketService.sendMessage(`chat${moduleContext ? `-${moduleContext}` : agentId ? `-agent-${agentId}` : ''}`, { 
         text: inputText,
         moduleContext,
@@ -255,6 +248,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   };
 
   const createNewSession = async (agentId?: number, moduleContext?: string): Promise<string> => {
+    const token = getAuthToken();
     if (!token) {
       throw new Error("Authentication required");
     }
@@ -272,7 +266,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       
       const newSessionId = response.data.session_id;
       
-      // Add initial welcome message
       const welcomeMessages = response.data.messages.map((msg: any) => ({
         text: msg.text,
         isUser: msg.isUser,
