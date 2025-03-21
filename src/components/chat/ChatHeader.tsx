@@ -57,6 +57,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       return;
     }
     
+    // If we have access, proceed with navigation
     navigateToChat();
   };
 

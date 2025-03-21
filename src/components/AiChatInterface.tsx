@@ -11,6 +11,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import AccessDeniedDialog from './AccessDeniedDialog';
 
 interface AiChatInterfaceProps {
   moduleContext?: string;
@@ -32,8 +33,10 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(propIsOpen || false);
   const [localFullscreen, setLocalFullscreen] = useState(false);
+  const [showAccessDenied, setShowAccessDenied] = useState(false);
+  const [accessDeniedResource, setAccessDeniedResource] = useState('');
   const navigate = useNavigate();
-  const { hasModuleAccess } = useAuth();
+  const { hasModuleAccess, hasAgentAccess } = useAuth();
   const { toast } = useToast();
 
   // Normalize module context to handle spaces correctly
@@ -55,6 +58,20 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   const navigateToChat = () => {
     console.log("Navigating to chat, current fullscreen:", localFullscreen, "module:", normalizedModuleContext);
     
+    // Check module access before navigating
+    if (normalizedModuleContext && !hasModuleAccess(normalizedModuleContext)) {
+      setAccessDeniedResource(moduleContext || 'this module');
+      setShowAccessDenied(true);
+      return;
+    }
+    
+    // Check agent access before navigating
+    if (agentId && !hasAgentAccess(agentId)) {
+      setAccessDeniedResource(`Agent #${agentId}`);
+      setShowAccessDenied(true);
+      return;
+    }
+    
     // Close drawer before navigating
     if (isDrawerOpen) {
       handleOpenChange(false);
@@ -64,16 +81,6 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     // instead, keep it open and just navigate
     if (floating && localFullscreen) {
       setLocalFullscreen(false);
-    }
-    
-    // Check module access before navigating
-    if (normalizedModuleContext && !hasModuleAccess(normalizedModuleContext)) {
-      toast({
-        title: "Access Denied",
-        description: `You don't have access to the ${normalizedModuleContext.replace(/-/g, ' ')} module.`,
-        variant: "destructive"
-      });
-      return;
     }
     
     // Navigate to the appropriate chat page
@@ -92,6 +99,10 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     } else {
       handleOpenChange(false);
     }
+  };
+  
+  const handleAccessDeniedClose = () => {
+    setShowAccessDenied(false);
   };
 
   // ChatInterface component to avoid hook call issues
@@ -154,11 +165,20 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   // Render the chat interface based on whether it's floating or not
   if (!floating) {
     return (
-      <ChatProvider moduleContext={normalizedModuleContext} agentId={agentId}>
-        <div className={`${localFullscreen ? 'fixed inset-0 z-50 bg-white' : 'w-full h-full'}`}>
-          <ChatInterface />
-        </div>
-      </ChatProvider>
+      <>
+        <ChatProvider moduleContext={normalizedModuleContext} agentId={agentId}>
+          <div className={`${localFullscreen ? 'fixed inset-0 z-50 bg-white' : 'w-full h-full'}`}>
+            <ChatInterface />
+          </div>
+        </ChatProvider>
+        
+        <AccessDeniedDialog 
+          isOpen={showAccessDenied} 
+          onClose={handleAccessDeniedClose}
+          resourceName={accessDeniedResource}
+          resourceType={agentId ? 'agent' : 'module'}
+        />
+      </>
     );
   }
 
@@ -191,6 +211,13 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
           </DrawerContent>
         </Drawer>
       )}
+      
+      <AccessDeniedDialog 
+        isOpen={showAccessDenied} 
+        onClose={handleAccessDeniedClose}
+        resourceName={accessDeniedResource}
+        resourceType={agentId ? 'agent' : 'module'}
+      />
     </>
   );
 };

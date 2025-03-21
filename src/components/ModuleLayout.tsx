@@ -44,14 +44,27 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
   
   // Ensure the page is at the top when navigating to a module page
   useEffect(() => {
-    // Use setTimeout to ensure this runs after the component has mounted
-    // This helps ensure the scroll action happens after any layout shifts
-    setTimeout(() => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'instant' // Use 'instant' instead of smooth for more reliable behavior
-      });
-    }, 0);
+    // Force scroll to top when component mounts
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant'
+    });
+    
+    // Reset scroll position on component unmount
+    return () => {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, []);
+  
+  // Add special class to body to isolate module page scrolling
+  useEffect(() => {
+    // Add a class to isolate page scroll from chat components
+    document.body.classList.add('module-page');
+    
+    return () => {
+      document.body.classList.remove('module-page');
+    };
   }, []);
   
   useEffect(() => {
@@ -193,7 +206,9 @@ const ModuleLayout: React.FC<ModuleLayoutProps> = ({
               isLoading={isLoading} 
             />
             
-            <AiChatInterface moduleContext={title} />
+            <div className="chat-container isolation-auto overflow-hidden">
+              <AiChatInterface moduleContext={title} />
+            </div>
           </div>
         </div>
       </div>

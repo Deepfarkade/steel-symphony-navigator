@@ -1,407 +1,111 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* 
- * Base Variables
- * These define the color scheme for both light and dark modes
- */
+ 
 @layer base {
   :root {
-    /* Light Mode Colors - based on EY brand */
-    --background: 0 0% 100%; /* #FFFFFF */
-    --foreground: 216 12% 8%; /* #161D23 */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    --card: 0 0% 100%; /* #FFFFFF */
-    --card-foreground: 216 12% 8%; /* #161D23 */
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%; /* #FFFFFF */
-    --popover-foreground: 216 12% 8%; /* #161D23 */
-
-    --primary: 53 100% 50%; /* #FFE600 - EY Yellow */
-    --primary-foreground: 216 12% 8%; /* #161D23 - EY Black */
-
-    --secondary: 0 0% 96%; /* Light Gray - close to #F5F5F5 */
-    --secondary-foreground: 216 12% 8%; /* #161D23 - EY Black */
-
-    --muted: 0 0% 96%; /* Light Gray */
-    --muted-foreground: 0 0% 45%; /* #737373 */
-
-    --accent: 0 0% 96%; /* Light Gray */
-    --accent-foreground: 216 12% 8%; /* #161D23 */
-
-    --destructive: 0 84% 60%; /* Red */
-    --destructive-foreground: 0 0% 100%; /* White */
-
-    --border: 0 0% 89.8%; /* #E5E5E5 */
-    --input: 0 0% 89.8%; /* #E5E5E5 */
-    --ring: 53 100% 50%; /* #FFE600 - EY Yellow */
-
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+ 
     --radius: 0.5rem;
-    
-    /* Shadows */
-    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
-    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.1);
-    --shadow-dropdown: 0 2px 10px rgba(0, 0, 0, 0.1);
-    --shadow-button: 0 2px 5px rgba(0, 0, 0, 0.08);
-    --shadow-card-hover: 0 10px 25px rgba(0, 0, 0, 0.1);
-
-    /* Sidebar Custom Colors - Light Mode */
-    --sidebar-background: 0 0% 98%; /* #fafafa */
-    --sidebar-foreground: 216 12% 8%; /* #161D23 */
-    --sidebar-primary: 216 12% 8%; /* #161D23 */
-    --sidebar-primary-foreground: 0 0% 98%; /* #fafafa */
-    --sidebar-accent: 0 0% 94%; /* #f0f0f0 */
-    --sidebar-accent-foreground: 216 12% 8%; /* #161D23 */
-    --sidebar-border: 0 0% 89%; /* #e3e3e3 */
-    --sidebar-ring: 53 100% 50%; /* #FFE600 */
-    --sidebar-muted: 0 0% 86%; /* #dbdbdb */
-    --sidebar-muted-foreground: 0 0% 45%; /* #737373 */
   }
-
+ 
   .dark {
-    /* Dark Mode Colors - navy blues instead of pure black */
-    --background: 222 25% 13%; /* #1A1F2C - Dark navy blue instead of pure black */
-    --foreground: 210 40% 98%; /* #F1F5FB - Off-white with slight blue tint */
-
-    --card: 222 28% 17%; /* #1F2437 - Slightly lighter than background */
-    --card-foreground: 210 40% 98%; /* #F1F5FB - Same as foreground */
-
-    --popover: 222 28% 17%; /* Same as card */
-    --popover-foreground: 210 40% 98%; /* Same as foreground */
-
-    --primary: 53 100% 50%; /* #FFE600 - EY Yellow */
-    --primary-foreground: 222 28% 17%; /* Same as card - Dark navy blue */
-
-    --secondary: 223 25% 22%; /* #252D44 - Dark navy with a hint of blue */
-    --secondary-foreground: 210 40% 98%; /* Same as foreground */
-
-    --muted: 223 25% 27%; /* #2D3653 - Slightly lighter than secondary */
-    --muted-foreground: 210 30% 80%; /* #BCC7E0 - Lighter blue-gray */
-
-    --accent: 223 25% 22%; /* Same as secondary */
-    --accent-foreground: 210 40% 98%; /* Same as foreground */
-
-    --destructive: 0 62% 50%; /* Brighter red for better visibility in dark mode */
-    --destructive-foreground: 210 40% 98%; /* Same as foreground */
-
-    --border: 223 25% 22%; /* #282F47 - Dark blue-gray border */
-    --input: 223 25% 25%; /* Slightly lighter input field */
-    --ring: 53 100% 50%; /* #FFE600 - EY Yellow */
-    
-    /* Shadows for Dark Mode */
-    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.25);
-    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.35);
-    --shadow-dropdown: 0 2px 10px rgba(0, 0, 0, 0.3);
-    --shadow-button: 0 2px 5px rgba(0, 0, 0, 0.2);
-    --shadow-card-hover: 0 10px 25px rgba(0, 0, 0, 0.3);
-
-    /* Sidebar Custom Colors - Dark Mode */
-    --sidebar-background: 223 28% 15%; /* #1F2437 - Slightly different from main background */
-    --sidebar-foreground: 210 40% 98%; /* #F1F5FB - Off-white */
-    --sidebar-primary: 53 100% 50%; /* #FFE600 - EY Yellow */
-    --sidebar-primary-foreground: 223 28% 15%; /* #1F2437 */
-    --sidebar-accent: 223 25% 20%; /* Slightly lighter than sidebar background */
-    --sidebar-accent-foreground: 210 40% 98%; /* Off-white */
-    --sidebar-border: 223 25% 20%; /* Dark navy blue border */
-    --sidebar-ring: 53 100% 50%; /* #FFE600 - EY Yellow */
-    --sidebar-muted: 222 22% 18%; /* #202636 - Darker than accent */
-    --sidebar-muted-foreground: 210 30% 80%; /* #BCC7E0 - Lighter blue-gray */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
-
-/* Base Element Styling */
+ 
 @layer base {
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
-  }
-  
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-muted/50 rounded-md;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/20 rounded-md hover:bg-muted-foreground/30 transition-colors;
+    @apply bg-background text-foreground;
   }
 }
 
-/* Component Classes */
-@layer components {
-  /* Card Styles */
-  .glass-card {
-    @apply bg-white/80 dark:bg-card/80 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-glass rounded-xl;
-  }
-  
-  .ey-card {
-    @apply bg-white dark:bg-card border border-ey-midGray/20 dark:border-white/5 shadow-card rounded-xl transition-all duration-300 hover:shadow-card-hover;
-  }
-  
-  /* Button Styles */
-  .ey-button {
-    @apply bg-ey-yellow text-ey-black font-medium py-2 px-4 rounded-md hover:bg-ey-yellow/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ey-yellow/50 shadow-button;
-  }
-
-  .ey-button-secondary {
-    @apply bg-ey-darkGray text-white font-medium py-2 px-4 rounded-md hover:bg-ey-darkGray/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ey-darkGray/50 shadow-button;
-  }
-  
-  .ey-button-ghost {
-    @apply bg-transparent text-ey-darkGray dark:text-white font-medium py-2 px-4 rounded-md hover:bg-ey-lightGray/10 dark:hover:bg-white/5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ey-lightGray/30;
-  }
-  
-  /* Text Styles */
-  .text-gradient {
-    @apply bg-gradient-to-r from-ey-darkGray to-black dark:from-ey-midGray dark:to-white bg-clip-text text-transparent;
-  }
-  
-  /* Data Display */
-  .data-table {
-    @apply w-full border-collapse;
-  }
-  
-  .data-table th {
-    @apply px-4 py-2 text-left text-sm font-medium text-ey-darkGray dark:text-ey-midGray bg-gray-50 dark:bg-secondary border-b border-ey-midGray/20 dark:border-white/10;
-  }
-  
-  .data-table td {
-    @apply px-4 py-3 text-sm border-b border-ey-midGray/10 dark:border-white/5;
-  }
-  
-  .data-table tr:hover {
-    @apply bg-gray-50/50 dark:bg-white/5;
-  }
-  
-  /* Form Elements */
-  .form-input {
-    @apply w-full px-4 py-2 rounded-md border border-ey-midGray/30 dark:border-white/10 bg-white dark:bg-secondary focus:outline-none focus:ring-2 focus:ring-ey-yellow/50 dark:focus:ring-ey-yellow/30;
-  }
-  
-  .form-label {
-    @apply block text-sm font-medium text-ey-darkGray dark:text-ey-midGray mb-1;
-  }
-  
-  /* Sidebar Styling */
-  .sidebar {
-    @apply fixed left-0 top-0 h-full w-64 bg-[hsl(var(--sidebar-background))] text-[hsl(var(--sidebar-foreground))] border-r border-[hsl(var(--sidebar-border))] transition-all duration-300 ease-in-out z-40;
-  }
-  
-  .sidebar-item {
-    @apply flex items-center px-4 py-2.5 my-1 rounded-md text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))] transition-colors;
-  }
-  
-  .sidebar-item.active {
-    @apply bg-[hsl(var(--sidebar-accent))] text-[hsl(var(--sidebar-accent-foreground))] font-medium;
-  }
-
-  /* Dark mode card styles */
-  .dark .ey-card {
-    @apply bg-[#1F2437] border-[#2A3042]/30 shadow-[0_4px_15px_rgba(0,0,0,0.1)];
-  }
-
-  /* New KPI card styles for dark mode */
-  .dark .kpi-card {
-    @apply bg-[#1F2437] text-gray-200 shadow-[0_4px_12px_rgba(0,0,0,0.15)];
-  }
+/* Custom theme colors for EY */
+:root {
+  --ey-yellow: #FFE600;
+  --ey-black: #000000;
+  --ey-darkGray: #2E2E38;
+  --ey-lightGray: #747480;
+  --ey-white: #FFFFFF;
 }
 
-/* Animations */
-.stagger-animate > * {
-  opacity: 0;
-  transform: translateY(10px);
-  animation: stagger-fade-in 0.5s ease forwards;
+/* Isolate scrolling for chat containers to prevent affecting main page */
+.chat-container {
+  position: relative;
+  isolation: isolate;
+  contain: content;
+  height: 100%;
 }
 
-.stagger-animate > *:nth-child(1) { animation-delay: 0.1s; }
-.stagger-animate > *:nth-child(2) { animation-delay: 0.2s; }
-.stagger-animate > *:nth-child(3) { animation-delay: 0.3s; }
-.stagger-animate > *:nth-child(4) { animation-delay: 0.4s; }
-.stagger-animate > *:nth-child(5) { animation-delay: 0.5s; }
-.stagger-animate > *:nth-child(6) { animation-delay: 0.6s; }
-.stagger-animate > *:nth-child(7) { animation-delay: 0.7s; }
-.stagger-animate > *:nth-child(8) { animation-delay: 0.8s; }
-.stagger-animate > *:nth-child(9) { animation-delay: 0.9s; }
-
-.animate-stagger > * {
-  animation: slide-up 0.5s ease-out forwards;
-  opacity: 0;
+/* This prevents chat scrolling from affecting page scrolling */
+.module-page .ScrollArea-viewport {
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
 }
 
-.animate-stagger > *:nth-child(1) { animation-delay: 0.15s; }
-.animate-stagger > *:nth-child(2) { animation-delay: 0.3s; }
-.animate-stagger > *:nth-child(3) { animation-delay: 0.45s; }
-.animate-stagger > *:nth-child(4) { animation-delay: 0.6s; }
-
-@keyframes stagger-fade-in {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Ensure chat scroll areas don't affect main page scrolling */
+.ScrollArea-viewport {
+  overscroll-behavior: contain !important;
 }
 
-@keyframes slide-up {
-  0% {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 5px 2px rgba(255, 230, 0, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 20px 5px rgba(255, 230, 0, 0.4);
-  }
-}
-
-.pulse-glow {
-  animation: pulse-glow 2s infinite;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes typing {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-}
-
-.typing-effect {
+/* Make main content fixed on mobile when chat is fullscreen */
+.fixed.inset-0.z-50 ~ main {
+  position: fixed;
   overflow: hidden;
-  white-space: nowrap;
-  animation: typing 2s steps(40, end);
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
-}
-
-/* Dark mode adaptations for specific components */
-.dark .neural-path {
-  stroke: rgba(255, 230, 0, 0.5);
-}
-
-.dark .shimmer::after {
-  background-image: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0) 0,
-    rgba(255, 255, 255, 0.1) 20%,
-    rgba(255, 255, 255, 0.2) 60%,
-    rgba(0, 0, 0, 0)
-  );
-}
-
-.dark .futuristic-glow {
-  box-shadow: 0 0 15px rgba(255, 230, 0, 0.3);
-}
-
-.dark .futuristic-glow:hover {
-  box-shadow: 0 0 25px rgba(255, 230, 0, 0.5);
-}
-
-/* Additional dark mode specific animations */
-.dark .animated-border::before {
-  background: linear-gradient(90deg, transparent, rgba(255, 230, 0, 0.5), transparent);
-}
-
-/* Make sonner toasts use EY colors */
-.dark .sonner-toast {
-  --normal-bg: var(--card);
-  --normal-border: var(--border);
-  --normal-text: var(--foreground);
-  --success-bg: #29422d;
-  --success-border: #367d4a;
-  --success-text: #a6f0c0;
-  --error-bg: #4a242a;
-  --error-border: #7d3640;
-  --error-text: #f0a6b2;
-}
-
-/* Adjust for users who prefer reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* Improved visibility for dark mode text */
-.dark {
-  --text-primary: #F1F5FB;
-  --text-secondary: #CDD6E8;
-  --text-tertiary: #9EACC7;
-}
-
-.dark .text-dark-primary {
-  color: var(--text-primary);
-}
-
-.dark .text-dark-secondary {
-  color: var(--text-secondary);
-}
-
-.dark .text-dark-tertiary {
-  color: var(--text-tertiary);
-}
-
-/* Card background improvements for dark mode */
-.dark .stat-card, 
-.dark .module-card,
-.dark .dashboard-card {
-  background-color: #1F2437;
-  border-color: rgba(80, 90, 120, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Special hover effects for dark mode */
-.dark .hover-glow:hover {
-  box-shadow: 0 0 15px rgba(255, 230, 0, 0.2);
 }
