@@ -1,9 +1,7 @@
 
-import random
 from typing import List, Dict, Optional, Any
+from services.ai.azure_openai import get_completion_from_azure
 
-# In a real implementation, this would use an actual AI service
-# such as OpenAI's GPT, Microsoft Azure OpenAI, or a similar service
 async def get_ai_response(
     message: str, 
     conversation_history: List[Dict[str, Any]], 
@@ -11,7 +9,7 @@ async def get_ai_response(
     agent_id: Optional[int] = None
 ) -> str:
     """
-    Get an AI response to a user message
+    Get an AI response to a user message using Azure OpenAI
     
     Args:
         message: The user's message
@@ -22,9 +20,7 @@ async def get_ai_response(
     Returns:
         str: AI response text
     """
-    # This is a placeholder - in a real implementation, this would call an AI service
-    
-    # Convert conversation history to a format the AI service can use
+    # Convert conversation history to a format Azure OpenAI can use
     formatted_history = []
     for msg in conversation_history:
         role = "user" if msg.get("isUser", False) else "assistant"
@@ -33,30 +29,33 @@ async def get_ai_response(
             "content": msg.get("text", "")
         })
     
-    # Add the current message
-    formatted_history.append({
-        "role": "user",
-        "content": message
-    })
+    # Add system prompt based on module/agent context
+    system_prompt = "You are the EY Steel Ecosystem Co-Pilot, an AI assistant for steel industry professionals."
     
-    # In a real implementation, this would call an AI service API
-    # For now, we'll return a placeholder response
-    response_options = [
-        f"I understand you're asking about {message.lower()}. As your Steel Co-Pilot, I can assist with that.",
-        f"Thank you for your question about {message.lower()}. I'm analyzing the relevant steel industry data now.",
-        f"Let me help you with information about {message.lower()} in the context of steel operations.",
-        "That's a good question about steel manufacturing. Here's what our analysis shows...",
-        "Based on industry data and trends, here are some insights that might help..."
+    # Add module-specific context if available
+    if module:
+        module_name = module.replace("-", " ").title()
+        system_prompt += f" You are currently focusing on {module_name} and should provide specific insights on this topic."
+    
+    # Add agent-specific context if available
+    if agent_id:
+        system_prompt += f" You are operating as Agent #{agent_id} with specialized knowledge in this domain."
+    
+    # Format the messages for the Azure OpenAI API
+    formatted_messages = [
+        {"role": "system", "content": system_prompt},
+        *formatted_history,
+        {"role": "user", "content": message}
     ]
     
-    # Module-specific responses
-    if module:
-        module_context = f"the {module.replace('-', ' ')} context"
-        response_options.append(f"Looking at this from {module_context}, I can provide the following insights...")
-    
-    # Agent-specific responses
-    if agent_id:
-        response_options.append(f"As Agent #{agent_id}, I specialize in this area. Here's what I can tell you...")
-    
-    # Select a random response for demo purposes
-    return random.choice(response_options)
+    # Get a response from Azure OpenAI
+    try:
+        return await get_completion_from_azure(
+            messages=formatted_messages,
+            temperature=0.7,
+            max_tokens=800
+        )
+    except Exception as e:
+        # Fallback response in case of an error
+        print(f"Error getting AI response: {str(e)}")
+        return "I'm sorry, I'm having trouble processing your request right now. Please try again later."

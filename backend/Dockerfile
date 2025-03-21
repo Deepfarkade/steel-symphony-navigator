@@ -23,8 +23,21 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Create non-root user for security
+RUN adduser --disabled-password --gecos "" appuser
+
+# Create directory for static files
+RUN mkdir -p /app/static/assets && chown -R appuser:appuser /app/static
+
 # Copy application code
 COPY . .
+RUN chown -R appuser:appuser /app
 
-# Run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Switch to non-root user
+USER appuser
+
+# Expose port
+EXPOSE 8000
+
+# Use multi-worker configuration with Gunicorn for production
+CMD ["gunicorn", "main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "--timeout", "120"]

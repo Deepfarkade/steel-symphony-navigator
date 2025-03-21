@@ -7,13 +7,23 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - ./static:/app/static
     env_file:
       - .env
+    restart: always
     depends_on:
       - mongodb
     networks:
       - ey-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+      replicas: 2
 
   mongodb:
     image: mongo:latest
@@ -26,6 +36,21 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME:-admin}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD:-password}
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  # Redis for rate limiting and caching
+  redis:
+    image: redis:alpine
+    networks:
+      - ey-network
+    volumes:
+      - redis_data:/data
+    restart: always
 
   # SQL Server is commented out since it might be managed separately
   # or could be a cloud-hosted instance
@@ -47,4 +72,5 @@ networks:
 
 volumes:
   mongodb_data:
+  redis_data:
   # mssql_data:

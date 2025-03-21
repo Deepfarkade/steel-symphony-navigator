@@ -1,40 +1,38 @@
-
 /**
  * API Configuration
  * This file centralizes all API endpoints and configuration for connecting to your backend.
- * Replace the base URL and endpoints with your actual backend API when ready.
  */
 
-// Base URL for all API requests
-export const API_BASE_URL = "https://your-backend-api.com"; // REPLACE with your actual backend URL
+// Base URL for all API requests - set different URLs based on environment
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000"; 
 
 // Authentication endpoints
 export const AUTH_ENDPOINTS = {
-  login: `${API_BASE_URL}/auth/login`,           // Used for user authentication in Login.tsx
-  signup: `${API_BASE_URL}/auth/signup`,         // Used for user registration in Signup.tsx
-  ssoCallback: `${API_BASE_URL}/auth/sso`,       // Used for SSO authentication in SSOCallback.tsx
-  validateToken: `${API_BASE_URL}/auth/validate`, // Used for token validation in AuthContext.tsx
-  logout: `${API_BASE_URL}/auth/logout`,         // Used for user logout
+  login: `${API_BASE_URL}/api/v1/auth/login`,
+  signup: `${API_BASE_URL}/api/v1/auth/signup`,
+  ssoCallback: `${API_BASE_URL}/api/v1/auth/sso`,
+  validateToken: `${API_BASE_URL}/api/v1/auth/validate`,
+  logout: `${API_BASE_URL}/api/v1/auth/logout`,
 };
 
 // Data endpoints
 export const DATA_ENDPOINTS = {
   // KPIs and Metrics
-  kpis: `${API_BASE_URL}/data/kpis`,                     // Used in getKpis() - Dashboard KPI cards
-  kpiDetail: (id: string) => `${API_BASE_URL}/data/kpis/${id}`, // Used in KpiDetails.tsx
-  productionData: `${API_BASE_URL}/data/production`,     // Used in ProductionChartDetails.tsx
-  energyData: `${API_BASE_URL}/data/energy`,             // Used in EnergyChartDetails.tsx
-  coPilotAnalytics: `${API_BASE_URL}/data/copilot`,      // Used for AI analytics metrics
+  kpis: `${API_BASE_URL}/api/v1/data/kpis`,
+  kpiDetail: (id: string) => `${API_BASE_URL}/api/v1/data/kpis/${id}`,
+  productionData: `${API_BASE_URL}/api/v1/data/production`,
+  energyData: `${API_BASE_URL}/api/v1/data/energy`,
+  coPilotAnalytics: `${API_BASE_URL}/api/v1/data/copilot`,
   
   // Module-specific endpoints
-  moduleInsights: (module: string) => `${API_BASE_URL}/modules/${module}/insights`, // Used in useModuleInsights.tsx
+  moduleInsights: (module: string) => `${API_BASE_URL}/api/v1/modules/${module}/insights`,
   
   // User data
-  notifications: `${API_BASE_URL}/user/notifications`,   // Used for user notifications
-  preferences: `${API_BASE_URL}/user/preferences`,       // Used in UserPreferences.tsx
+  notifications: `${API_BASE_URL}/api/v1/user/notifications`,
+  preferences: `${API_BASE_URL}/api/v1/user/preferences`,
   
   // News and content
-  latestNews: `${API_BASE_URL}/content/news`,            // Used in NewsPage.tsx
+  latestNews: `${API_BASE_URL}/api/v1/content/news`,
 };
 
 // Module-specific service endpoints
@@ -103,55 +101,60 @@ export const MODULE_SERVICE_ENDPOINTS = {
 // Chat and conversation endpoints
 export const CHAT_ENDPOINTS = {
   // Global chat
-  global: `${API_BASE_URL}/chat/global`,
+  global: `${API_BASE_URL}/api/v1/chat/global`,
   
-  // Module-specific chats (using dedicated microservices)
+  // Module-specific chats
   module: (module: string) => MODULE_SERVICE_ENDPOINTS[module as keyof typeof MODULE_SERVICE_ENDPOINTS]?.chat || 
-    `${API_BASE_URL}/chat/${module}`,
+    `${API_BASE_URL}/api/v1/chat/${module}`,
   
   // Agent-specific chats
-  agent: (agentId: number) => `${API_BASE_URL}/agents/${agentId}/chat`,
+  agent: (agentId: number) => `${API_BASE_URL}/api/v1/agents/${agentId}/chat`,
   
   // History and analytics
-  history: (userId: string) => `${API_BASE_URL}/chat/history/${userId}`,
-  analytics: `${API_BASE_URL}/chat/analytics`,
+  history: (userId: string) => `${API_BASE_URL}/api/v1/chat/history/${userId}`,
+  analytics: `${API_BASE_URL}/api/v1/chat/analytics`,
 };
 
 // AI Agents endpoints
 export const AGENTS_ENDPOINTS = {
   // Agent management
-  available: `${API_BASE_URL}/agents/available`,         // Used in AgentsPage.tsx to get marketplace agents
-  deployed: `${API_BASE_URL}/agents/deployed`,           // Used in useAgents.tsx to get user's deployed agents
-  add: `${API_BASE_URL}/agents/add`,                     // Used to deploy an agent from marketplace
-  remove: (id: number) => `${API_BASE_URL}/agents/remove/${id}`, // Used to remove an agent 
-  details: (id: number) => `${API_BASE_URL}/agents/details/${id}`, // Used in AgentChatPage.tsx
-  createCustom: `${API_BASE_URL}/agents/create`,         // Used in CreateAgentPage.tsx
-  analytics: (id: number) => `${API_BASE_URL}/agents/${id}/analytics`, // Used for agent performance data
-  recommendations: (id: number) => `${API_BASE_URL}/agents/${id}/recommendations`, // Used for agent recommendations
-  chat: (id: number) => `${API_BASE_URL}/agents/${id}/chat`, // Each agent has its own chat endpoint
+  available: `${API_BASE_URL}/api/v1/agents/available`,
+  deployed: `${API_BASE_URL}/api/v1/agents/deployed`,
+  add: `${API_BASE_URL}/api/v1/agents/add`,
+  remove: (id: number) => `${API_BASE_URL}/api/v1/agents/remove/${id}`,
+  details: (id: number) => `${API_BASE_URL}/api/v1/agents/details/${id}`,
+  createCustom: `${API_BASE_URL}/api/v1/agents/create`,
+  analytics: (id: number) => `${API_BASE_URL}/api/v1/agents/${id}/analytics`,
+  recommendations: (id: number) => `${API_BASE_URL}/api/v1/agents/${id}/recommendations`,
+  chat: (id: number) => `${API_BASE_URL}/api/v1/agents/${id}/chat`,
 };
 
 // Risk Management endpoints
 export const RISK_ENDPOINTS = {
-  riskAssessment: `${API_BASE_URL}/risk/assessment`,     // Used in RiskManagement.tsx
-  riskMetrics: `${API_BASE_URL}/risk/metrics`,           // Used for risk-related metrics
-  riskPredictions: `${API_BASE_URL}/risk/predictions`,   // Used for risk predictions and forecasts
-  supplyChainRisks: `${API_BASE_URL}/risk/supply-chain`, // Used for supply chain risk analysis
+  riskAssessment: `${API_BASE_URL}/api/v1/risk/assessment`,
+  riskMetrics: `${API_BASE_URL}/api/v1/risk/metrics`,
+  riskPredictions: `${API_BASE_URL}/api/v1/risk/predictions`,
+  supplyChainRisks: `${API_BASE_URL}/api/v1/risk/supply-chain`,
 };
 
-// API request configuration
+// API request configuration with retry logic
 export const API_CONFIG = {
   headers: {
     'Content-Type': 'application/json',
     // Add authentication header function
     getAuthHeader: () => {
-      const token = localStorage.getItem('auth-token'); // Adjust based on your token storage method
+      const token = localStorage.getItem('auth-token');
       return token ? { 'Authorization': `Bearer ${token}` } : {};
     }
   },
   timeouts: {
-    default: 10000, // 10 seconds
+    default: 15000, // 15 seconds
     long: 30000,    // 30 seconds for operations that might take longer
+  },
+  retry: {
+    maxRetries: 3,
+    retryDelay: 1000, // 1 second initial delay, will increase exponentially
+    statusCodesToRetry: [408, 429, 500, 502, 503, 504]
   }
 };
 

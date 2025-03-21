@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     
     # API Config
     API_PREFIX: str = "/api/v1"
-    DEBUG: bool = True
-    ENVIRONMENT: str = "development"
+    DEBUG: bool = False
+    ENVIRONMENT: str = "production"
     
     # MSSQL Database settings
     MSSQL_SERVER: str = "localhost"
@@ -23,9 +23,20 @@ class Settings(BaseSettings):
     MONGODB_DATABASE: str = "ey_steel_ecosystem"
     
     # Authentication
-    SECRET_KEY: str = "supersecretkey"  # Change this in production!
+    SECRET_KEY: str = "your-secret-key-here"  # Change this in production!
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    # Azure OpenAI
+    AZURE_API_KEY: str = ""
+    AZURE_API_BASE: str = ""
+    AZURE_API_VERSION: str = "2023-05-15"
+    AZURE_DEPLOYMENT_NAME: str = "gpt-4"
+    
+    # Security
+    ALLOWED_ORIGINS: str = "*"  # Comma-separated list of allowed origins
+    RATE_LIMIT_PER_MINUTE: int = 60
+    SSL_ENABLED: bool = False
     
     class Config:
         env_file = ".env"
