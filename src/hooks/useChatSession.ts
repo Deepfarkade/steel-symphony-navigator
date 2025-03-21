@@ -8,7 +8,7 @@ export interface ChatMessage {
   text: string;
   isUser: boolean;
   timestamp: Date;
-  table_data?: Record<string, any>;
+  table_data?: string;
   summary?: string;
   next_question?: string[];
   id?: string;

@@ -7,7 +7,7 @@ import ChatSidebar from './ChatSidebar';
 import SidebarToggle from './SidebarToggle';
 
 interface ChatMessage {
-  id?: string;  // Make sure id is defined in the interface
+  id?: string;  // Make this properly optional
   text: string;
   isUser: boolean;
   timestamp: Date;

@@ -100,7 +100,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             <div className="prose prose-sm max-w-none dark:prose-invert">
               {isAssistant && tableData ? (
                 <div>
-                  {/* Render table data with special styling */}
                   <div className="overflow-x-auto bg-gray-50 dark:bg-gray-900 p-2 rounded-md mb-4">
                     <ReactMarkdown>
                       {tableData}

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import websocketService from '../services/websocketService';
 import { useToast } from '@/hooks/use-toast';
@@ -18,7 +17,7 @@ interface ChatMessage {
   isUser: boolean;
   timestamp: Date;
   id?: string;
-  table_data?: Record<string, any>;
+  table_data?: string;
   summary?: string;
   next_question?: string[];
 }
@@ -425,58 +424,26 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         setIsLoading(false);
         
       } catch (error) {
-        console.error("Failed to send message to backend, falling back to WebSocket:", error);
+        console.error("Failed to send message to backend, falling back to mock data:", error);
         
-        // Try WebSocket first
-        const channelName = `chat${normalizedModule ? `-${normalizedModule}` : agentId ? `-agent-${agentId}` : ''}`;
+        // Try WebSocket first if available
+        try {
+          const channelName = `chat${normalizedModule ? `-${normalizedModule}` : agentId ? `-agent-${agentId}` : ''}`;
+          
+          websocketService.sendMessage(channelName, { 
+            text: inputText,
+            moduleContext: normalizedModule,
+            agentId,
+            sessionId: targetSessionId,
+            timestamp: new Date().toISOString(),
+            isUser: true
+          });
+        } catch (wsError) {
+          console.error("WebSocket send failed:", wsError);
+        }
         
-        websocketService.sendMessage(channelName, { 
-          text: inputText,
-          moduleContext: normalizedModule,
-          agentId,
-          sessionId: targetSessionId,
-          timestamp: new Date().toISOString(),
-          isUser: true
-        });
-        
-        // If WebSocket doesn't deliver in 3 seconds, use mock data
-        setTimeout(async () => {
-          if (isLoading) {
-            console.log("WebSocket response timeout, using mock data");
-            try {
-              // Get mock response
-              const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
-              
-              // Add the mock AI response to the chat session
-              setChatSessions(prev => {
-                const sessionMessages = prev[targetSessionId] || [];
-                return {
-                  ...prev,
-                  [targetSessionId]: [...sessionMessages, {
-                    id: mockResponse.id,
-                    text: mockResponse.text,
-                    isUser: false,
-                    timestamp: new Date(),
-                    table_data: mockResponse.table_data,
-                    summary: mockResponse.summary,
-                    next_question: mockResponse.next_question
-                  }]
-                };
-              });
-              
-              setIsLoading(false);
-            } catch (mockError) {
-              console.error("Failed to generate mock response:", mockError);
-              setIsLoading(false);
-            }
-          }
-        }, 3000); // Wait 3 seconds for WebSocket response before using mock data
-      }
-    } else {
-      // If backend is not available, use mock data immediately
-      try {
-        // Simulate a small delay to make it feel more realistic
-        setTimeout(async () => {
+        // Immediately use mock data without waiting
+        try {
           // Get mock response
           const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
           
@@ -486,7 +453,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             return {
               ...prev,
               [targetSessionId]: [...sessionMessages, {
-                id: mockResponse.id,
+                id: mockResponse.id || uuidv4(),
                 text: mockResponse.text,
                 isUser: false,
                 timestamp: new Date(),
@@ -498,6 +465,70 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           });
           
           setIsLoading(false);
+        } catch (mockError) {
+          console.error("Failed to generate mock response:", mockError);
+          
+          // Provide a generic fallback response if everything else fails
+          setChatSessions(prev => {
+            const sessionMessages = prev[targetSessionId] || [];
+            return {
+              ...prev,
+              [targetSessionId]: [...sessionMessages, {
+                id: uuidv4(),
+                text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
+                isUser: false,
+                timestamp: new Date()
+              }]
+            };
+          });
+          
+          setIsLoading(false);
+        }
+      }
+    } else {
+      // If backend is not available, use mock data immediately
+      try {
+        // Use a short delay to simulate processing
+        setTimeout(async () => {
+          try {
+            // Get mock response
+            const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
+            
+            // Add the mock AI response to the chat session
+            setChatSessions(prev => {
+              const sessionMessages = prev[targetSessionId] || [];
+              return {
+                ...prev,
+                [targetSessionId]: [...sessionMessages, {
+                  id: mockResponse.id || uuidv4(),
+                  text: mockResponse.text,
+                  isUser: false,
+                  timestamp: new Date(),
+                  table_data: mockResponse.table_data,
+                  summary: mockResponse.summary,
+                  next_question: mockResponse.next_question
+                }]
+              };
+            });
+          } catch (error) {
+            console.error("Failed to generate mock response:", error);
+            
+            // Provide a generic fallback response
+            setChatSessions(prev => {
+              const sessionMessages = prev[targetSessionId] || [];
+              return {
+                ...prev,
+                [targetSessionId]: [...sessionMessages, {
+                  id: uuidv4(),
+                  text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
+                  isUser: false,
+                  timestamp: new Date()
+                }]
+              };
+            });
+          } finally {
+            setIsLoading(false);
+          }
         }, 1000);
       } catch (error) {
         console.error("Failed to generate mock response:", error);
