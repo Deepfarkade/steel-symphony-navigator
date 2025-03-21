@@ -1,4 +1,3 @@
-
 import asyncio
 import logging
 import os
@@ -10,6 +9,7 @@ from ..utils.logger import SessionLogger
 from ..utils.prompt_generator import PromptQuestion
 from ..utils.serializers import TableDataSerializer
 from ..session.session_manager import SessionManager
+from ..response.response_formatter import ResponseFormatter
 
 class MessageProcessor:
     _processing_pools = {}
@@ -18,6 +18,7 @@ class MessageProcessor:
         self.session_manager = session_manager
         self.cache_service = cache_service
         self.logger = logging.getLogger(__name__)
+        self.response_formatter = ResponseFormatter()
     
     async def process_request(self, user_id: str, session_id: str, message: str, current_user: Dict[str, Any]) -> Dict[str, Any]:
         """Process a single request with proper error handling"""
@@ -36,24 +37,21 @@ class MessageProcessor:
                 session_id
             )
             
-            if not isinstance(response, dict):
-                response = {
-                    "text": str(response),
-                    "next_question": []
-                }
+            # Make sure response is properly formatted
+            formatted_response = self.response_formatter.ensure_valid_response(response)
             
-            # Ensure next_question exists and is a list
-            if 'next_question' not in response or not isinstance(response['next_question'], list):
-                response['next_question'] = []
-                
-            return response
+            # Log the response for debugging
+            self.logger.info(f"Processed response: {formatted_response}")
+            
+            return formatted_response
             
         except Exception as e:
             self.logger.error(f"Error processing request: {e}")
-            return {
-                "text": "An error occurred while processing your request.",
+            return self.response_formatter.ensure_valid_response({
+                "text": f"An error occurred while processing your request: {str(e)}",
+                "content": f"An error occurred while processing your request: {str(e)}",
                 "next_question": self._get_default_questions()
-            }
+            })
 
     async def _process_message_with_cache(self, message: str, context_str: str, persona: str, session_id: str) -> Dict[str, Any]:
         """Process message with improved concurrency and instance management"""
@@ -191,6 +189,7 @@ class MessageProcessor:
             
             ai_response = {
                 'text': extracted_sql,
+                'content': extracted_sql,
                 'table_data': table_data,
                 'summary': summary,
                 'next_question': next_question
@@ -205,6 +204,7 @@ class MessageProcessor:
             self.logger.error(f"Error processing data request: {e}")
             return {
                 'text': f"I'm sorry, I encountered an error while processing your data request: {str(e)}",
+                'content': f"I'm sorry, I encountered an error while processing your data request: {str(e)}",
                 'next_question': next_question
             }
     
@@ -227,6 +227,7 @@ class MessageProcessor:
             
             return {
                 'text': content,
+                'content': content,
                 'next_question': next_question
             }
         
@@ -234,6 +235,7 @@ class MessageProcessor:
             self.logger.error(f"Error processing text request: {e}")
             return {
                 'text': f"I'm sorry, I encountered an error while processing your request: {str(e)}",
+                'content': f"I'm sorry, I encountered an error while processing your request: {str(e)}",
                 'next_question': next_question
             }
 

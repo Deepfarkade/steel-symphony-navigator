@@ -37,10 +37,15 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
     console.log("Current messages in ChatMessageList:", messages);
   }, [messages]);
 
+  // Filter out null/invalid messages
+  const validMessages = messages.filter(message => 
+    message && (message.content !== undefined || message.role !== undefined)
+  );
+
   return (
     <div className="flex-1 overflow-y-auto bg-white dark:bg-ey-black/90 py-4 space-y-1">
-      {messages && messages.length > 0 ? (
-        messages.map((message, index) => (
+      {validMessages && validMessages.length > 0 ? (
+        validMessages.map((message, index) => (
           <ChatMessage
             key={message.id || `message-${index}`}
             id={message.id || `message-${index}`}

@@ -48,25 +48,40 @@ export const convertApiMessageToChatMessage = (messageData: any): ChatMessage =>
     return createErrorMessage();
   }
   
-  // Handle response field variations (content/text, data/table_data)
-  let table_data = messageData.table_data || messageData.data || null;
-  let text = messageData.text || messageData.content || "";
-  let summary = messageData.summary || null;
-  let next_question = Array.isArray(messageData.next_question) ? messageData.next_question : [];
-  
-  // Determine if this is a user or bot message
-  const isUser = messageData.sender === "user" || messageData.isUser === true || messageData.role === "user";
-  
-  return {
-    id: messageData.id || uuidv4(),
-    text: text,
-    isUser: isUser,
-    timestamp: new Date(messageData.timestamp || Date.now()),
-    table_data: table_data,
-    summary: summary,
-    next_question: next_question,
-    session_id: messageData.session_id
-  };
+  try {
+    // Handle response field variations (content/text, data/table_data)
+    let table_data = messageData.table_data || messageData.data || null;
+    
+    // Handle text field variations (text/content)
+    let text = '';
+    if (messageData.text !== undefined) {
+      text = messageData.text;
+    } else if (messageData.content !== undefined) {
+      text = messageData.content;
+    }
+    
+    let summary = messageData.summary || null;
+    let next_question = Array.isArray(messageData.next_question) ? messageData.next_question : [];
+    
+    // Determine if this is a user or bot message
+    const isUser = messageData.sender === "user" || 
+                  messageData.isUser === true || 
+                  messageData.role === "user";
+    
+    return {
+      id: messageData.id || uuidv4(),
+      text: text,
+      isUser: isUser,
+      timestamp: new Date(messageData.timestamp || Date.now()),
+      table_data: table_data,
+      summary: summary,
+      next_question: next_question,
+      session_id: messageData.session_id
+    };
+  } catch (error) {
+    console.error("Error converting message:", error, "Original message:", messageData);
+    return createErrorMessage();
+  }
 };
 
 // Helper to determine if a message has table data that should be displayed

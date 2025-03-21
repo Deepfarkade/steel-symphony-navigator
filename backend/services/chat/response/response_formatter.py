@@ -30,6 +30,7 @@ class ResponseFormatter:
             self.logger.warning("Received string response, converting to dict")
             return {
                 "text": response,
+                "content": response,  # Add content for compatibility
                 "next_question": [],
                 "table_data": None,
                 "summary": None
@@ -42,6 +43,7 @@ class ResponseFormatter:
         # Ensure required fields exist
         cleaned_response = {
             "text": response.get("text") or response.get("content") or "",
+            "content": response.get("content") or response.get("text") or "",  # Ensure content exists too
             "next_question": response.get("next_question") or [],
             "table_data": response.get("table_data") or response.get("data"),
             "summary": response.get("summary") or None
@@ -51,6 +53,9 @@ class ResponseFormatter:
         if not isinstance(cleaned_response["text"], str):
             self.logger.warning(f"Invalid text type: {type(cleaned_response['text'])}")
             cleaned_response["text"] = str(cleaned_response["text"])
+            
+        if not isinstance(cleaned_response["content"], str):
+            cleaned_response["content"] = str(cleaned_response["content"])
             
         if not isinstance(cleaned_response["next_question"], list):
             self.logger.warning(f"Invalid next_question type: {type(cleaned_response['next_question'])}")
@@ -72,6 +77,7 @@ class ResponseFormatter:
         """
         return {
             "text": "I'm sorry, I couldn't process your request at the moment. Please try again later.",
+            "content": "I'm sorry, I couldn't process your request at the moment. Please try again later.",
             "next_question": [
                 "Can you help me with demand planning?",
                 "What are the best practices for inventory management?",
