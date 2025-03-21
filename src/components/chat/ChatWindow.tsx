@@ -37,6 +37,7 @@ interface ChatWindowProps {
   isExpanded: boolean;
   floating?: boolean;
   messageCount?: number;
+  moduleContext?: string;
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({
@@ -50,7 +51,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   navigateToChat,
   isExpanded,
   floating = false,
-  messageCount = 0
+  messageCount = 0,
+  moduleContext
 }) => {
   const [sessions, setSessions] = useState<ChatSession[]>([
     {
@@ -176,6 +178,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         toggleSidebar={toggleSidebar}
         showSidebar={showSidebar}
         messageCount={messageCount || messagesSent}
+        moduleContext={moduleContext}
       />
       
       <div className="flex flex-1 overflow-hidden relative">

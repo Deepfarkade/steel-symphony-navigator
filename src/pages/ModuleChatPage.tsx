@@ -9,7 +9,7 @@ import AiChatInterface from '../components/AiChatInterface';
 import { Card } from "@/components/ui/card";
 import { ChatProvider } from '@/context/ChatContext';
 import { useToast } from '@/hooks/use-toast';
-import { hasModuleAccess } from '@/services/authService';
+import { useAuth } from '@/context/AuthContext';
 
 interface ModuleChatParams {
   [key: string]: string;
@@ -23,18 +23,22 @@ const ModuleChatPage = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { hasModuleAccess } = useAuth();
   
   // Check if user has access to this module
   useEffect(() => {
-    if (module && !hasModuleAccess(module)) {
-      toast({
-        title: "Access Denied",
-        description: `You don't have access to the ${module.replace('-', ' ')} module.`,
-        variant: "destructive"
-      });
-      navigate('/');
+    if (module) {
+      // Check access directly here to prevent unnecessary component loading
+      if (!hasModuleAccess(module)) {
+        toast({
+          title: "Access Denied",
+          description: `You don't have access to the ${module.replace(/-/g, ' ')} module.`,
+          variant: "destructive"
+        });
+        navigate('/');
+      }
     }
-  }, [module, navigate, toast]);
+  }, [module, navigate, toast, hasModuleAccess]);
   
   // Ensure the page starts at the top when navigated to
   useEffect(() => {
@@ -85,6 +89,11 @@ const ModuleChatPage = () => {
   // If module is undefined or invalid, show error or redirect
   if (!module) {
     return <div>Module not found</div>;
+  }
+
+  // Early return if no access
+  if (!hasModuleAccess(module)) {
+    return null; // Component will unmount due to useEffect redirect
   }
 
   return (

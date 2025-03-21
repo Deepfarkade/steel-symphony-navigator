@@ -38,9 +38,13 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
   }, [messages]);
 
   // Filter out null/invalid messages
-  const validMessages = messages.filter(message => 
-    message && (message.content !== undefined || message.role !== undefined)
-  );
+  const validMessages = messages && Array.isArray(messages) 
+    ? messages.filter(message => 
+        message && 
+        message.role !== undefined && 
+        (typeof message.content === 'string' || typeof message.content === 'undefined')
+      )
+    : [];
 
   return (
     <div className="flex-1 overflow-y-auto bg-white dark:bg-ey-black/90 py-4 space-y-1">

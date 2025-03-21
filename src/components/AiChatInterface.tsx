@@ -9,6 +9,8 @@ import { ChatProvider } from '@/context/ChatContext';
 import { useChatSession } from '@/hooks/useChatSession';
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface AiChatInterfaceProps {
   moduleContext?: string;
@@ -31,6 +33,8 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   const [isDrawerOpen, setIsDrawerOpen] = useState(propIsOpen || false);
   const [localFullscreen, setLocalFullscreen] = useState(false);
   const navigate = useNavigate();
+  const { hasModuleAccess } = useAuth();
+  const { toast } = useToast();
 
   // Normalize module context to handle spaces correctly
   const normalizedModuleContext = moduleContext ? moduleContext.toLowerCase().replace(/\s+/g, '-') : undefined;
@@ -49,7 +53,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   };
 
   const navigateToChat = () => {
-    console.log("Navigating to chat, current fullscreen:", localFullscreen);
+    console.log("Navigating to chat, current fullscreen:", localFullscreen, "module:", normalizedModuleContext);
     
     // Close drawer before navigating
     if (isDrawerOpen) {
@@ -60,6 +64,16 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     // instead, keep it open and just navigate
     if (floating && localFullscreen) {
       setLocalFullscreen(false);
+    }
+    
+    // Check module access before navigating
+    if (normalizedModuleContext && !hasModuleAccess(normalizedModuleContext)) {
+      toast({
+        title: "Access Denied",
+        description: `You don't have access to the ${normalizedModuleContext.replace(/-/g, ' ')} module.`,
+        variant: "destructive"
+      });
+      return;
     }
     
     // Navigate to the appropriate chat page
@@ -132,6 +146,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
         isExpanded={isExpanded}
         floating={floating}
         messageCount={messageCount}
+        moduleContext={normalizedModuleContext}
       />
     );
   };

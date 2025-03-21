@@ -2,6 +2,8 @@
 import React, { useEffect } from 'react';
 import { BrainCircuit, Maximize2, Minimize2, X, Sparkles, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChatHeaderProps {
   agentId?: number;
@@ -13,6 +15,7 @@ interface ChatHeaderProps {
   toggleSidebar?: () => void;
   showSidebar?: boolean;
   messageCount?: number;
+  moduleContext?: string;
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ 
@@ -24,8 +27,12 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   floating = false,
   toggleSidebar,
   showSidebar,
-  messageCount = 0
+  messageCount = 0,
+  moduleContext
 }) => {
+  const { hasModuleAccess } = useAuth();
+  const { toast } = useToast();
+
   const handleFullscreenClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -33,17 +40,39 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     toggleFullscreen();
   };
 
+  const handleNavigateClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Check module access before navigating
+    if (moduleContext && !hasModuleAccess(moduleContext)) {
+      toast({
+        title: "Access Denied",
+        description: `You don't have access to the ${moduleContext.replace(/-/g, ' ')} module.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    navigateToChat();
+  };
+
   // Auto navigate to full view when user has sent messages
   useEffect(() => {
     if (messageCount > 0 && floating && !isFullscreen) {
       // Highlight the external link button to encourage clicking
       console.log("Message count increased, should navigate to chat:", messageCount);
-      // After the first message, automatically navigate to full view
-      if (messageCount === 1) {
-        setTimeout(() => navigateToChat(), 500);
-      }
     }
   }, [messageCount, floating, isFullscreen, navigateToChat]);
+
+  // Format a displayable module name from the context
+  const formatModuleName = (context?: string) => {
+    if (!context) return '';
+    return context
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-100">
@@ -56,7 +85,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             {agentId ? `Agent #${agentId}` : 'EY SECP'}
           </h2>
           <p className="text-xs text-gray-500">
-            {agentId ? 'Specialized AI Assistant' : 'Steel Ecosystem Co-Pilot'}
+            {moduleContext ? `${formatModuleName(moduleContext)} Assistant` : 'Steel Ecosystem Co-Pilot'}
           </p>
         </div>
       </div>
@@ -72,7 +101,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         
         {(!isFullscreen || floating) && (
           <motion.button 
-            onClick={navigateToChat} 
+            onClick={handleNavigateClick} 
             className={`text-gray-500 hover:text-indigo-600 transition-colors ${messageCount > 0 && floating ? 'animate-pulse text-indigo-600' : ''}`}
             title="Open Full View"
             animate={messageCount > 0 && floating && !isFullscreen ? { scale: [1, 1.1, 1] } : {}}
