@@ -20,6 +20,7 @@ interface ChatMessage {
   table_data?: string;
   summary?: string;
   next_question?: string[];
+  response_type?: string;
 }
 
 interface ChatContextProps {
@@ -78,7 +79,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     try {
       backendCheckAttempted.current = true; // Mark as attempted before the request
       console.log("Checking backend availability...");
-      await axios.get(`${API_BASE_URL}/`, { timeout: 3000 });
+      
+      // BACKEND CONNECTION POINT 1:
+      // This is where the app checks if your backend is available
+      // The URL should point to your MongoDB-backed API
+      // Change the timeout to a value that works for your backend (ms)
+      await axios.get(`${API_BASE_URL}/`, { timeout: 5000 });
+      
       console.log("Backend available!");
       setIsBackendAvailable(true);
       return true;
@@ -113,6 +120,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         let endpointPath;
         
         if (normalizedModuleContext) {
+          // BACKEND CONNECTION POINT 2:
+          // This endpoint should connect to your MongoDB module chat collection
+          // Should return data matching the example MongoDB collection you provided
           endpointPath = `/api/v1/chat/module/${normalizedModuleContext}`;
           console.log(`Fetching module chat session for ${normalizedModuleContext} from ${endpointPath}`);
           
@@ -125,6 +135,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             throw error;
           }
         } else if (agentId) {
+          // BACKEND CONNECTION POINT 3:
+          // This endpoint should connect to your MongoDB agent chat collection  
           endpointPath = `/api/v1/agents/${agentId}/chat`;
           console.log(`Fetching agent chat session for agent ${agentId} from ${endpointPath}`);
           
@@ -137,6 +149,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             throw error;
           }
         } else {
+          // BACKEND CONNECTION POINT 4:
+          // This endpoint should create a new chat session in your MongoDB collection
           endpointPath = `/api/v1/chat/sessions`;
           console.log(`Creating new general chat session at ${endpointPath}`);
           
@@ -165,15 +179,18 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         
         setCurrentSessionId(sessionData.id);
         
-        // Convert backend message format to frontend format
+        // BACKEND DATA CONVERSION POINT 1:
+        // Convert MongoDB message format to frontend format
+        // This code needs to match your MongoDB schema
         const messages: ChatMessage[] = (sessionData.messages || []).map((msg: any) => ({
           id: msg.id || uuidv4(),
           text: msg.text,
-          isUser: msg.sender === "user",
+          isUser: msg.sender === "user", // MongoDB uses 'sender' field
           timestamp: new Date(msg.timestamp),
           table_data: msg.table_data,
           summary: msg.summary,
-          next_question: msg.next_question || []
+          next_question: msg.next_question || [],
+          response_type: msg.response_type // MongoDB specific field
         }));
         
         setChatSessions({
@@ -199,7 +216,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           timestamp: new Date(msg.timestamp || Date.now()),
           table_data: msg.table_data,
           summary: msg.summary,
-          next_question: msg.next_question || []
+          next_question: msg.next_question || [],
+          response_type: msg.response_type
         }));
         
         setChatSessions({
@@ -257,7 +275,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           timestamp: new Date(msg.timestamp || Date.now()),
           table_data: msg.table_data,
           summary: msg.summary,
-          next_question: msg.next_question || []
+          next_question: msg.next_question || [],
+          response_type: msg.response_type
         }));
         
         setChatSessions({ [mockSession.id]: messages });
@@ -324,7 +343,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
               timestamp: new Date(payload.timestamp),
               table_data: payload.table_data,
               summary: payload.summary,
-              next_question: payload.next_question || []
+              next_question: payload.next_question || [],
+              response_type: payload.response_type
             }]
           };
         });
@@ -388,6 +408,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     if (isBackendAvailable && token) {
       try {
         console.log(`Sending message to session ${targetSessionId}`);
+        
+        // BACKEND CONNECTION POINT 5:
+        // This endpoint should send a message to your MongoDB chat session
+        // Should match the route in your backend/services/chat/routes.py file
         const sendEndpoint = `/api/v1/chat/${targetSessionId}/send`;
         
         const response = await axios.post(`${API_BASE_URL}${sendEndpoint}`, {
@@ -403,7 +427,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
         
         console.log("Received response:", response.data);
         
-        // Convert backend message format to frontend format
+        // BACKEND DATA CONVERSION POINT 2:
+        // Convert MongoDB response format to frontend format
+        // Should match your MongoDB schema shown in the example
         const aiMessage: ChatMessage = {
           id: response.data.id || uuidv4(),
           text: response.data.text,
@@ -411,7 +437,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           timestamp: new Date(response.data.timestamp),
           table_data: response.data.table_data,
           summary: response.data.summary,
-          next_question: response.data.next_question || []
+          next_question: response.data.next_question || [],
+          response_type: response.data.response_type // MongoDB specific field
         };
         
         setChatSessions(prev => {
@@ -459,7 +486,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
                 timestamp: new Date(),
                 table_data: mockResponse.table_data,
                 summary: mockResponse.summary,
-                next_question: mockResponse.next_question
+                next_question: mockResponse.next_question,
+                response_type: mockResponse.response_type
               }]
             };
           });
@@ -506,7 +534,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
                   timestamp: new Date(),
                   table_data: mockResponse.table_data,
                   summary: mockResponse.summary,
-                  next_question: mockResponse.next_question
+                  next_question: mockResponse.next_question,
+                  response_type: mockResponse.response_type
                 }]
               };
             });
@@ -571,7 +600,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             timestamp: new Date(msg.timestamp),
             table_data: msg.table_data,
             summary: msg.summary,
-            next_question: msg.next_question || []
+            next_question: msg.next_question || [],
+            response_type: msg.response_type
           }));
           
           setChatSessions(prev => ({
@@ -600,7 +630,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           timestamp: new Date(msg.timestamp || Date.now()),
           table_data: msg.table_data,
           summary: msg.summary,
-          next_question: msg.next_question || []
+          next_question: msg.next_question || [],
+          response_type: msg.response_type
         }));
         
         setChatSessions(prev => ({
@@ -645,7 +676,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           timestamp: new Date(msg.timestamp || Date.now()),
           table_data: msg.table_data,
           summary: msg.summary,
-          next_question: msg.next_question || []
+          next_question: msg.next_question || [],
+          response_type: msg.response_type
         }))
       }));
       

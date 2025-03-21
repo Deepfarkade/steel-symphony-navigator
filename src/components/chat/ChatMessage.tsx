@@ -15,10 +15,11 @@ interface ChatMessageProps {
   timestamp?: Date;
   isLoading?: boolean;
   id?: string;
-  tableData?: string;
+  tableData?: string | any; // Support for MongoDB table_data which can be string or object
   summary?: string;
   suggestedQuestions?: string[];
   onSuggestedQuestionClick?: (question: string) => void;
+  responseType?: string; // From MongoDB response_type field
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({
@@ -30,7 +31,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   tableData,
   summary,
   suggestedQuestions = [],
-  onSuggestedQuestionClick
+  onSuggestedQuestionClick,
+  responseType
 }) => {
   const [copied, setCopied] = useState<boolean>(false);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(true);
@@ -62,6 +64,41 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     setShowSuggestions(true);
   }, [id]);
 
+  // Helper to format table data from MongoDB
+  const formatTableData = (data: any) => {
+    if (!data) return null;
+    
+    // Check if it's already a markdown string
+    if (typeof data === 'string') {
+      return data;
+    }
+    
+    // If it's a structured object (from MongoDB), convert to markdown table
+    if (data.records && Array.isArray(data.records)) {
+      try {
+        // Extract headers from first record
+        const headers = Object.keys(data.records[0]);
+        
+        // Generate table header
+        let markdownTable = '| ' + headers.join(' | ') + ' |\n';
+        markdownTable += '| ' + headers.map(() => '---').join(' | ') + ' |\n';
+        
+        // Generate table rows
+        data.records.forEach((record: any) => {
+          markdownTable += '| ' + headers.map(h => record[h]).join(' | ') + ' |\n';
+        });
+        
+        return markdownTable;
+      } catch (error) {
+        console.error("Error formatting table data:", error);
+        return JSON.stringify(data);
+      }
+    }
+    
+    // Fallback
+    return JSON.stringify(data);
+  };
+
   return (
     <div
       id={id}
@@ -88,6 +125,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                 {formattedTime}
               </span>
             )}
+            {responseType && (
+              <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded ml-2">
+                {responseType}
+              </span>
+            )}
           </div>
           
           {isLoading ? (
@@ -102,7 +144,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                 <div>
                   <div className="overflow-x-auto bg-gray-50 dark:bg-gray-900 p-2 rounded-md mb-4">
                     <ReactMarkdown>
-                      {tableData}
+                      {formatTableData(tableData)}
                     </ReactMarkdown>
                   </div>
                   

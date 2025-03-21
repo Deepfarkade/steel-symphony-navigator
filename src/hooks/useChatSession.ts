@@ -8,11 +8,15 @@ export interface ChatMessage {
   text: string;
   isUser: boolean;
   timestamp: Date;
-  table_data?: string;
+  table_data?: string | any; // Support for both string and structured data from MongoDB
   summary?: string;
   next_question?: string[];
   id?: string;
   session_id?: string;
+  // Additional fields to match MongoDB schema
+  sender?: 'user' | 'bot'; // MongoDB uses 'sender' instead of 'isUser'
+  response_type?: string;  // For special response types like 'sql_response'
+  df_parent?: any;         // For any parent data references
 }
 
 export const useChatSession = (moduleContext?: string, agentId?: number) => {
