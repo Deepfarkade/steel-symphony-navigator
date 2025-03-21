@@ -43,22 +43,18 @@ export const createErrorMessage = (): ChatMessage => {
 export const convertApiMessageToChatMessage = (messageData: any): ChatMessage => {
   console.log("Converting API message:", messageData);
   
-  // Handle different message formats
-  let table_data = messageData.table_data;
+  // Handle response field variations (content/text, data/table_data)
+  let table_data = messageData.table_data || messageData.data;
+  let text = messageData.text || messageData.content || "";
   let summary = messageData.summary;
   let next_question = messageData.next_question || [];
-  
-  // Handle legacy 'data' field for table data
-  if (!table_data && messageData.data) {
-    table_data = messageData.data;
-  }
   
   // Determine if this is a user or bot message
   const isUser = messageData.sender === "user" || messageData.isUser === true;
   
   return {
     id: messageData.id || uuidv4(),
-    text: messageData.text || messageData.content || "",
+    text: text,
     isUser: isUser,
     timestamp: new Date(messageData.timestamp || Date.now()),
     table_data: table_data,
