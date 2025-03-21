@@ -54,6 +54,11 @@ export const enforceSingleSession = (userId: string): string => {
   
   // Set new active session
   activeSessions.set(userId, sessionId);
+  
+  // Store in localStorage for cross-tab communication
+  localStorage.setItem('session-id', sessionId);
+  localStorage.setItem('session-user-id', userId);
+  
   return sessionId;
 };
 
@@ -72,6 +77,8 @@ export const isValidSession = (user: User): boolean => {
  */
 export const removeUserSession = (userId: string): void => {
   activeSessions.delete(userId);
+  localStorage.removeItem('session-id');
+  localStorage.removeItem('session-user-id');
 };
 
 /**
@@ -94,6 +101,28 @@ export const loadUserSelectedAgents = (userId: string): number[] => {
     }
   }
   return [];
+};
+
+/**
+ * Save user chat session preferences
+ */
+export const saveUserChatPreferences = (userId: string, preferences: Record<string, any>): void => {
+  localStorage.setItem(`user-${userId}-chat-preferences`, JSON.stringify(preferences));
+};
+
+/**
+ * Load user chat session preferences
+ */
+export const loadUserChatPreferences = (userId: string): Record<string, any> => {
+  const preferencesStr = localStorage.setItem(`user-${userId}-chat-preferences`, JSON.stringify({}));
+  if (preferencesStr) {
+    try {
+      return JSON.parse(preferencesStr as string);
+    } catch (e) {
+      console.error('Error parsing chat preferences:', e);
+    }
+  }
+  return {};
 };
 
 /**
@@ -128,16 +157,38 @@ export const initSessionListeners = (logoutCallback: () => void): void => {
       }
     }
   });
+  
+  // Check for session expiry every minute
+  const checkExpiryInterval = setInterval(() => {
+    if (!isSessionValid() && localStorage.getItem('auth-token')) {
+      logoutCallback();
+      clearInterval(checkExpiryInterval);
+      
+      // Show notification or redirect
+      window.dispatchEvent(new CustomEvent('session-expired', { 
+        detail: { message: 'Your session has expired. Please log in again.' }
+      }));
+      
+      // Redirect to login
+      window.location.href = '/login';
+    }
+  }, 60000); // Check every minute
 };
 
 /**
  * Clear all session data
  */
 export const clearSessionData = (): void => {
+  const userId = localStorage.getItem('session-user-id');
+  if (userId) {
+    removeUserSession(userId);
+  }
+  
   localStorage.removeItem('auth-token');
   localStorage.removeItem('current-user');
   localStorage.removeItem('ey-session-expiry');
   localStorage.removeItem('session-id');
+  localStorage.removeItem('session-user-id');
 };
 
 /**

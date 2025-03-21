@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     # MongoDB settings
     MONGODB_URI: str = "mongodb://localhost:27017"
     MONGODB_DATABASE: str = "ey_steel_ecosystem"
+    MONGODB_USER_COLLECTION: str = "users"
+    MONGODB_CHAT_COLLECTION: str = "chat_sessions"
+    MONGODB_MESSAGE_COLLECTION: str = "chat_messages"
     
     # Authentication
     SECRET_KEY: str = "your-secret-key-here"  # Change this in production!

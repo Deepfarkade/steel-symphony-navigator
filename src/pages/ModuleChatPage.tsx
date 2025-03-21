@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BrainCircuit } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
@@ -8,6 +8,8 @@ import Header from '../components/Header';
 import AiChatInterface from '../components/AiChatInterface';
 import { Card } from "@/components/ui/card";
 import { ChatProvider } from '@/context/ChatContext';
+import { useToast } from '@/hooks/use-toast';
+import { hasModuleAccess } from '@/services/authService';
 
 interface ModuleChatParams {
   [key: string]: string;
@@ -19,6 +21,20 @@ const ModuleChatPage = () => {
   const [moduleName, setModuleName] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  // Check if user has access to this module
+  useEffect(() => {
+    if (module && !hasModuleAccess(module)) {
+      toast({
+        title: "Access Denied",
+        description: `You don't have access to the ${module.replace('-', ' ')} module.`,
+        variant: "destructive"
+      });
+      navigate('/');
+    }
+  }, [module, navigate, toast]);
   
   // Ensure the page starts at the top when navigated to
   useEffect(() => {
@@ -60,8 +76,16 @@ const ModuleChatPage = () => {
         .join(' ');
       
       setModuleName(formattedName);
+      
+      // Set document title
+      document.title = `${formattedName} AI Assistant | EY Steel Ecosystem`;
     }
   }, [module]);
+
+  // If module is undefined or invalid, show error or redirect
+  if (!module) {
+    return <div>Module not found</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-ey-black/90">
@@ -75,7 +99,8 @@ const ModuleChatPage = () => {
           pageTitle={`${moduleName || 'Module'} AI Assistant`}
           breadcrumbs={[
             { label: 'Home', link: '/' },
-            { label: moduleName || 'Module', link: `/chat/${module}` }
+            { label: moduleName || 'Module', link: `/${module}` },
+            { label: 'AI Assistant', link: `/chat/${module}` }
           ]}
         />
         

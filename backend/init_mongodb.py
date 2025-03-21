@@ -8,15 +8,29 @@ from config.settings import get_settings
 settings = get_settings()
 
 async def init_mongodb():
-    """Initialize MongoDB with predefined users."""
+    """Initialize MongoDB with predefined users and collections."""
+    print(f"Connecting to MongoDB at: {settings.MONGODB_URI}")
     client = motor.motor_asyncio.AsyncIOMotorClient(settings.MONGODB_URI)
     db = client[settings.MONGODB_DATABASE]
-    collection = db.users
+    
+    # Create indexes for various collections
+    print("Creating indexes for MongoDB collections...")
+    
+    # User collection
+    user_collection = db.users
+    await user_collection.create_index("username", unique=True)
+    await user_collection.create_index("email", unique=True)
+    
+    # Chat sessions collection
+    chat_collection = db[settings.MONGODB_CHAT_COLLECTION]
+    await chat_collection.create_index([("user_id", 1), ("updated_at", -1)])
+    await chat_collection.create_index([("user_id", 1), ("module", 1), ("updated_at", -1)])
+    await chat_collection.create_index([("user_id", 1), ("agent_id", 1), ("updated_at", -1)])
     
     # Check if users already exist
-    count = await collection.count_documents({})
+    count = await user_collection.count_documents({})
     if count > 0:
-        print(f"MongoDB already has {count} users. Skipping initialization.")
+        print(f"MongoDB already has {count} users. Skipping user initialization.")
         return
     
     # Define the predefined users
@@ -79,7 +93,7 @@ async def init_mongodb():
     ]
     
     # Insert the predefined users
-    result = await collection.insert_many(predefined_users)
+    result = await user_collection.insert_many(predefined_users)
     print(f"Inserted {len(result.inserted_ids)} predefined users into MongoDB.")
 
 if __name__ == "__main__":
