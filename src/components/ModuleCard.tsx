@@ -1,18 +1,9 @@
 
 import React from 'react';
 import { ArrowRight, LockKeyhole } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog';
+import AccessDeniedDialog from './AccessDeniedDialog';
 
 interface ModuleCardProps {
   title: string;
@@ -97,28 +88,13 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
         </div>
       </div>
 
-      {/* Access Denied Dialog */}
-      <AlertDialog open={showAccessDeniedDialog} onOpenChange={setShowAccessDeniedDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-amber-700">
-              <LockKeyhole className="h-5 w-5" />
-              Access Restricted
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              You don't have permission to access the {title} module.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="p-4 bg-amber-50 rounded-md">
-            <p className="text-sm text-amber-800">
-              This module requires special permission. Please contact your administrator to request access.
-            </p>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Close</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Use our new AccessDeniedDialog component */}
+      <AccessDeniedDialog 
+        isOpen={showAccessDeniedDialog} 
+        onClose={() => setShowAccessDeniedDialog(false)}
+        resourceType="module"
+        resourceName={`the ${title} module`}
+      />
     </>
   );
 };

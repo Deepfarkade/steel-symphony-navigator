@@ -11,6 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ClockIcon, LogOutIcon } from 'lucide-react';
 
 const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 const WARNING_TIMEOUT = 100 * 1000; // 100 seconds for warning
@@ -67,6 +68,14 @@ const UserInactivityHandler: React.FC = () => {
     }, INACTIVITY_TIMEOUT - WARNING_TIMEOUT);
   };
 
+  // Event handler for session expired events from authService
+  const handleSessionExpired = (event: CustomEvent) => {
+    logout();
+    
+    // Display a notification to the user (could be enhanced with a toast)
+    console.log(event.detail.message);
+  };
+
   // Set event listeners to track user activity
   useEffect(() => {
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
@@ -76,6 +85,9 @@ const UserInactivityHandler: React.FC = () => {
       document.addEventListener(event, resetInactivityTimer);
     });
     
+    // Listen for session expired events
+    window.addEventListener('session-expired', handleSessionExpired as EventListener);
+    
     // Initial setup of inactivity timer
     resetInactivityTimer();
     
@@ -84,6 +96,8 @@ const UserInactivityHandler: React.FC = () => {
       events.forEach(event => {
         document.removeEventListener(event, resetInactivityTimer);
       });
+      
+      window.removeEventListener('session-expired', handleSessionExpired as EventListener);
       
       if (inactivityTimerRef.current) {
         clearTimeout(inactivityTimerRef.current);
@@ -104,25 +118,50 @@ const UserInactivityHandler: React.FC = () => {
 
   return (
     <AlertDialog open={showWarning} onOpenChange={setShowWarning}>
-      <AlertDialogContent className="max-w-md">
+      <AlertDialogContent className="max-w-md animate-scale-in">
         <AlertDialogHeader>
-          <AlertDialogTitle>Session Expiring Soon</AlertDialogTitle>
-          <AlertDialogDescription>
-            Your session will expire in <span className="font-bold text-red-500">{remainingTime}</span> seconds due to inactivity.
-            Would you like to stay signed in?
+          <div className="flex items-center mb-2">
+            <div className="bg-amber-100 p-2 rounded-full mr-3">
+              <ClockIcon className="h-6 w-6 text-amber-600" />
+            </div>
+            <AlertDialogTitle className="text-xl">Session Expiring Soon</AlertDialogTitle>
+          </div>
+          <AlertDialogDescription className="text-base">
+            Your session will expire in <span className="font-bold text-red-500 animate-pulse">{remainingTime}</span> seconds due to inactivity.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => {
-            if (warningTimerRef.current) {
-              clearTimeout(warningTimerRef.current);
-            }
-            setShowWarning(false);
-            logout();
-          }}>
+        
+        <div className="my-4 space-y-3">
+          <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-amber-500 rounded-full transition-all duration-1000 ease-linear"
+              style={{ width: `${(remainingTime / 100) * 100}%` }}
+            ></div>
+          </div>
+          
+          <p className="text-sm text-gray-500">
+            For security reasons, your session will automatically end after a period of inactivity.
+          </p>
+        </div>
+        
+        <AlertDialogFooter className="space-x-2">
+          <AlertDialogCancel 
+            onClick={() => {
+              if (warningTimerRef.current) {
+                clearTimeout(warningTimerRef.current);
+              }
+              setShowWarning(false);
+              logout();
+            }}
+            className="flex items-center"
+          >
+            <LogOutIcon className="h-4 w-4 mr-2" />
             Log Out
           </AlertDialogCancel>
-          <AlertDialogAction onClick={handleStaySignedIn}>
+          <AlertDialogAction 
+            onClick={handleStaySignedIn}
+            className="bg-ey-yellow hover:bg-ey-yellow/90 text-ey-darkGray"
+          >
             Stay Signed In
           </AlertDialogAction>
         </AlertDialogFooter>

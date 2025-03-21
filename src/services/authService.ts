@@ -1,6 +1,8 @@
+
 import axios from 'axios';
 import { AUTH_ENDPOINTS, API_CONFIG } from './apiConfig';
 import { User } from '@/types/auth';
+import { v4 as uuidv4 } from 'uuid';
 
 // Define mock users for testing
 const mockUsers = {
@@ -56,6 +58,69 @@ const mockUsers = {
   }
 };
 
+// Track active sessions to prevent multiple logins
+const activeSessions = new Map<string, string>();
+
+// Function to enforce single session per user
+const enforceSingleSession = (userId: string): string => {
+  // Generate a unique session ID
+  const sessionId = uuidv4();
+  
+  // Check if user already has an active session
+  if (activeSessions.has(userId)) {
+    // Invalidate the previous session by removing it
+    const previousSessionId = activeSessions.get(userId);
+    
+    // Remove previous session from localStorage if it's the current browser
+    if (previousSessionId === localStorage.getItem('session-id')) {
+      localStorage.removeItem('auth-token');
+      localStorage.removeItem('current-user');
+      localStorage.removeItem('ey-session-expiry');
+      localStorage.removeItem('session-id');
+      localStorage.removeItem('user-selected-agents');
+    }
+    
+    // Broadcast logout event to other tabs/windows
+    window.dispatchEvent(new CustomEvent('session-invalidated', { 
+      detail: { userId, sessionId: previousSessionId }
+    }));
+  }
+  
+  // Set new active session
+  activeSessions.set(userId, sessionId);
+  return sessionId;
+};
+
+// Listen for session invalidation events from other tabs/windows
+if (typeof window !== 'undefined') {
+  window.addEventListener('session-invalidated', (event: CustomEvent) => {
+    const { userId, sessionId } = event.detail;
+    const currentSessionId = localStorage.getItem('session-id');
+    
+    // If this is the session being invalidated, logout
+    if (sessionId === currentSessionId) {
+      logoutUser();
+      
+      // Show notification or redirect
+      window.dispatchEvent(new CustomEvent('session-expired', { 
+        detail: { message: 'Your session was ended because you logged in elsewhere.' }
+      }));
+    }
+  });
+  
+  // Setup storage event listener to detect changes across tabs
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'auth-token' && event.newValue === null) {
+      // Another tab cleared auth token, logout here too
+      const currentUser = localStorage.getItem('current-user');
+      if (currentUser) {
+        logoutUser();
+        window.location.href = '/login';
+      }
+    }
+  });
+}
+
 /**
  * Login user with email and password
  * Used in Login.tsx for user authentication
@@ -85,7 +150,11 @@ export const loginUser = async (email: string, password: string): Promise<{ user
     const { password: _, ...userWithoutPassword } = mockUser;
     const user: User = userWithoutPassword;
     
+    // Generate a unique token
     const token = 'mock-jwt-token-' + Math.random().toString(36).substring(2, 15);
+    
+    // Enforce single session per user
+    const sessionId = enforceSingleSession(user.id);
     
     // Store token in localStorage
     localStorage.setItem('auth-token', token);
@@ -93,10 +162,19 @@ export const loginUser = async (email: string, password: string): Promise<{ user
     // Store user in localStorage
     localStorage.setItem('current-user', JSON.stringify(user));
     
+    // Store session ID
+    localStorage.setItem('session-id', sessionId);
+    
     // Set session expiry (7 days from now)
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + 7);
     localStorage.setItem('ey-session-expiry', expiryDate.toISOString());
+    
+    // Restore selected agents if they exist
+    const selectedAgents = localStorage.getItem(`user-${user.id}-selected-agents`);
+    if (selectedAgents) {
+      localStorage.setItem('user-selected-agents', selectedAgents);
+    }
     
     console.log('Login successful (mock)', { user, token });
     
@@ -210,6 +288,13 @@ export const validateToken = async (): Promise<User | null> => {
         localStorage.removeItem('auth-token');
         localStorage.removeItem('current-user');
         localStorage.removeItem('ey-session-expiry');
+        localStorage.removeItem('session-id');
+        
+        // Trigger session expired event
+        window.dispatchEvent(new CustomEvent('session-expired', { 
+          detail: { message: 'Your session has expired. Please log in again.' }
+        }));
+        
         return null;
       }
     }
@@ -218,6 +303,26 @@ export const validateToken = async (): Promise<User | null> => {
     const userJson = localStorage.getItem('current-user');
     if (userJson) {
       const user = JSON.parse(userJson) as User;
+      
+      // Verify session ID is valid
+      const sessionId = localStorage.getItem('session-id');
+      const activeSessionId = activeSessions.get(user.id);
+      
+      if (!sessionId || sessionId !== activeSessionId) {
+        // Session is invalid (user logged in elsewhere)
+        localStorage.removeItem('auth-token');
+        localStorage.removeItem('current-user');
+        localStorage.removeItem('ey-session-expiry');
+        localStorage.removeItem('session-id');
+        
+        // Trigger session expired event
+        window.dispatchEvent(new CustomEvent('session-expired', { 
+          detail: { message: 'Your session was ended because you logged in elsewhere.' }
+        }));
+        
+        return null;
+      }
+      
       console.log('Token validation successful (mock)', user);
       return user;
     }
@@ -237,6 +342,20 @@ export const logoutUser = async (): Promise<void> => {
   try {
     console.log("Logout started");
     const token = localStorage.getItem('auth-token');
+    const userJson = localStorage.getItem('current-user');
+    
+    if (userJson) {
+      const user = JSON.parse(userJson) as User;
+      
+      // Save selected agents before logout
+      const selectedAgents = localStorage.getItem('user-selected-agents');
+      if (selectedAgents) {
+        localStorage.setItem(`user-${user.id}-selected-agents`, selectedAgents);
+      }
+      
+      // Remove from active sessions
+      activeSessions.delete(user.id);
+    }
     
     if (token) {
       // For backend integration, uncomment this:
@@ -253,6 +372,7 @@ export const logoutUser = async (): Promise<void> => {
     localStorage.removeItem('auth-token');
     localStorage.removeItem('current-user');
     localStorage.removeItem('ey-session-expiry');
+    localStorage.removeItem('session-id');
     
     console.log('Logout successful - localStorage cleared');
   } catch (error) {
@@ -262,6 +382,7 @@ export const logoutUser = async (): Promise<void> => {
     localStorage.removeItem('auth-token');
     localStorage.removeItem('current-user');
     localStorage.removeItem('ey-session-expiry');
+    localStorage.removeItem('session-id');
     
     throw error;
   }

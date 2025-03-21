@@ -1,69 +1,119 @@
-# Welcome to your Lovable project
 
-## Project info
+# EY Steel Ecosystem Co-Pilot
 
-**URL**: https://lovable.dev/projects/16f7f54e-07e3-4ed5-89b0-978da65abe0d
+An AI-powered platform for steel operations analytics, providing insights and management tools for various aspects of the steel industry.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Enterprise-Grade Analytics**: Real-time insights into steel manufacturing processes
+- **AI-Powered Optimization**: Machine learning algorithms to improve efficiency and reduce costs
+- **Predictive Maintenance**: Detect equipment issues before they cause downtime
+- **Secure Authentication**: Role-based access control with multi-layer security
 
-**Use Lovable**
+## Security Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/16f7f54e-07e3-4ed5-89b0-978da65abe0d) and start prompting.
+- Role-based access control with specific module and agent permissions
+- Session timeout and automatic logout for inactive users
+- Single-session enforcement (prevents multiple logins with the same account)
+- Cross-tab session synchronization
+- Persistent user preferences and selections
+- Secure token storage and validation
+- Access restriction visualizations and clear permission boundaries
 
-Changes made via Lovable will be committed automatically to this repo.
+## Modules
 
-**Use your preferred IDE**
+- Demand Planning
+- Supply Planning
+- Order Promising
+- Factory Planning
+- Inventory Optimization
+- Risk Management
+- and more...
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## AI Agents
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+The platform includes specialized AI agents that provide domain-specific assistance with:
+- Supply chain optimization
+- Demand forecasting
+- Production scheduling
+- Risk assessment
+- and more...
 
-Follow these steps:
+## Getting Started
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Prerequisites
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- Node.js v16 or higher
+- npm or yarn
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Installation
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+1. Clone the repository
+2. Install dependencies: `npm install` or `yarn install`
+3. Start the development server: `npm run dev` or `yarn dev`
+
+### Access Control
+
+The application uses role-based access control to determine which modules and AI agents a user can access. The following roles are available:
+
+- **Admin**: Full access to all modules and agents
+- **User**: Access determined by their specific permission sets
+
+Each user is assigned:
+- A list of allowed modules (e.g., 'demand-planning', 'supply-planning')
+- A list of allowed agent IDs they can interact with
+
+### Authentication
+
+For the demo, the application uses a mock authentication system with predefined users:
+
+- **Admin**: admin@example.com / admin123
+- **Regular User**: user@example.com / user123
+- **Manager**: manager@example.com / manager123
+- **Analyst**: analyst@example.com / analyst123
+- **Planner**: planner@example.com / planner123
+
+In a production environment, this would be replaced with a real authentication backend.
+
+## Session Management
+
+The application implements several security measures for session management:
+
+1. **Session Timeout**: Users are automatically logged out after 30 minutes of inactivity
+2. **Single Session Enforcement**: Users can only be logged in from one browser/tab at a time
+3. **Cross-Tab Synchronization**: Logging out in one tab logs out all tabs
+4. **Persistent User Preferences**: User selections are saved between sessions
+
+## Development
+
+### Folder Structure
+
+```
+src/
+├── components/     # UI components
+├── context/        # React context providers
+├── hooks/          # Custom React hooks
+├── pages/          # Page components
+├── services/       # API and service functions
+├── types/          # TypeScript type definitions
+└── utils/          # Utility functions
 ```
 
-**Edit a file directly in GitHub**
+### Technologies
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
 - React
-- shadcn-ui
-- Tailwind CSS
+- TypeScript
+- React Router
+- Axios
+- TailwindCSS
+- shadcn/ui components
+- Lucide React icons
+- Framer Motion for animations
 
-## How can I deploy this project?
+## Backend Integration
 
-Simply open [Lovable](https://lovable.dev/projects/16f7f54e-07e3-4ed5-89b0-978da65abe0d) and click on Share -> Publish.
+The application is designed to work with a RESTful backend API. In development mode, it uses mock data and services, but these can be replaced with actual API calls when deploying to production.
 
-## I want to use a custom domain - is that possible?
+## License
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+Proprietary - All Rights Reserved
