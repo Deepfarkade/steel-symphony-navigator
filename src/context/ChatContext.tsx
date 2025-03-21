@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import websocketService from '../services/websocketService';
 import { useToast } from '@/hooks/use-toast';
@@ -57,6 +58,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isBackendAvailable, setIsBackendAvailable] = useState(false);
   const backendCheckAttempted = useRef(false);
+  const initializationInProgress = useRef(false);
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -75,15 +77,23 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     try {
       await axios.get(`${API_BASE_URL}/`, { timeout: 3000 });
       backendCheckAttempted.current = true;
+      setIsBackendAvailable(true);
       return true;
     } catch (error) {
       console.log("Backend health check failed, switching to offline mode", error);
       backendCheckAttempted.current = true;
+      setIsBackendAvailable(false);
       return false;
     }
   }, [isBackendAvailable]);
 
   const initializeSession = useCallback(async () => {
+    // Prevent multiple initializations
+    if (initializationInProgress.current) {
+      return;
+    }
+    
+    initializationInProgress.current = true;
     const token = getAuthToken();
     
     try {
@@ -91,8 +101,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       
       // Only check backend availability if not checked already
       if (!backendCheckAttempted.current) {
-        const backendAvailable = await checkBackendAvailability();
-        setIsBackendAvailable(backendAvailable);
+        await checkBackendAvailability();
       }
       
       if (isBackendAvailable && token) {
@@ -200,7 +209,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             description: "Operating in offline mode with simulated responses.",
             variant: "default"
           });
-          backendCheckAttempted.current = true;
         }
       }
       
@@ -215,7 +223,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
           description: "Operating in offline mode with simulated responses.",
           variant: "default"
         });
-        backendCheckAttempted.current = true;
       }
       
       // Fallback to mock data
@@ -252,6 +259,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       
     } finally {
       setIsLoading(false);
+      initializationInProgress.current = false;
     }
   }, [normalizedModuleContext, agentId, toast, checkBackendAvailability, getAuthToken, isBackendAvailable]);
 
@@ -262,8 +270,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       initializeSession();
     } else {
       // Check backend availability first
-      checkBackendAvailability().then(available => {
-        setIsBackendAvailable(available);
+      checkBackendAvailability().then(() => {
         initializeSession();
       });
     }

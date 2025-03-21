@@ -26,12 +26,8 @@ class WebSocketService {
 
   // Connect to WebSocket server
   connect(): void {
-    if (this.socket && (this.socket.readyState === WebSocket.OPEN || this.socket.readyState === WebSocket.CONNECTING)) {
-      return;
-    }
-    
-    // Don't attempt to connect multiple times
-    if (this.connectionAttempted) {
+    // Don't attempt to connect if already connected or connecting
+    if (this.isConnected || this.connectionAttempted) {
       return;
     }
     
@@ -85,6 +81,7 @@ class WebSocketService {
     console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
     
     this.reconnectTimer = setTimeout(() => {
+      this.connectionAttempted = false; // Reset so we can try again
       this.connect();
     }, this.reconnectTimeout);
   }
@@ -226,7 +223,14 @@ const MODULE_TABLES = {
 |----------|----------|---------|----------------|---------------|--------------|------------|
 | ORD-7845 | Acme Inc | HRC     | 350            | 2025-04-15    | 2025-04-17   | 95%        |
 | ORD-7846 | Beta Co  | CRC     | 120            | 2025-04-20    | 2025-04-22   | 90%        |
-| ORD-7850 | Delta Ltd| HDG     | 220            | 2025-04-12    | 2025-04-14   | 85%        |`
+| ORD-7850 | Delta Ltd| HDG     | 220            | 2025-04-12    | 2025-04-14   | 85%        |`,
+
+  'factory-planning': `| Production Line | Current Output (tons/day) | Target Output (tons/day) | Efficiency (%) | Downtime (hrs/week) |
+|-----------------|--------------------------|------------------------|----------------|---------------------|
+| Line Alpha      | 750                      | 800                    | 93.8%          | 4.2                 |
+| Line Beta       | 620                      | 700                    | 88.6%          | 7.8                 |
+| Line Gamma      | 840                      | 850                    | 98.8%          | 1.5                 |
+| Line Delta      | 580                      | 650                    | 89.2%          | 6.3                 |`
 };
 
 // Mock summaries for different modules
@@ -235,7 +239,9 @@ const MODULE_SUMMARIES = {
   
   'supply-planning': "The supply chain analysis shows SupplierC has the highest reliability score at 95%, though with the longest lead time of 30 days. For time-sensitive materials, SupplierA offers a good balance of reliability (92%) and shorter lead time (14 days). SupplierB has the lowest reliability score at 88% and should be monitored closely.",
   
-  'order-promising': "Order promising analysis indicates we can fulfill all current orders with high confidence levels. The order for Acme Inc has the highest confidence rating at 95%, with a delivery promise just 2 days after the requested date. Delta Ltd's order has the lowest confidence at 85% and may require additional monitoring to ensure on-time delivery."
+  'order-promising': "Order promising analysis indicates we can fulfill all current orders with high confidence levels. The order for Acme Inc has the highest confidence rating at 95%, with a delivery promise just 2 days after the requested date. Delta Ltd's order has the lowest confidence at 85% and may require additional monitoring to ensure on-time delivery.",
+  
+  'factory-planning': "Factory planning analysis shows Line Gamma is your highest performing production line at 98.8% efficiency with minimal downtime of just 1.5 hours per week. Line Alpha is operating well at 93.8% efficiency but is still below target output. Lines Beta and Delta show the most opportunity for improvement, with efficiency ratings below 90% and significant downtime hours that should be addressed."
 };
 
 // Mock next questions for different modules
@@ -254,6 +260,11 @@ const MODULE_NEXT_QUESTIONS = {
     "What's our contingency plan for Delta Ltd's order?",
     "Can we improve our delivery timeline for Acme Inc?",
     "What's our current capacity for additional orders this month?"
+  ],
+  'factory-planning': [
+    "What maintenance should we prioritize for Line Beta?",
+    "How can we optimize Line Alpha to reach target output?",
+    "What's causing the higher downtime on Line Beta?"
   ]
 };
 
