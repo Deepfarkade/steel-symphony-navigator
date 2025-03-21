@@ -100,7 +100,7 @@ export const fetchOrCreateChatSession = async (
       table_data: msg.table_data,
       summary: msg.summary,
       next_question: msg.next_question || [],
-      response_type: msg.response_type || 'text'
+      response_type: msg.response_type || 'text' // Ensure this property exists
     }));
     
     return {
@@ -148,7 +148,7 @@ export const sendMessageToApi = async (
         table_data: response.data.table_data,
         summary: response.data.summary,
         next_question: response.data.next_question || [],
-        response_type: response.data.response_type || 'text'
+        response_type: response.data.response_type || 'text' // Ensure response_type exists here
       };
     } catch (error) {
       console.error("Failed to send message to backend:", error);
@@ -166,7 +166,7 @@ export const sendMessageToApi = async (
         table_data: mockResponse.table_data,
         summary: mockResponse.summary,
         next_question: mockResponse.next_question,
-        response_type: mockResponse.response_type || 'text'
+        response_type: mockResponse.response_type || 'text' // Ensure response_type exists here
       };
     } catch (error) {
       console.error("Failed to generate mock response:", error);
