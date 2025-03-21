@@ -3,21 +3,10 @@ import { useState, useEffect } from 'react';
 import { useChatContext } from '@/context/ChatContext';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import { ChatMessage } from '@/types/chat';
+import { createWelcomeMessage } from '@/utils/chatUtils';
 
-export interface ChatMessage {
-  text: string;
-  isUser: boolean;
-  timestamp: Date;
-  table_data?: string | any; // Support for both string and structured data from MongoDB
-  summary?: string;
-  next_question?: string[];
-  id?: string;
-  session_id?: string;
-  // Additional fields to match MongoDB schema
-  sender?: 'user' | 'bot'; // MongoDB uses 'sender' instead of 'isUser'
-  response_type?: string;  // For special response types like 'sql_response'
-  df_parent?: any;         // For any parent data references
-}
+export type { ChatMessage };
 
 export const useChatSession = (moduleContext?: string, agentId?: number) => {
   const [fullscreen, setFullscreen] = useState(false);
@@ -34,15 +23,7 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
     console.log("Chat context not available, using fallback mode", { moduleContext: normalizedModuleContext, agentId });
     // Provide default values when context is not available
     return {
-      currentMessages: [{
-        id: uuidv4(),
-        text: agentId 
-          ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
-          : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${normalizedModuleContext || 'operations'} today?`,
-        isUser: false,
-        timestamp: new Date(),
-        response_type: 'greeting' // Add response_type for fallback message
-      }],
+      currentMessages: [createWelcomeMessage(agentId, normalizedModuleContext)],
       isLoading: false,
       handleSendMessage: (message: string) => {
         console.warn("Chat context not available, message not sent:", message);
@@ -69,15 +50,7 @@ export const useChatSession = (moduleContext?: string, agentId?: number) => {
   // Handle the case when current session doesn't exist yet
   const currentMessages = currentSessionId && chatSessions[currentSessionId] 
     ? chatSessions[currentSessionId] 
-    : [{
-        id: uuidv4(),
-        text: agentId 
-          ? `Hello! I'm Agent #${agentId}. How can I assist with your steel operations today?`
-          : `Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you with steel ${normalizedModuleContext || 'operations'} today?`,
-        isUser: false,
-        timestamp: new Date(),
-        response_type: 'greeting' // Add response_type for initial welcome message
-      }];
+    : [createWelcomeMessage(agentId, normalizedModuleContext)];
 
   // Count user messages to track interaction
   const messageCount = currentMessages.filter(msg => msg.isUser).length;

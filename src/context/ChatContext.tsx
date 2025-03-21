@@ -1,37 +1,27 @@
+
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import websocketService from '../services/websocketService';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './AuthContext';
-import axios from 'axios';
-import { API_BASE_URL, CHAT_ENDPOINTS } from '@/services/apiConfig';
-import { 
-  getMockChatSession, 
-  sendMockMessage, 
-  convertMessageFormat, 
-  generateSessionId 
-} from '@/services/mockChatService';
 import { v4 as uuidv4 } from 'uuid';
-
-interface ChatMessage {
-  text: string;
-  isUser: boolean;
-  timestamp: Date;
-  id?: string;
-  table_data?: string | any;
-  summary?: string;
-  next_question?: string[];
-  response_type?: string;
-  sender?: 'user' | 'bot';
-}
-
-interface ChatContextProps {
-  chatSessions: Record<string, ChatMessage[]>;
-  currentSessionId: string;
-  isLoading: boolean;
-  sendMessage: (inputText: string, sessionId?: string, moduleContext?: string, agentId?: number) => void;
-  setCurrentSessionId: (sessionId: string) => void;
-  createNewSession: (agentId?: number, moduleContext?: string) => Promise<string>;
-}
+import { generateSessionId } from '@/services/mockChatService';
+import { 
+  ChatContextProps, 
+  ChatProviderProps, 
+  ChatMessage 
+} from '@/types/chat';
+import {
+  checkBackendAvailability,
+  fetchOrCreateChatSession,
+  sendMessageToApi,
+  createNewChatSession
+} from '@/services/chatApiService';
+import {
+  normalizeModuleContext,
+  createWelcomeMessage,
+  createUserMessage,
+  createErrorMessage
+} from '@/utils/chatUtils';
 
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 
@@ -42,12 +32,6 @@ export const useChatContext = () => {
   }
   return context;
 };
-
-interface ChatProviderProps {
-  children: React.ReactNode;
-  moduleContext?: string;
-  agentId?: number;
-}
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ 
   children, 
@@ -65,29 +49,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const getAuthToken = () => localStorage.getItem('auth-token');
+  const normalizedModuleContext = normalizeModuleContext(moduleContext);
 
-  const normalizedModuleContext = moduleContext ? moduleContext.toLowerCase().replace(/\s+/g, '-') : undefined;
-
-  const checkBackendAvailability = useCallback(async () => {
+  const checkBackendHealth = useCallback(async () => {
     if (backendCheckAttempted.current) {
       return isBackendAvailable;
     }
 
-    try {
-      backendCheckAttempted.current = true;
-      console.log("Checking backend availability...");
-      
-      await axios.get(`${API_BASE_URL}/`, { timeout: 5000 });
-      
-      console.log("Backend available!");
-      setIsBackendAvailable(true);
-      return true;
-    } catch (error) {
-      console.log("Backend health check failed, switching to offline mode", error);
-      setIsBackendAvailable(false);
-      return false;
-    }
+    backendCheckAttempted.current = true;
+    const available = await checkBackendAvailability();
+    setIsBackendAvailable(available);
+    return available;
   }, [isBackendAvailable]);
 
   const initializeSession = useCallback(async () => {
@@ -98,112 +70,36 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     
     console.log("Starting session initialization...");
     initializationInProgress.current = true;
-    const token = getAuthToken();
     
     try {
       setIsLoading(true);
       
       if (!backendCheckAttempted.current) {
-        await checkBackendAvailability();
+        await checkBackendHealth();
       }
       
-      if (isBackendAvailable && token) {
-        let sessionResponse;
-        let endpointPath;
+      try {
+        const session = await fetchOrCreateChatSession(
+          normalizedModuleContext, 
+          agentId, 
+          isBackendAvailable
+        );
         
-        if (normalizedModuleContext) {
-          endpointPath = `/api/v1/chat/module/${normalizedModuleContext}`;
-          console.log(`Fetching module chat session for ${normalizedModuleContext} from ${endpointPath}`);
-          
-          try {
-            sessionResponse = await axios.get(`${API_BASE_URL}${endpointPath}`, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-          } catch (error) {
-            console.error(`Failed to fetch module chat session: ${error}`);
-            throw error;
-          }
-        } else if (agentId) {
-          endpointPath = `/api/v1/agents/${agentId}/chat`;
-          console.log(`Fetching agent chat session for agent ${agentId} from ${endpointPath}`);
-          
-          try {
-            sessionResponse = await axios.get(`${API_BASE_URL}${endpointPath}`, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-          } catch (error) {
-            console.error(`Failed to fetch agent chat session: ${error}`);
-            throw error;
-          }
-        } else {
-          endpointPath = `/api/v1/chat/sessions`;
-          console.log(`Creating new general chat session at ${endpointPath}`);
-          
-          try {
-            const createResponse = await axios.post(`${API_BASE_URL}${endpointPath}`, {
-              module: null,
-              agent_id: null,
-              metadata: {}
-            }, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-            sessionResponse = { data: createResponse.data };
-          } catch (error) {
-            console.error(`Failed to create general chat session: ${error}`);
-            throw error;
-          }
-        }
-        
-        const sessionData = sessionResponse.data;
-        console.log("Received session data:", sessionData);
-        
-        if (!sessionData || !sessionData.id) {
-          console.error("Invalid session data received:", sessionData);
-          throw new Error("Invalid session data");
-        }
-        
-        setCurrentSessionId(sessionData.id);
-        
-        const messages: ChatMessage[] = (sessionData.messages || []).map((msg: any) => ({
-          id: msg.id || uuidv4(),
-          text: msg.text,
-          isUser: msg.sender === "user",
-          timestamp: new Date(msg.timestamp),
-          table_data: msg.table_data,
-          summary: msg.summary,
-          next_question: msg.next_question || [],
-          response_type: msg.response_type || 'text'
-        }));
-        
+        setCurrentSessionId(session.id);
         setChatSessions({
-          [sessionData.id]: messages
+          [session.id]: session.messages
         });
         
-      } else {
-        console.log("Using mock data for chat session", { moduleContext: normalizedModuleContext, agentId });
-        const mockSession = getMockChatSession(normalizedModuleContext, agentId);
-        
-        if (!mockSession || !mockSession.id) {
-          console.error("Invalid mock session:", mockSession);
-          throw new Error("Failed to create mock session");
+        if (!isBackendAvailable && !backendCheckAttempted.current) {
+          toast({
+            title: "Offline Mode Activated",
+            description: "Operating in offline mode with simulated responses.",
+            variant: "default"
+          });
         }
-        
-        setCurrentSessionId(mockSession.id);
-        
-        const messages: ChatMessage[] = mockSession.messages.map((msg: any) => ({
-          id: msg.id || uuidv4(),
-          text: msg.text,
-          isUser: msg.isUser,
-          timestamp: new Date(msg.timestamp || Date.now()),
-          table_data: msg.table_data,
-          summary: msg.summary,
-          next_question: msg.next_question || [],
-          response_type: msg.response_type || 'text'
-        }));
-        
-        setChatSessions({
-          [mockSession.id]: messages
-        });
+      } catch (error) {
+        console.error("Failed to initialize chat session:", error);
+        setIsBackendAvailable(false);
         
         if (!backendCheckAttempted.current) {
           toast({
@@ -212,52 +108,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
             variant: "default"
           });
         }
-      }
-      
-      initializationComplete.current = true;
-      
-    } catch (error) {
-      console.error("Failed to initialize chat session:", error);
-      setIsBackendAvailable(false);
-      
-      if (!backendCheckAttempted.current) {
-        toast({
-          title: "Offline Mode Activated",
-          description: "Operating in offline mode with simulated responses.",
-          variant: "default"
-        });
-      }
-      
-      const mockSession = getMockChatSession(normalizedModuleContext, agentId);
-      
-      if (!mockSession || !mockSession.id) {
-        console.error("Invalid mock session after fallback:", mockSession);
-        const fallbackSessionId = generateSessionId();
         
-        const defaultMessage = {
-          id: uuidv4(),
-          text: "Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you today?",
-          isUser: false,
-          timestamp: new Date(),
-          response_type: 'greeting'
-        };
-        
-        setChatSessions({ [fallbackSessionId]: [defaultMessage] });
-        setCurrentSessionId(fallbackSessionId);
-      } else {
-        const messages: ChatMessage[] = mockSession.messages.map((msg: any) => ({
-          id: msg.id || uuidv4(),
-          text: msg.text,
-          isUser: msg.isUser,
-          timestamp: new Date(msg.timestamp || Date.now()),
-          table_data: msg.table_data,
-          summary: msg.summary,
-          next_question: msg.next_question || [],
-          response_type: msg.response_type || 'text'
-        }));
-        
-        setChatSessions({ [mockSession.id]: messages });
-        setCurrentSessionId(mockSession.id);
+        try {
+          const fallbackSessionId = generateSessionId();
+          const defaultMessage = createWelcomeMessage(agentId, normalizedModuleContext);
+          
+          setChatSessions({ [fallbackSessionId]: [defaultMessage] });
+          setCurrentSessionId(fallbackSessionId);
+        } catch (fallbackError) {
+          console.error("Even fallback initialization failed:", fallbackError);
+        }
       }
       
       initializationComplete.current = true;
@@ -267,18 +127,18 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       initializationInProgress.current = false;
       console.log("Session initialization completed");
     }
-  }, [normalizedModuleContext, agentId, toast, checkBackendAvailability, getAuthToken, isBackendAvailable]);
+  }, [normalizedModuleContext, agentId, toast, checkBackendHealth, isBackendAvailable]);
 
   useEffect(() => {
-    const token = getAuthToken();
+    const token = localStorage.getItem('auth-token');
     if (token || backendCheckAttempted.current) {
       initializeSession();
     } else {
-      checkBackendAvailability().then(() => {
+      checkBackendHealth().then(() => {
         initializeSession();
       });
     }
-  }, [initializeSession, checkBackendAvailability]);
+  }, [initializeSession, checkBackendHealth]);
 
   useEffect(() => {
     if (websocketInitialized.current) {
@@ -326,10 +186,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
 
     const unsubscribeConnect = websocketService.onConnect(() => {
       console.log("WebSocket connected in ChatContext");
-      /* toast({
-        title: "Connected to AI Co-Pilot",
-        description: "Real-time AI assistance is now available.",
-      }); */
     });
 
     return () => {
@@ -340,7 +196,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
   }, [toast, normalizedModuleContext, agentId, currentSessionId]);
 
   const sendMessage = async (inputText: string, sessionId?: string, moduleContext?: string, agentId?: number) => {
-    const token = getAuthToken();
     const targetSessionId = sessionId || currentSessionId;
     
     if (!targetSessionId) {
@@ -348,7 +203,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       return;
     }
     
-    const normalizedModule = moduleContext ? moduleContext.toLowerCase().replace(/\s+/g, '-') : normalizedModuleContext;
+    const normalizedModule = normalizeModuleContext(moduleContext) || normalizedModuleContext;
     
     console.log("Sending message:", {
       text: inputText,
@@ -357,13 +212,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
       agentId
     });
     
-    const userMessage: ChatMessage = {
-      id: uuidv4(),
-      text: inputText,
-      isUser: true,
-      timestamp: new Date(),
-      response_type: 'user_message'
-    };
+    const userMessage = createUserMessage(inputText);
 
     setChatSessions(prev => {
       const sessionMessages = prev[targetSessionId] || [];
@@ -375,288 +224,81 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({
     
     setIsLoading(true);
 
-    if (isBackendAvailable && token) {
-      try {
-        console.log(`Sending message to session ${targetSessionId}`);
-        
-        const sendEndpoint = `/api/v1/chat/${targetSessionId}/send`;
-        
-        const response = await axios.post(`${API_BASE_URL}${sendEndpoint}`, {
-          text: inputText
-        }, {
-          headers: { Authorization: `Bearer ${token}` },
-          timeout: 10000
-        });
-        
-        if (!response.data) {
-          throw new Error("Empty response from backend");
-        }
-        
-        console.log("Received response:", response.data);
-        
-        const aiMessage: ChatMessage = {
-          id: response.data.id || uuidv4(),
-          text: response.data.text,
-          isUser: false,
-          timestamp: new Date(response.data.timestamp),
-          table_data: response.data.table_data,
-          summary: response.data.summary,
-          next_question: response.data.next_question || [],
-          response_type: response.data.response_type || 'text'
+    try {
+      const channelName = `chat${normalizedModule ? `-${normalizedModule}` : agentId ? `-agent-${agentId}` : ''}`;
+      
+      websocketService.sendMessage(channelName, { 
+        text: inputText,
+        moduleContext: normalizedModule,
+        agentId,
+        sessionId: targetSessionId,
+        timestamp: new Date().toISOString(),
+        isUser: true
+      });
+      
+      const aiMessage = await sendMessageToApi(
+        inputText, 
+        targetSessionId, 
+        normalizedModule, 
+        agentId, 
+        isBackendAvailable
+      );
+      
+      setChatSessions(prev => {
+        const sessionMessages = prev[targetSessionId] || [];
+        return {
+          ...prev,
+          [targetSessionId]: [...sessionMessages, aiMessage]
         };
-        
-        setChatSessions(prev => {
-          const sessionMessages = prev[targetSessionId] || [];
-          return {
-            ...prev,
-            [targetSessionId]: [...sessionMessages, aiMessage]
-          };
-        });
-        setIsLoading(false);
-        
-      } catch (error) {
-        console.error("Failed to send message to backend, falling back to mock data:", error);
-        
-        try {
-          const channelName = `chat${normalizedModule ? `-${normalizedModule}` : agentId ? `-agent-${agentId}` : ''}`;
-          
-          websocketService.sendMessage(channelName, { 
-            text: inputText,
-            moduleContext: normalizedModule,
-            agentId,
-            sessionId: targetSessionId,
-            timestamp: new Date().toISOString(),
-            isUser: true
-          });
-        } catch (wsError) {
-          console.error("WebSocket send failed:", wsError);
-        }
-        
-        try {
-          const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
-          
-          setChatSessions(prev => {
-            const sessionMessages = prev[targetSessionId] || [];
-            const updatedMessage = {
-              id: mockResponse.id || uuidv4(),
-              text: mockResponse.text,
-              isUser: false,
-              timestamp: new Date(),
-              table_data: mockResponse.table_data,
-              summary: mockResponse.summary,
-              next_question: mockResponse.next_question,
-              response_type: mockResponse.response_type || 'text'
-            };
-            
-            return {
-              ...prev,
-              [targetSessionId]: [...sessionMessages, updatedMessage]
-            };
-          });
-          
-          setIsLoading(false);
-        } catch (mockError) {
-          console.error("Failed to generate mock response:", mockError);
-          
-          setChatSessions(prev => {
-            const sessionMessages = prev[targetSessionId] || [];
-            const errorMessage = {
-              id: uuidv4(),
-              text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
-              isUser: false,
-              timestamp: new Date(),
-              response_type: 'error'
-            };
-            
-            return {
-              ...prev,
-              [targetSessionId]: [...sessionMessages, errorMessage]
-            };
-          });
-          
-          setIsLoading(false);
-        }
-      }
-    } else {
-      try {
-        setTimeout(async () => {
-          try {
-            const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
-            
-            setChatSessions(prev => {
-              const sessionMessages = prev[targetSessionId] || [];
-              const updatedMessage = {
-                id: mockResponse.id || uuidv4(),
-                text: mockResponse.text,
-                isUser: false,
-                timestamp: new Date(),
-                table_data: mockResponse.table_data,
-                summary: mockResponse.summary,
-                next_question: mockResponse.next_question,
-                response_type: mockResponse.response_type || 'text'
-              };
-              
-              return {
-                ...prev,
-                [targetSessionId]: [...sessionMessages, updatedMessage]
-              };
-            });
-          } catch (error) {
-            console.error("Failed to generate mock response:", error);
-            
-            setChatSessions(prev => {
-              const sessionMessages = prev[targetSessionId] || [];
-              const errorMessage = {
-                id: uuidv4(),
-                text: "I'm sorry, I couldn't process your request at the moment. Please try again later.",
-                isUser: false,
-                timestamp: new Date(),
-                response_type: 'error'
-              };
-              
-              return {
-                ...prev,
-                [targetSessionId]: [...sessionMessages, errorMessage]
-              };
-            });
-          } finally {
-            setIsLoading(false);
-          }
-        }, 1000);
-      } catch (error) {
-        console.error("Failed to generate mock response:", error);
-        setIsLoading(false);
-      }
+      });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      
+      setChatSessions(prev => {
+        const sessionMessages = prev[targetSessionId] || [];
+        return {
+          ...prev,
+          [targetSessionId]: [...sessionMessages, createErrorMessage()]
+        };
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const createNewSession = async (agentId?: number, moduleContext?: string): Promise<string> => {
-    const token = getAuthToken();
-    const normalizedModule = moduleContext ? moduleContext.toLowerCase().replace(/\s+/g, '-') : undefined;
-    
     try {
       setIsLoading(true);
       
-      if (isBackendAvailable && token) {
-        const endpoint = `/api/v1/chat/sessions`;
-        console.log(`Creating new session at ${endpoint}`, { module: normalizedModule, agent_id: agentId });
-        
-        try {
-          const response = await axios.post(`${API_BASE_URL}${endpoint}`, {
-            module: normalizedModule,
-            agent_id: agentId,
-            metadata: {}
-          }, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          
-          if (!response.data || !response.data.id) {
-            throw new Error("Invalid session data in response");
-          }
-          
-          const newSessionId = response.data.id;
-          
-          const welcomeMessages = (response.data.messages || []).map((msg: any) => ({
-            id: msg.id || uuidv4(),
-            text: msg.text,
-            isUser: msg.sender === "user",
-            timestamp: new Date(msg.timestamp),
-            table_data: msg.table_data,
-            summary: msg.summary,
-            next_question: msg.next_question || [],
-            response_type: msg.response_type || 'greeting'
-          }));
-          
-          setChatSessions(prev => ({
-            ...prev,
-            [newSessionId]: welcomeMessages
-          }));
-          
-          setCurrentSessionId(newSessionId);
-          return newSessionId;
-        } catch (error) {
-          console.error(`Failed to create new session via API: ${error}`);
-          throw error;
-        }
-      } else {
-        const mockSession = getMockChatSession(normalizedModule, agentId);
-        
-        if (!mockSession || !mockSession.id) {
-          console.error("Invalid mock session in fallback");
-          const fallbackSessionId = generateSessionId();
-          setChatSessions(prev => ({
-            ...prev,
-            [fallbackSessionId]: [{
-              id: uuidv4(),
-              text: "Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you today?",
-              isUser: false,
-              timestamp: new Date(),
-              response_type: 'greeting'
-            }]
-          }));
-          
-          setCurrentSessionId(fallbackSessionId);
-          return fallbackSessionId;
-        }
+      const normalizedModule = normalizeModuleContext(moduleContext);
+      
+      try {
+        const newSession = await createNewChatSession(
+          normalizedModule, 
+          agentId, 
+          isBackendAvailable
+        );
         
         setChatSessions(prev => ({
           ...prev,
-          [mockSession.id]: mockSession.messages.map((msg: any) => ({
-            id: msg.id || uuidv4(),
-            text: msg.text,
-            isUser: msg.isUser,
-            timestamp: new Date(msg.timestamp || Date.now()),
-            table_data: msg.table_data,
-            summary: msg.summary,
-            next_question: msg.next_question || [],
-            response_type: msg.response_type || 'text'
-          }))
+          [newSession.id]: newSession.messages
         }));
         
-        setCurrentSessionId(mockSession.id);
-        return mockSession.id;
-      }
-      
-    } catch (error) {
-      console.error("Failed to create new session:", error);
-      setIsBackendAvailable(false);
-      
-      const mockSession = getMockChatSession(normalizedModule, agentId);
-      
-      if (!mockSession || !mockSession.id) {
-        console.error("Invalid mock session in fallback");
+        setCurrentSessionId(newSession.id);
+        return newSession.id;
+      } catch (error) {
+        console.error("Failed to create new session:", error);
+        setIsBackendAvailable(false);
+        
         const fallbackSessionId = generateSessionId();
         setChatSessions(prev => ({
           ...prev,
-          [fallbackSessionId]: [{
-            id: uuidv4(),
-            text: "Hello! I'm your EY Steel Ecosystem Co-Pilot. How can I help you today?",
-            isUser: false,
-            timestamp: new Date(),
-            response_type: 'greeting'
-          }]
+          [fallbackSessionId]: [createWelcomeMessage(agentId, normalizedModule)]
         }));
         
         setCurrentSessionId(fallbackSessionId);
         return fallbackSessionId;
       }
-      
-      setChatSessions(prev => ({
-        ...prev,
-        [mockSession.id]: mockSession.messages.map((msg: any) => ({
-          id: msg.id || uuidv4(),
-          text: msg.text,
-          isUser: msg.isUser,
-          timestamp: new Date(msg.timestamp || Date.now()),
-          table_data: msg.table_data,
-          summary: msg.summary,
-          next_question: msg.next_question || [],
-          response_type: msg.response_type || 'text'
-        }))
-      }));
-      
-      setCurrentSessionId(mockSession.id);
-      return mockSession.id;
     } finally {
       setIsLoading(false);
     }
