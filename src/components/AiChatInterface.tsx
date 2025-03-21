@@ -32,6 +32,9 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   const [localFullscreen, setLocalFullscreen] = useState(false);
   const navigate = useNavigate();
 
+  // Normalize module context to handle spaces correctly
+  const normalizedModuleContext = moduleContext ? moduleContext.toLowerCase().replace(/\s+/g, '-') : undefined;
+
   useEffect(() => {
     if (propIsOpen !== undefined) {
       setIsDrawerOpen(propIsOpen);
@@ -62,8 +65,8 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
     // Navigate to the appropriate chat page
     if (agentId) {
       navigate(`/agent/${agentId}`);
-    } else if (moduleContext) {
-      navigate(`/chat/${moduleContext}`);
+    } else if (normalizedModuleContext) {
+      navigate(`/chat/${normalizedModuleContext}`);
     } else {
       navigate('/chat');
     }
@@ -87,7 +90,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
       setFullscreen,
       toggleFullscreen,
       messageCount
-    } = useChatSession(moduleContext, agentId);
+    } = useChatSession(normalizedModuleContext, agentId);
 
     // Sync hook state with local state
     useEffect(() => {
@@ -136,7 +139,7 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
   // Render the chat interface based on whether it's floating or not
   if (!floating) {
     return (
-      <ChatProvider moduleContext={moduleContext} agentId={agentId}>
+      <ChatProvider moduleContext={normalizedModuleContext} agentId={agentId}>
         <div className={`${localFullscreen ? 'fixed inset-0 z-50 bg-white' : 'w-full h-full'}`}>
           <ChatInterface />
         </div>
@@ -160,14 +163,14 @@ const AiChatInterface: React.FC<AiChatInterfaceProps> = ({
 
       {localFullscreen ? (
         <div className="fixed inset-0 z-50 bg-white">
-          <ChatProvider moduleContext={moduleContext} agentId={agentId}>
+          <ChatProvider moduleContext={normalizedModuleContext} agentId={agentId}>
             <ChatInterface />
           </ChatProvider>
         </div>
       ) : (
         <Drawer open={isDrawerOpen} onOpenChange={handleOpenChange}>
           <DrawerContent className="p-0 max-h-[90vh]">
-            <ChatProvider moduleContext={moduleContext} agentId={agentId}>
+            <ChatProvider moduleContext={normalizedModuleContext} agentId={agentId}>
               <ChatInterface />
             </ChatProvider>
           </DrawerContent>
