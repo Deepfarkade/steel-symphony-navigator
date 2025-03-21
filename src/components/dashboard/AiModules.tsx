@@ -64,6 +64,7 @@ const AiModules: React.FC = () => {
             description="AI-powered steel demand forecasting with multiple prediction models" 
             icon={<BarChart3 className="h-6 w-6 text-ey-darkGray" />} 
             path="/demand-planning" 
+            moduleId="demand-planning"
             completed="85"
           />
         </motion.div>
@@ -73,6 +74,7 @@ const AiModules: React.FC = () => {
             description="End-to-end steel supply network visualization and optimization" 
             icon={<Orbit className="h-6 w-6 text-ey-darkGray" />} 
             path="/supply-planning"
+            moduleId="supply-planning"
             color="bg-blue-100" 
             completed="92"
           />
@@ -83,6 +85,7 @@ const AiModules: React.FC = () => {
             description="Dynamic ATP calculations for steel products and delivery prediction" 
             icon={<ClipboardList className="h-6 w-6 text-ey-darkGray" />} 
             path="/order-promising"
+            moduleId="order-promising"
             color="bg-green-100" 
             completed="78"
           />
@@ -93,6 +96,7 @@ const AiModules: React.FC = () => {
             description="Steel production scheduling optimization and resource allocation" 
             icon={<Factory className="h-6 w-6 text-ey-darkGray" />} 
             path="/factory-planning"
+            moduleId="factory-planning"
             color="bg-purple-100" 
             completed="64"
           />
@@ -103,6 +107,7 @@ const AiModules: React.FC = () => {
             description="Multi-echelon inventory optimization for raw materials and finished steel products" 
             icon={<Package className="h-6 w-6 text-ey-darkGray" />} 
             path="/inventory-optimization"
+            moduleId="inventory-optimization"
             color="bg-orange-100" 
             completed="73"
           />
@@ -113,6 +118,7 @@ const AiModules: React.FC = () => {
             description="AI-powered pricing recommendations for liquidation of excess inventory" 
             icon={<Box className="h-6 w-6 text-ey-darkGray" />} 
             path="/inventory-liquidation"
+            moduleId="inventory-liquidation"
             color="bg-red-100" 
             completed="56"
           />
@@ -123,6 +129,7 @@ const AiModules: React.FC = () => {
             description="Route optimization for heavy steel transport and carrier selection" 
             icon={<Truck className="h-6 w-6 text-ey-darkGray" />} 
             path="/logistics"
+            moduleId="logistics"
             color="bg-indigo-100" 
             completed="81"
           />
@@ -133,6 +140,7 @@ const AiModules: React.FC = () => {
             description="Steel supply chain risk identification and proactive mitigation recommendations" 
             icon={<AlertTriangle className="h-6 w-6 text-ey-darkGray" />} 
             path="/risk-management"
+            moduleId="risk-management"
             color="bg-yellow-100" 
             completed="68"
           />
@@ -143,6 +151,7 @@ const AiModules: React.FC = () => {
             description="Customizable dashboards and AI-generated narrative insights" 
             icon={<Database className="h-6 w-6 text-ey-darkGray" />} 
             path="/analytics"
+            moduleId="analytics"
             color="bg-teal-100" 
             completed="90"
           />
