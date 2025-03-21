@@ -31,8 +31,9 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ isCollapsed }) => {
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
+    // Simply call logout without trying to navigate afterward
+    // The navigation is handled within the logout function in AuthContext
     logout();
-    navigate('/login');
   };
 
   return (

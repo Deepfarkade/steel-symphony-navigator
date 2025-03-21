@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { checkAuthStatus, logoutUser } from '../services/authService';
@@ -98,16 +97,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [location.pathname, navigate, isSSOCallback]);
   
-  const logout = () => {
-    logoutUser();
-    setUser(null);
-    localStorage.removeItem('ey-session-expiry');
-    
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-    navigate('/login');
+  const logout = async () => {
+    try {
+      // First call logoutUser to clear tokens and storage
+      await logoutUser();
+      
+      // Then update state
+      setUser(null);
+      localStorage.removeItem('ey-session-expiry');
+      
+      // Display toast notification
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      });
+      
+      // Navigate to login page - doing this last ensures all cleanup is done first
+      navigate('/login');
+      
+      console.log("Logout completed successfully");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Force navigation to login even if there was an error
+      navigate('/login');
+    }
   };
   
   const initiateSSO = (provider: SSOProvider) => {

@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import { AUTH_ENDPOINTS, API_CONFIG } from './apiConfig';
 import { User } from '@/types/auth';
@@ -236,6 +235,7 @@ export const validateToken = async (): Promise<User | null> => {
  */
 export const logoutUser = async (): Promise<void> => {
   try {
+    console.log("Logout started");
     const token = localStorage.getItem('auth-token');
     
     if (token) {
@@ -246,6 +246,7 @@ export const logoutUser = async (): Promise<void> => {
       //     Authorization: `Bearer ${token}`
       //   }
       // });
+      console.log("Logout API would be called here");
     }
     
     // Clear auth data
@@ -253,7 +254,7 @@ export const logoutUser = async (): Promise<void> => {
     localStorage.removeItem('current-user');
     localStorage.removeItem('ey-session-expiry');
     
-    console.log('Logout successful');
+    console.log('Logout successful - localStorage cleared');
   } catch (error) {
     console.error('Logout error:', error);
     
