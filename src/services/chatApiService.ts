@@ -156,8 +156,10 @@ export const sendMessageToApi = async (
     }
   } else {
     try {
+      // The issue is here - we need to ensure the mock response has response_type property
       const mockResponse = await sendMockMessage(inputText, normalizedModule, agentId);
       
+      // Explicitly define the structure of the returned object and ensure response_type is included
       return {
         id: mockResponse.id || uuidv4(),
         text: mockResponse.text,
@@ -165,8 +167,8 @@ export const sendMessageToApi = async (
         timestamp: new Date(),
         table_data: mockResponse.table_data,
         summary: mockResponse.summary,
-        next_question: mockResponse.next_question,
-        response_type: mockResponse.response_type || 'text' // Ensure response_type exists here
+        next_question: mockResponse.next_question || [],
+        response_type: mockResponse.response_type || 'text' // Provide a default value if it doesn't exist
       };
     } catch (error) {
       console.error("Failed to generate mock response:", error);
