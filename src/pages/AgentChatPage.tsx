@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { ArrowLeft, BrainCircuit, Zap, Activity } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, BrainCircuit, Zap, Activity, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import Header from '../components/Header';
@@ -11,6 +11,17 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/AuthContext';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog';
 
 interface AgentParams {
   [key: string]: string;
@@ -31,11 +42,20 @@ const AgentChatPage = () => {
   const [analytics, setAnalytics] = useState<any>(null);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAccessDeniedDialog, setShowAccessDeniedDialog] = useState(false);
   const { theme } = useTheme();
+  const { hasAgentAccess } = useAuth();
+  const navigate = useNavigate();
   
   useEffect(() => {
     const fetchAgentData = async () => {
       if (!agentId) return;
+      
+      // Check if user has access to this agent
+      if (!hasAgentAccess(Number(agentId))) {
+        setShowAccessDeniedDialog(true);
+        return;
+      }
       
       setLoading(true);
       try {
@@ -78,7 +98,45 @@ const AgentChatPage = () => {
     };
     
     fetchAgentData();
-  }, [agentId]);
+  }, [agentId, hasAgentAccess]);
+
+  const handleAccessDeniedClose = () => {
+    setShowAccessDeniedDialog(false);
+    navigate('/agents');
+  };
+
+  if (showAccessDeniedDialog) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div data-main-content className="ml-[256px] p-8 transition-all duration-300">
+          <AlertDialog open={showAccessDeniedDialog} onOpenChange={handleAccessDeniedClose}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2 text-amber-700">
+                  <AlertTriangle className="h-5 w-5" />
+                  Access Restricted
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  You don't have permission to access this agent.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="p-4 bg-amber-50 rounded-md">
+                <p className="text-sm text-amber-800">
+                  This agent requires special permission. Please contact your administrator to request access.
+                </p>
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogAction onClick={handleAccessDeniedClose}>
+                  Return to Agents
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

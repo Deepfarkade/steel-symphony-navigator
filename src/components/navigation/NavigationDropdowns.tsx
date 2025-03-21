@@ -6,7 +6,8 @@ import {
   PieChart, 
   AlertTriangle, 
   BrainCircuit, 
-  FileWarning 
+  FileWarning,
+  LockKeyhole 
 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import SidebarDropdown from '../sidebar/SidebarDropdown';
@@ -14,6 +15,7 @@ import SidebarItem from '../sidebar/SidebarItem';
 import { getIconComponent } from '@/utils/iconUtils';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const SupplyChainDropdown: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
   const location = useLocation();
@@ -28,7 +30,57 @@ export const SupplyChainDropdown: React.FC<{ isCollapsed: boolean }> = ({ isColl
                    location.pathname.includes('/inventory-liquidation') || 
                    location.pathname.includes('/logistics');
   
-  // Only show dropdown if user has access to at least one module
+  // Helper function to create module items with access indicators
+  const renderModuleItem = (title: string, moduleId: string, icon: React.ReactNode) => {
+    const hasAccess = hasModuleAccess(moduleId);
+    
+    const moduleContent = (
+      <SidebarItem
+        title={title}
+        icon={icon}
+        to={`/${moduleId}`}
+        isCollapsed={isCollapsed}
+        theme={theme}
+      />
+    );
+    
+    if (!hasAccess && !isCollapsed) {
+      return (
+        <div className="relative">
+          {moduleContent}
+          <div className="absolute top-2 right-2 bg-amber-600 text-white px-1.5 py-0.5 rounded-md text-xs flex items-center">
+            <LockKeyhole className="h-2.5 w-2.5 mr-0.5" />
+            <span className="text-[10px]">Restricted</span>
+          </div>
+        </div>
+      );
+    }
+    
+    if (!hasAccess && isCollapsed) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="relative">
+                {moduleContent}
+                <div className="absolute top-1 right-1 h-2 w-2 bg-amber-600 rounded-full"></div>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <div className="flex items-center">
+                <LockKeyhole className="h-3 w-3 mr-1 text-amber-600" />
+                <span className="text-xs">Restricted Access</span>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+    
+    return moduleContent;
+  };
+  
+  // Only show dropdown if user has access to at least one module or is an admin
   const hasAnyModuleAccess = 
     hasModuleAccess('demand-planning') ||
     hasModuleAccess('supply-planning') ||
@@ -49,74 +101,46 @@ export const SupplyChainDropdown: React.FC<{ isCollapsed: boolean }> = ({ isColl
       theme={theme}
     >
       <div className="py-2 space-y-1">
-        {hasModuleAccess('demand-planning') && (
-          <SidebarItem
-            title="Demand Planning"
-            icon={<BarChart3 className="h-5 w-5 text-green-500" />}
-            to="/demand-planning"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
+        {renderModuleItem(
+          "Demand Planning",
+          "demand-planning",
+          <BarChart3 className="h-5 w-5 text-green-500" />
         )}
         
-        {hasModuleAccess('supply-planning') && (
-          <SidebarItem
-            title="Supply Planning"
-            icon={getIconComponent('truck', "h-5 w-5 text-green-500")}
-            to="/supply-planning"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
+        {renderModuleItem(
+          "Supply Planning",
+          "supply-planning",
+          getIconComponent('truck', "h-5 w-5 text-green-500")
         )}
         
-        {hasModuleAccess('order-promising') && (
-          <SidebarItem
-            title="Order Promising"
-            icon={getIconComponent('package-check', "h-5 w-5 text-green-500")}
-            to="/order-promising"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
+        {renderModuleItem(
+          "Order Promising",
+          "order-promising",
+          getIconComponent('package-check', "h-5 w-5 text-green-500")
         )}
         
-        {hasModuleAccess('factory-planning') && (
-          <SidebarItem
-            title="Factory Planning"
-            icon={getIconComponent('factory', "h-5 w-5 text-green-500")}
-            to="/factory-planning"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
+        {renderModuleItem(
+          "Factory Planning",
+          "factory-planning",
+          getIconComponent('factory', "h-5 w-5 text-green-500")
         )}
         
-        {hasModuleAccess('inventory-optimization') && (
-          <SidebarItem
-            title="Inventory Optimization"
-            icon={getIconComponent('gantt-chart', "h-5 w-5 text-green-500")}
-            to="/inventory-optimization"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
+        {renderModuleItem(
+          "Inventory Optimization",
+          "inventory-optimization",
+          getIconComponent('gantt-chart', "h-5 w-5 text-green-500")
         )}
         
-        {hasModuleAccess('inventory-liquidation') && (
-          <SidebarItem
-            title="Inventory Liquidation"
-            icon={getIconComponent('dollar', "h-5 w-5 text-green-500")}
-            to="/inventory-liquidation"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
+        {renderModuleItem(
+          "Inventory Liquidation",
+          "inventory-liquidation",
+          getIconComponent('dollar', "h-5 w-5 text-green-500")
         )}
         
-        {hasModuleAccess('logistics') && (
-          <SidebarItem
-            title="Logistics Management"
-            icon={getIconComponent('network', "h-5 w-5 text-green-500")}
-            to="/logistics"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
+        {renderModuleItem(
+          "Logistics Management",
+          "logistics",
+          getIconComponent('network', "h-5 w-5 text-green-500")
         )}
       </div>
     </SidebarDropdown>
@@ -130,6 +154,56 @@ export const RiskAnalyticsDropdown: React.FC<{ isCollapsed: boolean }> = ({ isCo
   
   const isActive = location.pathname.includes('/risk-management') || 
                   location.pathname.includes('/analytics');
+  
+  // Helper function to create module items with access indicators
+  const renderModuleItem = (title: string, moduleId: string, icon: React.ReactNode) => {
+    const hasAccess = hasModuleAccess(moduleId);
+    
+    const moduleContent = (
+      <SidebarItem
+        title={title}
+        icon={icon}
+        to={`/${moduleId}`}
+        isCollapsed={isCollapsed}
+        theme={theme}
+      />
+    );
+    
+    if (!hasAccess && !isCollapsed) {
+      return (
+        <div className="relative">
+          {moduleContent}
+          <div className="absolute top-2 right-2 bg-amber-600 text-white px-1.5 py-0.5 rounded-md text-xs flex items-center">
+            <LockKeyhole className="h-2.5 w-2.5 mr-0.5" />
+            <span className="text-[10px]">Restricted</span>
+          </div>
+        </div>
+      );
+    }
+    
+    if (!hasAccess && isCollapsed) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="relative">
+                {moduleContent}
+                <div className="absolute top-1 right-1 h-2 w-2 bg-amber-600 rounded-full"></div>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <div className="flex items-center">
+                <LockKeyhole className="h-3 w-3 mr-1 text-amber-600" />
+                <span className="text-xs">Restricted Access</span>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+    
+    return moduleContent;
+  };
   
   // Only show dropdown if user has access to at least one module
   const hasAnyModuleAccess = 
@@ -147,24 +221,16 @@ export const RiskAnalyticsDropdown: React.FC<{ isCollapsed: boolean }> = ({ isCo
       theme={theme}
     >
       <div className="py-2 space-y-1">
-        {hasModuleAccess('risk-management') && (
-          <SidebarItem
-            title="Risk Management"
-            icon={<FileWarning className="h-5 w-5 text-amber-500" />}
-            to="/risk-management"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
+        {renderModuleItem(
+          "Risk Management", 
+          "risk-management",
+          <FileWarning className="h-5 w-5 text-amber-500" />
         )}
         
-        {hasModuleAccess('analytics') && (
-          <SidebarItem
-            title="Analytics"
-            icon={<PieChart className="h-5 w-5 text-amber-500" />}
-            to="/analytics"
-            isCollapsed={isCollapsed}
-            theme={theme}
-          />
+        {renderModuleItem(
+          "Analytics",
+          "analytics",
+          <PieChart className="h-5 w-5 text-amber-500" />
         )}
       </div>
     </SidebarDropdown>
