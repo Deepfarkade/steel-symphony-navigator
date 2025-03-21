@@ -25,17 +25,18 @@ const ModuleChatPage = () => {
   const { toast } = useToast();
   const { hasModuleAccess } = useAuth();
   
-  // Check if user has access to this module
+  // Check if user has access to this module immediately to prevent flash of content
   useEffect(() => {
     if (module) {
-      // Check access directly here to prevent unnecessary component loading
-      if (!hasModuleAccess(module)) {
+      const normalizedModule = module.toLowerCase();
+      if (!hasModuleAccess(normalizedModule)) {
         toast({
           title: "Access Denied",
           description: `You don't have access to the ${module.replace(/-/g, ' ')} module.`,
           variant: "destructive"
         });
-        navigate('/');
+        // Redirect to home page on access denial
+        navigate('/', { replace: true });
       }
     }
   }, [module, navigate, toast, hasModuleAccess]);
@@ -91,9 +92,9 @@ const ModuleChatPage = () => {
     return <div>Module not found</div>;
   }
 
-  // Early return if no access
+  // Early return if no access - component will unmount due to navigation in useEffect
   if (!hasModuleAccess(module)) {
-    return null; // Component will unmount due to useEffect redirect
+    return null;
   }
 
   return (

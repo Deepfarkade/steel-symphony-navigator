@@ -167,7 +167,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     <div className={`ey-card ${floating ? 'fixed bottom-4 right-4 z-50 shadow-xl w-96' : 'w-full'} 
                 ${isExpanded ? 'h-[80vh] w-[500px]' : 'h-[500px]'}
                 ${isFullscreen ? 'fixed inset-0 w-full h-full rounded-none z-50' : ''}
-                flex flex-col transition-all duration-300 ease-in-out bg-white dark:bg-gray-900 rounded-lg overflow-hidden`}>
+                flex flex-col transition-all duration-300 ease-in-out bg-white dark:bg-gray-900 rounded-lg overflow-hidden isolate`}>
       <ChatHeader 
         agentId={agentId}
         isFullscreen={isFullscreen}

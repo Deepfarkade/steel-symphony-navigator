@@ -44,11 +44,14 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
+    // Normalize moduleContext and check access
+    const normalizedModuleContext = moduleContext?.toLowerCase().replace(/\s+/g, '-');
+    
     // Check module access before navigating
-    if (moduleContext && !hasModuleAccess(moduleContext)) {
+    if (normalizedModuleContext && !hasModuleAccess(normalizedModuleContext)) {
       toast({
         title: "Access Denied",
-        description: `You don't have access to the ${moduleContext.replace(/-/g, ' ')} module.`,
+        description: `You don't have access to the ${normalizedModuleContext.replace(/-/g, ' ')} module.`,
         variant: "destructive"
       });
       return;

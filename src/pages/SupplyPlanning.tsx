@@ -4,9 +4,27 @@ import { Orbit } from 'lucide-react';
 import ModuleLayout from '../components/ModuleLayout';
 import ModuleContent from '../components/ModuleContent';
 import { useModuleInsights } from '../hooks/useModuleInsights';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const SupplyPlanning = () => {
   const { insights, isLoading } = useModuleInsights('supply-planning');
+  const { hasModuleAccess } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  // Check module access and handle navigation
+  useEffect(() => {
+    if (!hasModuleAccess('supply-planning')) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have access to the enterprise supply planning module.",
+        variant: "destructive"
+      });
+      navigate('/');
+    }
+  }, [hasModuleAccess, navigate, toast]);
   
   // Enhanced page scroll control to ensure it starts at the top
   useEffect(() => {
@@ -18,6 +36,11 @@ const SupplyPlanning = () => {
       });
     }, 0);
   }, []);
+  
+  // If user doesn't have access, don't render anything
+  if (!hasModuleAccess('supply-planning')) {
+    return null;
+  }
   
   return (
     <ModuleLayout
