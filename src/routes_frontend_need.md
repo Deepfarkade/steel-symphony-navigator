@@ -222,3 +222,4 @@ All endpoints are prefixed with `/api/v1/` to allow for future API versioning.
 2. WebSocket connections are used for real-time chat features
 3. Streaming responses are supported for AI-generated content
 4. CORS should be properly configured to allow requests from the frontend domain
+
